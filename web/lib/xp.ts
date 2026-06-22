@@ -19,7 +19,7 @@ export const XP_TABLE: Record<DifficultyLevel, number[][]> = {
   ],
 };
 export const XP_BEAT = { mission: 1, play: 3 } as const;
-export const FORM_XP_STEP = 70;
+export const FORM_XP_STEP = 50;
 
 export function blockForStep(stepIndex: number): number {
   return Math.floor((stepIndex - 1) / 4);

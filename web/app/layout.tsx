@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SerwistRegistration } from "@/components/SerwistRegistration";
+import { StoreHydration } from "@/components/StoreHydration";
 import { BackgroundScene } from "@/components/scene/BackgroundScene";
 import "./globals.css";
 
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <BackgroundScene />
         <SerwistRegistration />
-        <main className="relative flex min-h-0 flex-1 flex-col">{children}</main>
+        <StoreHydration>
+          <main className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">{children}</main>
+        </StoreHydration>
       </body>
     </html>
   );

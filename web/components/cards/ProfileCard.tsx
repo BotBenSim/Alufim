@@ -15,7 +15,7 @@ type ProfileCardProps = {
 export function ProfileCard({ profile, selected, onSelect, onEdit }: ProfileCardProps) {
   return (
     <div className="profileHolder relative flex w-full">
-      <Card variant="profile" selected={selected} onClick={onSelect} className="w-full">
+      <Card variant="profile" selected={selected} onClick={onSelect}>
         {isImgAvatar(profile.avatar) ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -46,7 +46,7 @@ export function ProfileCard({ profile, selected, onSelect, onEdit }: ProfileCard
 export function AddProfileCard({ onClick }: { onClick: () => void }) {
   return (
     <div className="profileHolder flex w-full">
-      <Card variant="addProfile" onClick={onClick} className="w-full">
+      <Card variant="addProfile" onClick={onClick}>
         <CardBig>➕</CardBig>
         <span>פרופיל חדש</span>
       </Card>

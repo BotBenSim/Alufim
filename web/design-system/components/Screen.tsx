@@ -7,7 +7,7 @@ const screenVariants = cva(
   {
     variants: {
       scroll: {
-        true: "justify-start overflow-y-auto overscroll-contain pt-6 pb-10 gap-4",
+        true: "justify-start overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] pt-6 pb-10 gap-4",
         false: "justify-center",
       },
       hidden: {

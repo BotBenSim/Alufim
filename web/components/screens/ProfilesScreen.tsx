@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   AddProfileCard,
   ProfileCard,
 } from "@/components/cards/ProfileCard";
 import { CharacterCard } from "@/components/cards/CharacterCard";
+import { CharacterPreviewOverlay } from "@/components/cards/CharacterPreviewOverlay";
 import { GameCard } from "@/components/cards/GameCard";
 import { Brand, BrandTitle, KidButton, Screen } from "@/design-system";
 import { CHARACTERS } from "@/data/characters";
@@ -16,6 +17,8 @@ import { useSpeech } from "@/hooks/useSpeech";
 
 export function ProfilesScreen() {
   const app = useStore((s) => s.app);
+  const homeCharSection = useStore((s) => s.homeCharSection);
+  const homeGameSection = useStore((s) => s.homeGameSection);
   const selectedGameId = useStore((s) => s.selectedGameId);
   const selectProfile = useStore((s) => s.selectProfile);
   const selectCharacter = useStore((s) => s.selectCharacter);
@@ -26,6 +29,7 @@ export function ProfilesScreen() {
 
   const { ensure } = useAudio();
   const { speak } = useSpeech();
+  const [previewCharacterId, setPreviewCharacterId] = useState<string | null>(null);
 
   const profile = useMemo(
     () => app.profiles.find((p) => p.id === app.lastProfileId) ?? null,
@@ -37,9 +41,6 @@ export function ProfilesScreen() {
     [profile]
   );
 
-  const showCharacters = !!profile;
-  const showGames = !!profile?.activeCharacterId;
-
   const handleSelectProfile = (id: string, name: string) => {
     ensure();
     selectProfile(id);
@@ -50,6 +51,7 @@ export function ProfilesScreen() {
     ensure();
     selectCharacter(id);
     speak(he);
+    setPreviewCharacterId(id);
   };
 
   const handleSelectGame = (id: string) => {
@@ -59,7 +61,7 @@ export function ProfilesScreen() {
   };
 
   return (
-    <Screen id="scrProfiles" className="gap-10 pb-8">
+    <Screen id="scrProfiles" scroll className="gap-10 pb-8">
       <button
         type="button"
         id="aboutBtn"
@@ -88,7 +90,7 @@ export function ProfilesScreen() {
         </div>
       </section>
 
-      {showCharacters && profile && (
+      {homeCharSection && profile && (
         <section id="charSection" className="show flex w-full flex-col items-center gap-10">
           <h2 className="text-center text-[clamp(24px,5vw,36px)] font-extrabold text-heading">
             בחרו חיה
@@ -115,7 +117,7 @@ export function ProfilesScreen() {
         </section>
       )}
 
-      {showGames && profile && (
+      {homeGameSection && profile && (
         <section id="gameSection" className="show flex w-full flex-col items-center gap-10">
           <h2 className="text-center text-[clamp(24px,5vw,36px)] font-extrabold text-heading">
             בחרו משחק
@@ -146,6 +148,10 @@ export function ProfilesScreen() {
           </KidButton>
         </section>
       )}
+      <CharacterPreviewOverlay
+        characterId={previewCharacterId}
+        onClose={() => setPreviewCharacterId(null)}
+      />
     </Screen>
   );
 }

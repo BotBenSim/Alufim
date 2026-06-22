@@ -8,9 +8,8 @@ import {
   defaultGames,
   migrateProfile,
   newProfile,
-  parseStoredState,
-  STATE_KEY,
 } from "@/lib/migrate";
+import { STATE_KEY, alufimStorage } from "@/state/storage";
 import { nextMission, currentFormArt } from "@/lib/missions";
 import { getProvider } from "@/lib/providers";
 import { pickNoRepeat, rnd } from "@/lib/random";
@@ -27,7 +26,7 @@ import type {
 } from "@/lib/types";
 import { xpForCorrect, formForXp, XP_BEAT } from "@/lib/xp";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 let pendingEvolveNext: (() => void) | null = null;
 
@@ -65,6 +64,9 @@ type CollectionOverlay = {
 
 type UiState = {
   screen: ScreenId;
+  /** Home picker flow — not persisted; mirrors vanilla #charSection / #gameSection .show */
+  homeCharSection: boolean;
+  homeGameSection: boolean;
   editingProfileId: string | null;
   editorDraft: {
     avatar: string;
@@ -129,8 +131,7 @@ function buildContext(run: RunState) {
 }
 
 function initialApp(): AppState {
-  if (typeof window === "undefined") return createDefaultState(PHOTOS);
-  return parseStoredState(localStorage.getItem(STATE_KEY), PHOTOS);
+  return createDefaultState(PHOTOS);
 }
 
 export const useStore = create<Store>()(
@@ -138,6 +139,8 @@ export const useStore = create<Store>()(
     (set, get) => ({
       app: initialApp(),
       screen: "profiles",
+      homeCharSection: false,
+      homeGameSection: false,
       editingProfileId: null,
       editorDraft: null,
       selectedGameId: null,
@@ -168,19 +171,28 @@ export const useStore = create<Store>()(
       setScreen: (screen) => set({ screen }),
 
       selectProfile: (id) => {
-        const app = { ...get().app, lastProfileId: id };
-        set({ app, selectedGameId: null });
+        set((state) => ({
+          app: { ...state.app, lastProfileId: id },
+          selectedGameId: null,
+          homeCharSection: true,
+          homeGameSection: false,
+        }));
       },
 
       selectCharacter: (id) => {
-        const app = get().app;
-        const profiles = app.profiles.map((p) => {
-          if (p.id !== app.lastProfileId) return p;
-          const characters = { ...p.characters };
-          if (!characters[id]) characters[id] = { form: 0, totalXp: 0 };
-          return { ...p, activeCharacterId: id, characters };
-        });
-        set({ app: { ...app, profiles }, selectedGameId: null });
+        set((state) => ({
+          app: {
+            ...state.app,
+            profiles: state.app.profiles.map((p) => {
+              if (p.id !== state.app.lastProfileId) return p;
+              const characters = { ...p.characters };
+              if (!characters[id]) characters[id] = { form: 0, totalXp: 0 };
+              return { ...p, activeCharacterId: id, characters };
+            }),
+          },
+          selectedGameId: null,
+          homeGameSection: true,
+        }));
       },
 
       selectGame: (id) => set({ selectedGameId: id }),
@@ -208,8 +220,16 @@ export const useStore = create<Store>()(
           pendingEvolve: null,
         };
 
+        const provider = getProvider(selectedGameId);
+        const q = provider.generate(buildContext(run));
+        const readyRun: RunState = {
+          ...run,
+          current: q,
+          currentKey: provider.key(q),
+        };
+
         set({
-          run,
+          run: readyRun,
           screen: "game",
           feedback: "",
           disabledAnswers: [],
@@ -217,10 +237,12 @@ export const useStore = create<Store>()(
           playOverlay: null,
           evolveOverlay: null,
         });
-        get().makeQuestion(false);
       },
 
       goHome: () => {
+        const p = findProfile(get().app, get().app.lastProfileId);
+        const keepAnimal =
+          !!p?.activeCharacterId && !!p.characters[p.activeCharacterId];
         set({
           screen: "profiles",
           run: null,
@@ -229,6 +251,8 @@ export const useStore = create<Store>()(
           showMission: false,
           playOverlay: null,
           evolveOverlay: null,
+          homeCharSection: true,
+          homeGameSection: keepAnimal,
         });
       },
 
@@ -601,16 +625,22 @@ export const useStore = create<Store>()(
     }),
     {
       name: STATE_KEY,
+      storage: createJSONStorage(() => alufimStorage),
       partialize: (state) => ({ app: state.app }),
+      skipHydration: true,
       merge: (persisted, current) => {
-        const p = persisted as Partial<Store> | undefined;
-        const app =
-          p?.app ??
-          (typeof window !== "undefined"
-            ? parseStoredState(localStorage.getItem(STATE_KEY), PHOTOS)
-            : createDefaultState(PHOTOS));
-        app.profiles = app.profiles.map(migrateProfile);
-        return { ...current, app };
+        const p = persisted as { app?: AppState } | undefined;
+        if (!p?.app) return current;
+        const app = { ...p.app, profiles: p.app.profiles.map(migrateProfile) };
+        const hasProfile = !!(
+          app.lastProfileId && findProfile(app, app.lastProfileId)
+        );
+        return {
+          ...current,
+          app,
+          homeCharSection: hasProfile,
+          homeGameSection: false,
+        };
       },
     }
   )

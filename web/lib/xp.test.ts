@@ -25,13 +25,13 @@ describe("formForXp", () => {
     expect(formForXp(0, 4)).toBe(0);
   });
 
-  it("advances at cumulative thresholds (70, 210, 420)", () => {
-    expect(formForXp(69, 4)).toBe(0);
-    expect(formForXp(70, 4)).toBe(1);
-    expect(formForXp(209, 4)).toBe(1);
-    expect(formForXp(210, 4)).toBe(2);
-    expect(formForXp(419, 4)).toBe(2);
-    expect(formForXp(420, 4)).toBe(3);
+  it("advances at cumulative thresholds (50, 150, 300)", () => {
+    expect(formForXp(49, 4)).toBe(0);
+    expect(formForXp(50, 4)).toBe(1);
+    expect(formForXp(149, 4)).toBe(1);
+    expect(formForXp(150, 4)).toBe(2);
+    expect(formForXp(299, 4)).toBe(2);
+    expect(formForXp(300, 4)).toBe(3);
   });
 
   it("caps at last form index", () => {

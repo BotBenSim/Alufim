@@ -65,16 +65,41 @@ export function createDefaultState(photos: Record<string, string>): AppState {
 }
 
 export function parseStoredState(raw: string | null, photos: Record<string, string>): AppState {
-  let st: AppState | null = null;
-  try {
-    if (raw) st = JSON.parse(raw) as AppState;
-  } catch {
-    st = null;
+  const st = readAppState(raw);
+  if (!st) {
+    const empty: AppState = { version: 2, profiles: [], lastProfileId: null };
+    return seedPresetProfiles(empty, photos);
   }
-  if (!st?.profiles) st = { version: 2, profiles: [], lastProfileId: null };
   st.profiles = st.profiles.map(migrateProfile);
   if (!st.profiles.length) seedPresetProfiles(st, photos);
   return st;
+}
+
+/** Read AppState from localStorage — supports vanilla flat JSON and zustand-wrapped blobs */
+export function readAppState(raw: string | null): AppState | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (Array.isArray(parsed.profiles)) {
+      return parsed as unknown as AppState;
+    }
+    const wrapped = parsed.state as { app?: AppState } | undefined;
+    if (wrapped?.app && Array.isArray(wrapped.app.profiles)) {
+      return wrapped.app;
+    }
+    if (parsed.app && Array.isArray((parsed.app as AppState).profiles)) {
+      return parsed.app as AppState;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+/** Write vanilla AppState JSON (same shape as index.html saveState) */
+export function writeAppState(app: AppState): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(STATE_KEY, JSON.stringify(app));
 }
 
 export function isImgAvatar(a: string): boolean {

@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 import { CharacterArt } from "@/components/art/CharacterArt";
 import { AvatarFace } from "@/components/cards/ProfileCard";
 import { EvolvePreview } from "@/components/game/EvolvePreview";
-import { QuestionView } from "@/components/game/QuestionView";
-import { Badge, KidButton, XpBar } from "@/design-system";
+import { GamePlayPanel } from "@/components/game/GamePlayPanel";
+import { Badge, KidButton } from "@/design-system";
 import { characterById } from "@/data/characters";
 import { currentFormArt } from "@/lib/missions";
 import { speakQuestion } from "@/lib/speakPrompt";
@@ -34,7 +34,8 @@ export function GameScreen() {
   const { ensure, playCorrect, playWrong, playFanfare, playXpGain } = useAudio();
   const { speak, speakEn, cancel } = useSpeech();
   const { burst } = useConfetti();
-  const introSpoken = useRef(false);
+  const lastSpokenKey = useRef<string | null>(null);
+  const introPendingKey = useRef<string | null>(null);
   const prevStep = useRef<number | null>(null);
 
   const profile = app.profiles.find((p) => p.id === app.lastProfileId) ?? null;
@@ -55,19 +56,60 @@ export function GameScreen() {
   }, [collectionOverlay, speak]);
 
   useEffect(() => {
-    if (!run || introSpoken.current) return;
-    introSpoken.current = true;
+    if (!run?.current || !run.currentKey) return;
+    if (showMission || playOverlay || evolveOverlay) return;
+    if (run.phase !== "learn") return;
+    if (lastSpokenKey.current === run.currentKey) return;
+    if (introPendingKey.current === run.currentKey) return;
+
     ensure();
-    speak("יוצאים לדרך!");
-    const introQ = run.current;
-    const t = window.setTimeout(() => {
-      const r = useStore.getState().run;
-      if (r?.current === introQ && !r.locked && introQ) {
-        speakQuestion(introQ, speak, speakEn);
-      }
-    }, 1300);
-    return () => window.clearTimeout(t);
-  }, [run, ensure, speak, speakEn]);
+
+    const isIntro = run.step === 1 && lastSpokenKey.current === null;
+    if (isIntro) {
+      introPendingKey.current = run.currentKey;
+      speak("יוצאים לדרך!");
+      const key = run.currentKey;
+      const t = window.setTimeout(() => {
+        const st = useStore.getState();
+        const r = st.run;
+        if (
+          r?.currentKey === key &&
+          r.current &&
+          !r.locked &&
+          !st.showMission &&
+          !st.playOverlay &&
+          !st.evolveOverlay
+        ) {
+          speakQuestion(r.current, speak, speakEn);
+          lastSpokenKey.current = key;
+        }
+        introPendingKey.current = null;
+      }, 1300);
+      return () => window.clearTimeout(t);
+    }
+
+    speakQuestion(run.current, speak, speakEn);
+    lastSpokenKey.current = run.currentKey;
+  }, [
+    run?.current,
+    run?.currentKey,
+    run?.step,
+    run?.phase,
+    run?.locked,
+    showMission,
+    playOverlay,
+    evolveOverlay,
+    ensure,
+    speak,
+    speakEn,
+  ]);
+
+  useEffect(() => {
+    if (!run) {
+      lastSpokenKey.current = null;
+      introPendingKey.current = null;
+    }
+  }, [run]);
 
   useEffect(() => {
     if (xpGainFlash) playXpGain(xpGainFlash);
@@ -146,7 +188,8 @@ export function GameScreen() {
 
   const handleHome = () => {
     cancel();
-    introSpoken.current = false;
+    lastSpokenKey.current = null;
+    introPendingKey.current = null;
     goHome();
   };
 
@@ -193,30 +236,16 @@ export function GameScreen() {
 
       <div id="playWrap" className="relative z-[2] flex min-h-0 flex-1 flex-col">
         <div id="gameArea" className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3.5 px-2.5 pb-3.5 pt-1.5">
-          <div
-            id="runHeader"
-            className="flex w-[min(94vw,520px)] items-center gap-3 rounded-[22px] bg-white/90 px-3.5 py-2 shadow-[0_6px_16px_rgba(29,78,122,.16)]"
-          >
-            <CharacterArt art={formArt} size={56} className="shrink-0" />
-            <div className="min-w-0 flex-1">
-              <div className="runName truncate text-[clamp(15px,3vw,20px)] font-extrabold text-heading">
-                {run.character.he}
-              </div>
-              <XpBar pct={xp.pct} label={xp.label} gainFlash={xpGainFlash} />
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2">
-            <KidButton variant="speak" id="speakBtn" onClick={handleSpeak} aria-label="השמע">
-              🔊
-            </KidButton>
-            <QuestionView
-              run={run}
-              disabledAnswers={disabledAnswers}
-              wobbleAnswer={wobbleAnswer}
-              onAnswer={handleAnswer}
-            />
-          </div>
+          <GamePlayPanel
+            run={run}
+            formArt={formArt}
+            xp={xp}
+            xpGainFlash={xpGainFlash}
+            disabledAnswers={disabledAnswers}
+            wobbleAnswer={wobbleAnswer}
+            onAnswer={handleAnswer}
+            onSpeak={handleSpeak}
+          />
 
           <div id="feedback" className="min-h-[34px] text-center text-[clamp(19px,3.6vw,28px)] font-bold text-heading">
             {feedback}

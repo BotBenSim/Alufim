@@ -10,7 +10,7 @@ export type XpBarProps = HTMLAttributes<HTMLDivElement> & {
 
 export function XpBar({ className, pct, label, gainFlash, ...props }: XpBarProps) {
   return (
-    <div className={cn("runInfo relative min-w-0 flex-1", className)} {...props}>
+    <div className={cn("relative w-full", className)} {...props}>
       <div
         className={cn(
           "xpBar relative h-6 overflow-hidden rounded-[14px] bg-[#E2ECF5] shadow-[inset_0_2px_5px_rgba(0,0,0,.12)]",

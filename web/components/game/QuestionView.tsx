@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { CharacterArt } from "@/components/art/CharacterArt";
 import { KidButton } from "@/design-system";
 import { HEB_NUM } from "@/data/hebrew";
 import { findCatLabel } from "@/data/find";
@@ -52,6 +51,7 @@ type QuestionViewProps = {
   disabledAnswers: string[];
   wobbleAnswer: string | null;
   onAnswer: (value: string) => void;
+  onSpeak: () => void;
 };
 
 export function QuestionView({
@@ -59,6 +59,7 @@ export function QuestionView({
   disabledAnswers,
   wobbleAnswer,
   onAnswer,
+  onSpeak,
 }: QuestionViewProps) {
   const q = run.current;
   const em = run.character.counts;
@@ -186,7 +187,20 @@ export function QuestionView({
   if (!q || !choiceProps) return null;
 
   return (
-    <div id="questionCard" className="flex max-w-[96%] flex-col items-center gap-2 rounded-[26px] bg-white/90 px-4 py-3.5 shadow-[0_8px_22px_rgba(29,78,122,.18)]">
+    <div
+      id="questionCard"
+      className="relative flex w-full flex-col items-center gap-2 rounded-[26px] bg-white/90 px-4 py-3.5 pr-14 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
+    >
+      <KidButton
+        variant="speak"
+        id="speakBtn"
+        className="absolute right-3 top-3 z-[1]"
+        onClick={onSpeak}
+        aria-label="השמע שוב"
+      >
+        🔊
+      </KidButton>
+
       {choiceProps.kind === "math" && (
         <>
           <div id="shapesRow" className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]">

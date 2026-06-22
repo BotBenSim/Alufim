@@ -43,6 +43,10 @@
     overflow: hidden;
   }
 
+  html {
+    height: 100%;
+  }
+
   body {
     @apply bg-gradient-to-b from-sky via-sky-mid to-sky-light text-foreground;
     font-family: -apple-system, "Arial Hebrew", "Helvetica Neue", Arial, sans-serif;
@@ -65,14 +69,28 @@
   }
 }
 
-/* Background scene clouds */
+/* Background scene — decorative, always LTR regardless of page direction */
+#bgScene {
+  direction: ltr;
+}
+
+@keyframes skyDrift {
+  from { transform: translateX(-34vw); }
+  to { transform: translateX(120vw); }
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
 .skyCloud {
   position: absolute;
+  left: 0;
   background: #fff;
   border-radius: 50px;
   opacity: 0.95;
   box-shadow: 0 8px 16px rgba(60, 90, 120, 0.1);
-  animation: skyDrift linear infinite;
 }
 .skyCloud::before,
 .skyCloud::after {
@@ -81,28 +99,28 @@
   background: #fff;
   border-radius: 50%;
 }
-.sc1 { top: 14%; width: 100px; height: 30px; }
+.sc1 { top: 14%; width: 100px; height: 30px; animation: skyDrift 46s linear infinite; }
 .sc1::before { width: 48px; height: 48px; top: -22px; left: 16px; }
 .sc1::after { width: 34px; height: 34px; top: -16px; left: 54px; }
-.sc2 { top: 30%; width: 70px; height: 22px; opacity: 0.85; }
+.sc2 { top: 30%; width: 70px; height: 22px; opacity: 0.85; animation: skyDrift 64s linear infinite; animation-delay: -26s; }
 .sc2::before { width: 32px; height: 32px; top: -15px; left: 10px; }
 .sc2::after { width: 24px; height: 24px; top: -11px; left: 36px; }
-.sc3 { top: 8%; width: 56px; height: 18px; opacity: 0.8; }
+.sc3 { top: 8%; width: 56px; height: 18px; opacity: 0.8; animation: skyDrift 54s linear infinite; animation-delay: -40s; }
 .sc3::before { width: 26px; height: 26px; top: -12px; left: 9px; }
 .sc3::after { width: 19px; height: 19px; top: -9px; left: 30px; }
-.sc4 { top: 22%; width: 84px; height: 26px; opacity: 0.9; }
+.sc4 { top: 22%; width: 84px; height: 26px; opacity: 0.9; animation: skyDrift 58s linear infinite; animation-delay: -15s; }
 .sc4::before { width: 40px; height: 40px; top: -19px; left: 13px; }
 .sc4::after { width: 28px; height: 28px; top: -13px; left: 46px; }
-.sc5 { top: 42%; width: 60px; height: 19px; opacity: 0.7; }
+.sc5 { top: 42%; width: 60px; height: 19px; opacity: 0.7; animation: skyDrift 72s linear infinite; animation-delay: -50s; }
 .sc5::before { width: 28px; height: 28px; top: -13px; left: 9px; }
 .sc5::after { width: 20px; height: 20px; top: -9px; left: 32px; }
-.sc6 { top: 5%; width: 78px; height: 24px; opacity: 0.85; }
+.sc6 { top: 5%; width: 78px; height: 24px; opacity: 0.85; animation: skyDrift 50s linear infinite; animation-delay: -33s; }
 .sc6::before { width: 36px; height: 36px; top: -17px; left: 12px; }
 .sc6::after { width: 26px; height: 26px; top: -12px; left: 42px; }
-.sc7 { top: 18%; width: 92px; height: 28px; opacity: 0.8; }
+.sc7 { top: 18%; width: 92px; height: 28px; opacity: 0.8; animation: skyDrift 68s linear infinite; animation-delay: -8s; }
 .sc7::before { width: 44px; height: 44px; top: -20px; left: 15px; }
 .sc7::after { width: 30px; height: 30px; top: -14px; left: 50px; }
-.sc8 { top: 37%; width: 66px; height: 20px; opacity: 0.72; }
+.sc8 { top: 37%; width: 66px; height: 20px; opacity: 0.72; animation: skyDrift 60s linear infinite; animation-delay: -45s; }
 .sc8::before { width: 30px; height: 30px; top: -14px; left: 10px; }
 .sc8::after { width: 22px; height: 22px; top: -10px; left: 34px; }
 
@@ -126,6 +144,11 @@
   border-radius: 6px;
   z-index: -1;
 }
+/* Trees sit on the grass hill — positioned from .ground container (vanilla) */
+.ground .tree.t1 { left: 5%; bottom: 58%; transform: scale(1.35); }
+.ground .tree.t2 { left: 23%; bottom: 54%; transform: scale(0.95); }
+.ground .tree.t3 { right: 8%; bottom: 58%; transform: scale(1.5); }
+.ground .tree.t4 { right: 29%; bottom: 52%; transform: scale(0.85); }
 
 .group span.x::after {
   content: "";
@@ -185,11 +208,12 @@
 .xpText.tick { animation: xpTextPop 0.45s ease-out; }
 
 .cf {
-  position: absolute;
+  position: fixed;
   top: -20px;
   width: 12px;
   height: 12px;
-  z-index: 9;
+  z-index: 50;
+  pointer-events: none;
   border-radius: 3px;
   animation: confettiFall linear forwards;
 }
@@ -212,10 +236,14 @@
 }
 
 @media (max-height: 520px) {
-  #questionCard { padding: 8px 12px; }
+  #questionCard { padding: 8px 12px; padding-inline-end: 52px; }
   #gameArea { gap: 8px; }
+  #gamePanel { gap: 8px; }
   #runHeader { padding: 5px 10px; }
 }
+
+#questionCard { position: relative; }
+#speakBtn { position: absolute; top: 12px; right: 12px; z-index: 1; }
 
 /* ---------- profile editor form ---------- */
 .formCard {
