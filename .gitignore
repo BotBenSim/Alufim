@@ -9,3 +9,8 @@ alufim.standalone.html
 
 # OS / editor cruft
 .DS_Store
+
+# Next.js app (dependencies and build output)
+web/node_modules/
+web/.next/
+web/out/
