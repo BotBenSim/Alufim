@@ -255,6 +255,7 @@
     justify-content:center; gap:6px; pointer-events:none; }
   #catchDone.show { display:flex; animation: pop .4s; }
   #catchDone .caughtCreature { font-size:clamp(90px,22vw,170px); line-height:1;
+    width:1.1em; height:1.1em; margin:0 auto; display:flex; align-items:center; justify-content:center;
     filter: drop-shadow(0 8px 14px rgba(0,0,0,.25)); animation: caughtBounce 1.4s ease-in-out infinite; }
   #catchDone .caughtCheck { font-size:clamp(40px,9vw,64px); margin-top:-10px; }
   #catchDone .caughtText { font-size:clamp(24px,6vw,42px); font-weight:800; color:#1D4E7A;
@@ -1924,9 +1925,10 @@ function startPlay(){
       awardXp(XP_BEAT.play);                        // growth checkpoint: the pet eats & grows
       $("catchTitle").textContent = ""; $("catchHint").textContent = "";
       var done = $("catchDone");
-      done.innerHTML = "<div class='caughtCreature'>" + artText(currentFormArt()) + "</div>" +
+      done.innerHTML = "<div class='caughtCreature'></div>" +
                        "<div class='caughtCheck'>✨</div>" +
                        "<div class='caughtText'>ה" + c.he + " אכל והתחזק!</div>";
+      renderCharacterArt(currentFormArt(), done.querySelector(".caughtCreature"));   // real form image, not emoji
       done.classList.add("show");
       speak("ה" + c.he + " אכל והתחזק!");
       setTimeout(function(){
