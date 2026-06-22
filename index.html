@@ -271,15 +271,15 @@
     text-shadow:0 2px 8px rgba(0,0,0,.35); min-height:1.2em; }
   /* lifecycle filmstrip: each form lights up, then shades as the next lights (left -> right) */
   #evolveStrip { display:none; direction:ltr; align-items:center; justify-content:center;
-    gap:clamp(3px,1.4vw,12px); flex-wrap:nowrap; width:100%; }
-  .evoCell { flex:0 1 auto; width:clamp(46px,12vw,120px); height:clamp(46px,12vw,120px);
+    gap:clamp(2px,1vw,12px); flex-wrap:nowrap; width:100%; }
+  .evoCell { flex:0 1 auto; width:clamp(72px,21vw,240px); height:clamp(72px,21vw,240px);
     opacity:.28; transform:scale(.8); filter:grayscale(.75) brightness(.7);
     transition:opacity .22s ease, transform .22s ease, filter .22s ease; }
-  .evoCell.trans { width:clamp(38px,9.5vw,96px); height:clamp(38px,9.5vw,96px); }
+  .evoCell.trans { width:clamp(60px,17vw,200px); height:clamp(60px,17vw,200px); }
   .evoCell img { width:100%; height:100%; object-fit:contain; }
   .evoCell.done { opacity:.5; transform:scale(.9); filter:grayscale(.45) brightness(.85); }
-  .evoCell.lit { opacity:1; transform:scale(1.14);
-    filter:drop-shadow(0 0 18px #FFE9A8) brightness(1.18); }
+  .evoCell.lit { opacity:1; transform:scale(1.22);
+    filter:drop-shadow(0 0 22px #FFE9A8) brightness(1.18); }
 
   /* ---------- collection ---------- */
   #collectionPanel { max-width:92%; }
