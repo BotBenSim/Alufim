@@ -270,12 +270,13 @@
   #evolveHint { font-size:clamp(18px,5vw,30px); font-weight:800; color:#fff; direction:rtl;
     text-shadow:0 2px 8px rgba(0,0,0,.35); min-height:1.2em; }
   /* lifecycle filmstrip: each form lights up, then shades as the next lights (left -> right) */
-  #evolveStrip { display:none; direction:ltr; align-items:center; justify-content:center;
-    gap:clamp(2px,1vw,12px); flex-wrap:nowrap; width:100%; }
-  .evoCell { flex:0 1 auto; width:clamp(72px,21vw,240px); height:clamp(72px,21vw,240px);
+  #evolveStrip { display:none; direction:ltr; align-items:center; justify-content:flex-start;
+    gap:clamp(10px,4vw,28px); flex-wrap:nowrap; width:100%; overflow-x:hidden; scroll-behavior:smooth;
+    padding:0 32vw; }
+  .evoCell { flex:0 0 auto; width:clamp(150px,62vw,360px); height:clamp(150px,62vw,360px);
     opacity:.28; transform:scale(.8); filter:grayscale(.75) brightness(.7);
     transition:opacity .22s ease, transform .22s ease, filter .22s ease; }
-  .evoCell.trans { width:clamp(60px,17vw,200px); height:clamp(60px,17vw,200px); }
+  .evoCell.trans { width:clamp(120px,50vw,300px); height:clamp(120px,50vw,300px); }
   .evoCell img { width:100%; height:100%; object-fit:contain; }
   .evoCell.done { opacity:.5; transform:scale(.9); filter:grayscale(.45) brightness(.85); }
   .evoCell.lit { opacity:1; transform:scale(1.22);
@@ -1077,7 +1078,7 @@ var XP_TABLE = {
   hard:   [[1, 2, 5], [1, 2, 6], [1, 2, 7]]
 };
 var XP_BEAT = { mission:1, play:3 };   // flat, guaranteed XP for rhythm beats
-var FORM_XP_STEP = 100;                 // TODO: testing value (was 100) — restore before release. Progressive: thresholds are 1*STEP, 3*STEP, 6*STEP, ...
+var FORM_XP_STEP = 70;                 // Progressive: thresholds are 1*STEP, 3*STEP, 6*STEP, ...
 function blockForStep(stepIndex){ return Math.floor((stepIndex - 1) / 4); } // questions: steps 1-4 -> block 0
 function xpTier(level, stepIndex){
   var rows = (XP_TABLE[level] || XP_TABLE.easy).length;
@@ -1113,7 +1114,7 @@ var GAME_DIFFICULTY = {
     hard:   [ {minSum:8,  maxSum:40}, {minSum:40, maxSum:80}, {minSum:80,  maxSum:120} ]    // easy × 4
   },
   sub: {
-    easy:   [ {minTop:2,  maxMin:10}, {minTop:10, maxMin:20}, {minTop:20, maxMin:30}  ],
+    easy:   [ {minTop:2,  maxMin:8}, {minTop:8, maxMin:16}, {minTop:16, maxMin:22}  ],
     medium: [ {minTop:4,  maxMin:20}, {minTop:20, maxMin:40}, {minTop:40, maxMin:60}  ],   // easy × 2
     hard:   [ {minTop:8,  maxMin:40}, {minTop:40, maxMin:80}, {minTop:80, maxMin:120} ]    // easy × 4
   },
@@ -1591,11 +1592,16 @@ function playFilmstrip(c, uptoIdx, step, token, done){
       img.addEventListener("error", onReady);
     }
   }
+  function centerCell(cell){
+    var cr = cell.getBoundingClientRect(), sr = strip.getBoundingClientRect();
+    strip.scrollLeft += (cr.left + cr.width / 2) - (sr.left + sr.width / 2);
+  }
   function lightUp(i){
     if (token !== animSeq) return;     // a newer animation took over -> stop quietly
     if (i > uptoIdx){ if (done) done(); return; }
     if (i > 0){ cells[i - 1].classList.remove("lit"); cells[i - 1].classList.add("done"); }
     cells[i].classList.add("lit");
+    centerCell(cells[i]);              // pan filmstrip so the active form sits center-screen
     sXpGain(Math.min(7, 3 + i)); confetti(10);
     setTimeout(function(){ lightUp(i + 1); }, step);
   }
