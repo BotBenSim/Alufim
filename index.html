@@ -138,6 +138,13 @@
   .ans.findnum { background:linear-gradient(160deg,#FFB454,#F76707); box-shadow:0 7px 0 #C2410C, 0 12px 20px rgba(0,0,0,.18);
     font-size:clamp(40px,9vw,68px); }
   .ans.findnum:active { box-shadow:0 2px 0 #C2410C; }
+  /* quantity-compare: a rectangular tile holding a group of emojis to count */
+  .ans.findgroup { width:auto; height:auto; border-radius:24px; padding:12px 14px;
+    min-width:clamp(78px,17vw,120px); min-height:clamp(74px,16vw,110px); max-width:clamp(120px,30vw,210px);
+    font-size:clamp(20px,4.6vw,32px); line-height:1.1; display:flex; align-items:center; justify-content:center;
+    flex-wrap:wrap; gap:2px; background:linear-gradient(160deg,#63D2A6,#22A06B);
+    box-shadow:0 7px 0 #157A4F, 0 12px 20px rgba(0,0,0,.18); }
+  .ans.findgroup:active { box-shadow:0 2px 0 #157A4F; }
 
   /* confidence mission */
   #missionActor { display:none; }
@@ -149,12 +156,13 @@
 
   /* ---------- top bar ---------- */
   #topbar { display:none; z-index:3; padding:10px 14px; align-items:center; gap:10px;
-    direction:rtl; justify-content:flex-start; }   /* all badges grouped at the top-right, RTL order */
+    direction:rtl; justify-content:flex-start; position:relative; }   /* home+player at top-right (RTL), step centered */
   #topbar.show { display:flex; }
   .badge { background:rgba(255,255,255,.85); border-radius:18px; padding:8px 14px;
     font-size:18px; font-weight:700; color:#1D4E7A; box-shadow:0 3px 8px rgba(0,0,0,.12);
     display:flex; align-items:center; gap:8px; }
-  #stepBadge { background:#FFF1C9; color:#9A6A00; }
+  #stepBadge { background:#FFF1C9; color:#9A6A00;
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
   #restartBtn { border:none; background:#FF6B6B; color:#fff; font-family:inherit; font-size:17px;
     font-weight:700; border-radius:18px; padding:9px 14px; cursor:pointer;
     box-shadow:0 4px 0 #C94A4A; }
@@ -366,7 +374,7 @@
     40%  { filter:brightness(1.35); }
     100% { filter:brightness(1); } }
   .xpText { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    font-size:13px; font-weight:800; color:#1D4E7A; direction:rtl; transition:transform .2s; }
+    font-size:13px; font-weight:800; color:#1D4E7A; direction:ltr; transition:transform .2s; }
   .xpText.tick { animation: xpTextPop .45s ease-out; }
   @keyframes xpTextPop {
     0%   { transform:scale(1); }
@@ -487,11 +495,9 @@
 <body>
   <!-- top bar -->
   <div id="topbar">
-    <div class="badge" id="profileBadge"></div>
-    <div class="badge" id="charBadge"></div>
-    <button class="topbtn" id="swapGameBtn">🔁 משחק</button>
-    <div class="badge" id="stepBadge"></div>
     <button class="topbtn" id="homeBtn">🏠</button>
+    <div class="badge" id="profileBadge"></div>
+    <div class="badge" id="stepBadge"></div>
   </div>
 
   <!-- shared decorative scene behind every screen: sun, rainbow, clouds, grass, trees -->
@@ -543,8 +549,6 @@
       <input id="profileName" class="finput" type="text" maxlength="12" placeholder="שם הילד/ה">
       <label class="flabel">תמונה</label>
       <div class="avatarGrid" id="avatarGrid"></div>
-      <label class="flabel">קצב (לפי גיל)</label>
-      <div class="seg" id="rhythmSeg"></div>
       <label class="flabel">משחקים ורמת קושי</label>
       <div id="gameRows"></div>
       <div id="advSection" style="display:none">
@@ -557,14 +561,6 @@
       <button class="pbtn blue" id="profileCancel">ביטול</button>
       <button class="pbtn red" id="profileDelete" style="display:none">מחק</button>
     </div>
-  </div>
-
-  <!-- game select (cards rendered dynamically from GAMES) -->
-  <div class="screen" id="scrGame">
-    <h1 id="gameHello"></h1>
-    <h1 style="font-size:clamp(22px,4vw,34px)">במה נשחק היום?</h1>
-    <div class="cards" id="gameCards"></div>
-    <button class="textbtn" id="gameBack">⬅️ חיות</button>
   </div>
 
   <!-- play -->
@@ -1115,9 +1111,20 @@ var GAME_DIFFICULTY = {
     hard:   [ {minTop:8,  maxMin:40}, {minTop:40, maxMin:80}, {minTop:80, maxMin:120} ]    // easy × 4
   },
   find: {
-    easy:   [ {maxNum:3},  {maxNum:15} ],
-    medium: [ {maxNum:5},  {maxNum:25} ],
-    hard:   [ {maxNum:10}, {maxNum:50} ]
+    // `kinds` = which question types may appear in this block; `confuse` = use
+    // visually-similar letters as distractors; qLo/qHi/qClose tune quantity-compare.
+    easy: [
+      { maxNum:5,  kinds:["bignum","letter","reason","more"],               confuse:false, qLo:1, qHi:4, qClose:false },
+      { maxNum:15, kinds:["bignum","letter","reason","more","phon","num"],  confuse:false, qLo:2, qHi:6, qClose:false }
+    ],
+    medium: [
+      { maxNum:10, kinds:["bignum","letter","reason","more","phon"],        confuse:false, qLo:2, qHi:6, qClose:false },
+      { maxNum:25, kinds:["bignum","letter","reason","more","phon","num"],  confuse:true,  qLo:3, qHi:8, qClose:true }
+    ],
+    hard: [
+      { maxNum:20, kinds:["bignum","letter","reason","more","phon"],   confuse:true,  qLo:3, qHi:8, qClose:true },
+      { maxNum:50, kinds:["bignum","letter","reason","more","phon"],   confuse:true,  qLo:4, qHi:9, qClose:true }
+    ]
   },
   eng: {
     easy:   [ {maxLen:8} ],
@@ -1133,12 +1140,15 @@ function diffParams(gameId, level, stepIndex){
 }
 
 /* ---- Rhythm: declarative presets -> buildBeat() -> BEAT_HANDLERS ---- */
+// Rhythm presets (config table — extend freely). `round` = steps before a natural
+// celebration; `feedTaps` = bites in the feed mini-game; `beats` = which break fires when.
+// There is intentionally NO in-app selector: pick the active cadence via ACTIVE_RHYTHM.
 var RHYTHM_PRESETS = {
-  // `round` = steps before a natural celebration/break (sessions stay open-ended)
-  toddler: { round:8,  beats:[ {every:2, type:"mission"}, {every:4, type:"play"} ] },
-  kid:     { round:12, beats:[ {every:2, type:"mission"}, {every:4, type:"play"} ] }
+  every2: { round:8,  feedTaps:2, beats:[ {every:2, type:"play"} ] },
+  every3: { round:9,  feedTaps:3, beats:[ {every:3, type:"play"} ] },
+  every4: { round:12, feedTaps:3, beats:[ {every:4, type:"play"} ] }
 };
-var RHYTHM_LABELS = { toddler:"3 שנים (רך)", kid:"4+ (רגיל)" };
+var ACTIVE_RHYTHM = "every3";   // single source of truth for cadence — change here to retune
 // Which beat (if any) fires AFTER completing learning step `stepIndex`.
 // Conflict rule: when two intervals coincide, the LARGER interval wins.
 function buildBeat(preset, stepIndex){
@@ -1148,11 +1158,7 @@ function buildBeat(preset, stepIndex){
   });
   return chosen;
 }
-function resolveRhythm(gameId){
-  var perGame = profile && profile.games[gameId] && profile.games[gameId].rhythm;
-  var name = perGame || (profile && profile.rhythm) || "kid";
-  return RHYTHM_PRESETS[name] || RHYTHM_PRESETS.kid;
-}
+function resolveRhythm(){ return RHYTHM_PRESETS[ACTIVE_RHYTHM] || RHYTHM_PRESETS.every3; }
 
 /* ============ curated question banks (M1.4) ============ */
 var QUESTION_BANKS = {"add":{"beach":{"easy":[{"a":1,"b":1,"answer":2},{"a":2,"b":1,"answer":3},{"a":2,"b":2,"answer":4},{"a":3,"b":1,"answer":4},{"a":3,"b":2,"answer":5},{"a":4,"b":1,"answer":5}],"medium":[{"a":1,"b":1,"answer":2},{"a":2,"b":1,"answer":3},{"a":2,"b":2,"answer":4},{"a":3,"b":1,"answer":4}],"hard":[{"a":1,"b":1,"answer":2},{"a":2,"b":1,"answer":3},{"a":2,"b":2,"answer":4},{"a":3,"b":1,"answer":4}]},"jungle":{"easy":[{"a":4,"b":2,"answer":6},{"a":5,"b":1,"answer":6},{"a":5,"b":2,"answer":7},{"a":6,"b":1,"answer":7},{"a":6,"b":2,"answer":8},{"a":7,"b":1,"answer":8},{"a":7,"b":2,"answer":9},{"a":8,"b":1,"answer":9},{"a":8,"b":2,"answer":10},{"a":9,"b":1,"answer":10}],"medium":[{"a":3,"b":3,"answer":6},{"a":4,"b":3,"answer":7},{"a":4,"b":4,"answer":8},{"a":5,"b":3,"answer":8},{"a":6,"b":3,"answer":9},{"a":5,"b":5,"answer":10},{"a":7,"b":3,"answer":10}],"hard":[{"a":5,"b":4,"answer":9},{"a":6,"b":4,"answer":10},{"a":3,"b":3,"answer":6},{"a":4,"b":3,"answer":7}]},"snow":{"easy":[{"a":8,"b":2,"answer":10},{"a":9,"b":1,"answer":10},{"a":10,"b":1,"answer":11},{"a":11,"b":1,"answer":12},{"a":12,"b":1,"answer":13},{"a":13,"b":1,"answer":14}],"medium":[{"a":5,"b":5,"answer":10},{"a":7,"b":3,"answer":10},{"a":9,"b":2,"answer":11},{"a":6,"b":6,"answer":12},{"a":10,"b":2,"answer":12},{"a":10,"b":3,"answer":13},{"a":11,"b":2,"answer":13},{"a":7,"b":7,"answer":14},{"a":11,"b":3,"answer":14},{"a":12,"b":2,"answer":14}],"hard":[{"a":6,"b":4,"answer":10},{"a":6,"b":5,"answer":11},{"a":7,"b":4,"answer":11},{"a":8,"b":3,"answer":11},{"a":7,"b":5,"answer":12},{"a":8,"b":4,"answer":12},{"a":9,"b":3,"answer":12},{"a":7,"b":6,"answer":13},{"a":8,"b":5,"answer":13},{"a":9,"b":4,"answer":13},{"a":8,"b":6,"answer":14},{"a":9,"b":5,"answer":14},{"a":10,"b":4,"answer":14}]},"sky":{"easy":[{"a":13,"b":1,"answer":14},{"a":14,"b":1,"answer":15},{"a":15,"b":1,"answer":16},{"a":16,"b":1,"answer":17}],"medium":[{"a":7,"b":7,"answer":14},{"a":11,"b":3,"answer":14},{"a":12,"b":2,"answer":14},{"a":12,"b":3,"answer":15},{"a":13,"b":2,"answer":15},{"a":8,"b":8,"answer":16},{"a":13,"b":3,"answer":16},{"a":14,"b":2,"answer":16},{"a":14,"b":3,"answer":17},{"a":15,"b":2,"answer":17}],"hard":[{"a":8,"b":6,"answer":14},{"a":9,"b":5,"answer":14},{"a":10,"b":4,"answer":14},{"a":8,"b":7,"answer":15},{"a":9,"b":6,"answer":15},{"a":10,"b":5,"answer":15},{"a":11,"b":4,"answer":15},{"a":9,"b":7,"answer":16},{"a":10,"b":6,"answer":16},{"a":11,"b":5,"answer":16},{"a":12,"b":4,"answer":16},{"a":9,"b":8,"answer":17},{"a":10,"b":7,"answer":17},{"a":11,"b":6,"answer":17},{"a":12,"b":5,"answer":17},{"a":13,"b":4,"answer":17}]},"space":{"easy":[{"a":16,"b":1,"answer":17},{"a":17,"b":1,"answer":18},{"a":18,"b":1,"answer":19},{"a":19,"b":1,"answer":20}],"medium":[{"a":14,"b":3,"answer":17},{"a":15,"b":2,"answer":17},{"a":9,"b":9,"answer":18},{"a":15,"b":3,"answer":18},{"a":16,"b":2,"answer":18},{"a":16,"b":3,"answer":19},{"a":17,"b":2,"answer":19},{"a":10,"b":10,"answer":20},{"a":17,"b":3,"answer":20},{"a":18,"b":2,"answer":20}],"hard":[{"a":9,"b":8,"answer":17},{"a":10,"b":7,"answer":17},{"a":11,"b":6,"answer":17},{"a":12,"b":5,"answer":17},{"a":13,"b":4,"answer":17},{"a":10,"b":8,"answer":18},{"a":11,"b":7,"answer":18},{"a":12,"b":6,"answer":18},{"a":13,"b":5,"answer":18},{"a":14,"b":4,"answer":18},{"a":10,"b":9,"answer":19},{"a":11,"b":8,"answer":19},{"a":12,"b":7,"answer":19},{"a":13,"b":6,"answer":19},{"a":14,"b":5,"answer":19},{"a":15,"b":4,"answer":19},{"a":11,"b":9,"answer":20},{"a":12,"b":8,"answer":20},{"a":13,"b":7,"answer":20},{"a":14,"b":6,"answer":20},{"a":15,"b":5,"answer":20},{"a":16,"b":4,"answer":20}]},"volcano":{"easy":[{"a":19,"b":1,"answer":20},{"a":20,"b":1,"answer":21},{"a":21,"b":1,"answer":22},{"a":22,"b":1,"answer":23},{"a":23,"b":1,"answer":24},{"a":24,"b":1,"answer":25},{"a":25,"b":1,"answer":26},{"a":26,"b":1,"answer":27},{"a":27,"b":1,"answer":28},{"a":28,"b":1,"answer":29},{"a":29,"b":1,"answer":30}],"medium":[{"a":10,"b":10,"answer":20},{"a":17,"b":3,"answer":20},{"a":18,"b":2,"answer":20},{"a":19,"b":2,"answer":21},{"a":11,"b":11,"answer":22},{"a":20,"b":2,"answer":22},{"a":20,"b":3,"answer":23},{"a":21,"b":2,"answer":23},{"a":12,"b":12,"answer":24},{"a":21,"b":3,"answer":24},{"a":22,"b":2,"answer":24},{"a":22,"b":3,"answer":25},{"a":23,"b":2,"answer":25},{"a":13,"b":13,"answer":26},{"a":23,"b":3,"answer":26},{"a":24,"b":2,"answer":26},{"a":24,"b":3,"answer":27},{"a":25,"b":2,"answer":27},{"a":14,"b":14,"answer":28},{"a":25,"b":3,"answer":28},{"a":26,"b":2,"answer":28},{"a":26,"b":3,"answer":29},{"a":27,"b":2,"answer":29},{"a":15,"b":15,"answer":30},{"a":27,"b":3,"answer":30},{"a":28,"b":2,"answer":30}],"hard":[{"a":11,"b":9,"answer":20},{"a":12,"b":8,"answer":20},{"a":13,"b":7,"answer":20},{"a":14,"b":6,"answer":20},{"a":15,"b":5,"answer":20},{"a":16,"b":4,"answer":20},{"a":11,"b":10,"answer":21},{"a":12,"b":9,"answer":21},{"a":13,"b":8,"answer":21},{"a":14,"b":7,"answer":21},{"a":15,"b":6,"answer":21},{"a":16,"b":5,"answer":21},{"a":17,"b":4,"answer":21},{"a":18,"b":3,"answer":21},{"a":12,"b":10,"answer":22},{"a":13,"b":9,"answer":22},{"a":14,"b":8,"answer":22},{"a":15,"b":7,"answer":22},{"a":16,"b":6,"answer":22},{"a":17,"b":5,"answer":22},{"a":18,"b":4,"answer":22},{"a":19,"b":3,"answer":22},{"a":12,"b":11,"answer":23},{"a":13,"b":10,"answer":23},{"a":14,"b":9,"answer":23},{"a":15,"b":8,"answer":23},{"a":16,"b":7,"answer":23},{"a":17,"b":6,"answer":23},{"a":18,"b":5,"answer":23},{"a":19,"b":4,"answer":23},{"a":13,"b":11,"answer":24},{"a":14,"b":10,"answer":24},{"a":15,"b":9,"answer":24},{"a":16,"b":8,"answer":24},{"a":17,"b":7,"answer":24},{"a":18,"b":6,"answer":24},{"a":19,"b":5,"answer":24},{"a":20,"b":4,"answer":24},{"a":13,"b":12,"answer":25},{"a":14,"b":11,"answer":25},{"a":15,"b":10,"answer":25},{"a":16,"b":9,"answer":25},{"a":17,"b":8,"answer":25},{"a":18,"b":7,"answer":25},{"a":19,"b":6,"answer":25},{"a":20,"b":5,"answer":25},{"a":21,"b":4,"answer":25},{"a":14,"b":12,"answer":26},{"a":15,"b":11,"answer":26},{"a":16,"b":10,"answer":26},{"a":17,"b":9,"answer":26},{"a":18,"b":8,"answer":26},{"a":19,"b":7,"answer":26},{"a":20,"b":6,"answer":26},{"a":21,"b":5,"answer":26},{"a":22,"b":4,"answer":26},{"a":14,"b":13,"answer":27},{"a":15,"b":12,"answer":27},{"a":16,"b":11,"answer":27},{"a":17,"b":10,"answer":27},{"a":18,"b":9,"answer":27},{"a":19,"b":8,"answer":27},{"a":20,"b":7,"answer":27},{"a":21,"b":6,"answer":27},{"a":22,"b":5,"answer":27},{"a":23,"b":4,"answer":27},{"a":15,"b":13,"answer":28},{"a":16,"b":12,"answer":28},{"a":17,"b":11,"answer":28},{"a":18,"b":10,"answer":28},{"a":19,"b":9,"answer":28},{"a":20,"b":8,"answer":28},{"a":21,"b":7,"answer":28},{"a":22,"b":6,"answer":28},{"a":23,"b":5,"answer":28},{"a":24,"b":4,"answer":28},{"a":15,"b":14,"answer":29},{"a":16,"b":13,"answer":29},{"a":17,"b":12,"answer":29},{"a":18,"b":11,"answer":29},{"a":19,"b":10,"answer":29},{"a":20,"b":9,"answer":29},{"a":21,"b":8,"answer":29},{"a":22,"b":7,"answer":29},{"a":23,"b":6,"answer":29},{"a":24,"b":5,"answer":29},{"a":25,"b":4,"answer":29},{"a":16,"b":14,"answer":30},{"a":17,"b":13,"answer":30},{"a":18,"b":12,"answer":30},{"a":19,"b":11,"answer":30},{"a":20,"b":10,"answer":30},{"a":21,"b":9,"answer":30},{"a":22,"b":8,"answer":30},{"a":23,"b":7,"answer":30},{"a":24,"b":6,"answer":30},{"a":25,"b":5,"answer":30},{"a":26,"b":4,"answer":30}]}},"sub":{"beach":{"easy":[{"a":2,"b":1,"answer":1},{"a":3,"b":1,"answer":2},{"a":3,"b":2,"answer":1},{"a":4,"b":1,"answer":3},{"a":4,"b":2,"answer":2},{"a":5,"b":1,"answer":4},{"a":5,"b":2,"answer":3}],"medium":[{"a":4,"b":3,"answer":1},{"a":5,"b":3,"answer":2},{"a":5,"b":4,"answer":1},{"a":2,"b":1,"answer":1}],"hard":[{"a":4,"b":3,"answer":1},{"a":5,"b":3,"answer":2},{"a":5,"b":4,"answer":1},{"a":2,"b":1,"answer":1}]},"jungle":{"easy":[{"a":6,"b":1,"answer":5},{"a":6,"b":2,"answer":4},{"a":7,"b":1,"answer":6},{"a":7,"b":2,"answer":5},{"a":8,"b":1,"answer":7},{"a":8,"b":2,"answer":6},{"a":9,"b":1,"answer":8},{"a":9,"b":2,"answer":7},{"a":10,"b":1,"answer":9},{"a":10,"b":2,"answer":8}],"medium":[{"a":6,"b":3,"answer":3},{"a":6,"b":4,"answer":2},{"a":6,"b":5,"answer":1},{"a":7,"b":3,"answer":4},{"a":7,"b":4,"answer":3},{"a":7,"b":5,"answer":2},{"a":7,"b":6,"answer":1},{"a":8,"b":3,"answer":5},{"a":8,"b":4,"answer":4},{"a":8,"b":5,"answer":3},{"a":8,"b":6,"answer":2},{"a":8,"b":7,"answer":1},{"a":9,"b":3,"answer":6},{"a":9,"b":4,"answer":5},{"a":9,"b":5,"answer":4},{"a":9,"b":6,"answer":3},{"a":9,"b":7,"answer":2},{"a":9,"b":8,"answer":1}],"hard":[{"a":10,"b":3,"answer":7},{"a":10,"b":4,"answer":6},{"a":10,"b":5,"answer":5},{"a":10,"b":6,"answer":4},{"a":10,"b":7,"answer":3},{"a":10,"b":8,"answer":2},{"a":10,"b":9,"answer":1}]},"snow":{"easy":[{"a":10,"b":1,"answer":9},{"a":10,"b":2,"answer":8},{"a":11,"b":1,"answer":10},{"a":12,"b":1,"answer":11},{"a":13,"b":1,"answer":12},{"a":14,"b":1,"answer":13}],"medium":[{"a":12,"b":2,"answer":10},{"a":13,"b":2,"answer":11},{"a":13,"b":3,"answer":10},{"a":14,"b":2,"answer":12},{"a":14,"b":3,"answer":11},{"a":14,"b":4,"answer":10}],"hard":[{"a":10,"b":3,"answer":7},{"a":10,"b":4,"answer":6},{"a":10,"b":5,"answer":5},{"a":10,"b":6,"answer":4},{"a":10,"b":7,"answer":3},{"a":10,"b":8,"answer":2},{"a":10,"b":9,"answer":1},{"a":11,"b":2,"answer":9},{"a":11,"b":3,"answer":8},{"a":11,"b":4,"answer":7},{"a":11,"b":5,"answer":6},{"a":11,"b":6,"answer":5},{"a":11,"b":7,"answer":4},{"a":11,"b":8,"answer":3},{"a":11,"b":9,"answer":2},{"a":11,"b":10,"answer":1},{"a":12,"b":3,"answer":9},{"a":12,"b":4,"answer":8},{"a":12,"b":5,"answer":7},{"a":12,"b":6,"answer":6},{"a":12,"b":7,"answer":5},{"a":12,"b":8,"answer":4},{"a":12,"b":9,"answer":3},{"a":12,"b":10,"answer":2},{"a":12,"b":11,"answer":1},{"a":13,"b":4,"answer":9},{"a":13,"b":5,"answer":8},{"a":13,"b":6,"answer":7},{"a":13,"b":7,"answer":6},{"a":13,"b":8,"answer":5},{"a":13,"b":9,"answer":4},{"a":13,"b":10,"answer":3},{"a":13,"b":11,"answer":2},{"a":13,"b":12,"answer":1},{"a":14,"b":5,"answer":9},{"a":14,"b":6,"answer":8},{"a":14,"b":7,"answer":7},{"a":14,"b":8,"answer":6},{"a":14,"b":9,"answer":5},{"a":14,"b":10,"answer":4},{"a":14,"b":11,"answer":3},{"a":14,"b":12,"answer":2},{"a":14,"b":13,"answer":1}]},"sky":{"easy":[{"a":14,"b":1,"answer":13},{"a":15,"b":1,"answer":14},{"a":16,"b":1,"answer":15},{"a":17,"b":1,"answer":16}],"medium":[{"a":14,"b":2,"answer":12},{"a":14,"b":3,"answer":11},{"a":14,"b":4,"answer":10},{"a":15,"b":2,"answer":13},{"a":15,"b":3,"answer":12},{"a":15,"b":4,"answer":11},{"a":16,"b":2,"answer":14},{"a":16,"b":3,"answer":13},{"a":16,"b":4,"answer":12},{"a":17,"b":2,"answer":15},{"a":17,"b":3,"answer":14},{"a":17,"b":4,"answer":13}],"hard":[{"a":14,"b":5,"answer":9},{"a":14,"b":6,"answer":8},{"a":14,"b":7,"answer":7},{"a":14,"b":8,"answer":6},{"a":14,"b":9,"answer":5},{"a":14,"b":10,"answer":4},{"a":14,"b":11,"answer":3},{"a":14,"b":12,"answer":2},{"a":14,"b":13,"answer":1},{"a":15,"b":5,"answer":10},{"a":15,"b":6,"answer":9},{"a":15,"b":7,"answer":8},{"a":15,"b":8,"answer":7},{"a":15,"b":9,"answer":6},{"a":15,"b":10,"answer":5},{"a":15,"b":11,"answer":4},{"a":15,"b":12,"answer":3},{"a":15,"b":13,"answer":2},{"a":15,"b":14,"answer":1},{"a":16,"b":5,"answer":11},{"a":16,"b":6,"answer":10},{"a":16,"b":7,"answer":9},{"a":16,"b":8,"answer":8},{"a":16,"b":9,"answer":7},{"a":16,"b":10,"answer":6},{"a":16,"b":11,"answer":5},{"a":16,"b":12,"answer":4},{"a":16,"b":13,"answer":3},{"a":16,"b":14,"answer":2},{"a":16,"b":15,"answer":1},{"a":17,"b":5,"answer":12},{"a":17,"b":6,"answer":11},{"a":17,"b":7,"answer":10},{"a":17,"b":8,"answer":9},{"a":17,"b":9,"answer":8},{"a":17,"b":10,"answer":7},{"a":17,"b":11,"answer":6},{"a":17,"b":12,"answer":5},{"a":17,"b":13,"answer":4},{"a":17,"b":14,"answer":3},{"a":17,"b":15,"answer":2},{"a":17,"b":16,"answer":1}]},"space":{"easy":[{"a":17,"b":1,"answer":16},{"a":18,"b":1,"answer":17},{"a":19,"b":1,"answer":18},{"a":20,"b":1,"answer":19}],"medium":[{"a":17,"b":2,"answer":15},{"a":17,"b":3,"answer":14},{"a":17,"b":4,"answer":13},{"a":18,"b":2,"answer":16},{"a":18,"b":3,"answer":15},{"a":18,"b":4,"answer":14},{"a":19,"b":2,"answer":17},{"a":19,"b":3,"answer":16},{"a":19,"b":4,"answer":15}],"hard":[{"a":17,"b":5,"answer":12},{"a":17,"b":6,"answer":11},{"a":17,"b":7,"answer":10},{"a":17,"b":8,"answer":9},{"a":17,"b":9,"answer":8},{"a":17,"b":10,"answer":7},{"a":17,"b":11,"answer":6},{"a":17,"b":12,"answer":5},{"a":17,"b":13,"answer":4},{"a":17,"b":14,"answer":3},{"a":17,"b":15,"answer":2},{"a":17,"b":16,"answer":1},{"a":18,"b":5,"answer":13},{"a":18,"b":6,"answer":12},{"a":18,"b":7,"answer":11},{"a":18,"b":8,"answer":10},{"a":18,"b":9,"answer":9},{"a":18,"b":10,"answer":8},{"a":18,"b":11,"answer":7},{"a":18,"b":12,"answer":6},{"a":18,"b":13,"answer":5},{"a":18,"b":14,"answer":4},{"a":18,"b":15,"answer":3},{"a":18,"b":16,"answer":2},{"a":18,"b":17,"answer":1},{"a":19,"b":5,"answer":14},{"a":19,"b":6,"answer":13},{"a":19,"b":7,"answer":12},{"a":19,"b":8,"answer":11},{"a":19,"b":9,"answer":10},{"a":19,"b":10,"answer":9},{"a":19,"b":11,"answer":8},{"a":19,"b":12,"answer":7},{"a":19,"b":13,"answer":6},{"a":19,"b":14,"answer":5},{"a":19,"b":15,"answer":4},{"a":19,"b":16,"answer":3},{"a":19,"b":17,"answer":2},{"a":19,"b":18,"answer":1},{"a":20,"b":2,"answer":18},{"a":20,"b":3,"answer":17},{"a":20,"b":4,"answer":16},{"a":20,"b":5,"answer":15},{"a":20,"b":6,"answer":14},{"a":20,"b":7,"answer":13},{"a":20,"b":8,"answer":12},{"a":20,"b":9,"answer":11},{"a":20,"b":10,"answer":10},{"a":20,"b":11,"answer":9},{"a":20,"b":12,"answer":8},{"a":20,"b":13,"answer":7},{"a":20,"b":14,"answer":6},{"a":20,"b":15,"answer":5},{"a":20,"b":16,"answer":4},{"a":20,"b":17,"answer":3},{"a":20,"b":18,"answer":2},{"a":20,"b":19,"answer":1}]},"volcano":{"easy":[{"a":20,"b":1,"answer":19},{"a":21,"b":1,"answer":20},{"a":22,"b":1,"answer":21},{"a":23,"b":1,"answer":22},{"a":24,"b":1,"answer":23},{"a":25,"b":1,"answer":24},{"a":26,"b":1,"answer":25},{"a":27,"b":1,"answer":26},{"a":28,"b":1,"answer":27},{"a":29,"b":1,"answer":28},{"a":30,"b":1,"answer":29}],"medium":[{"a":22,"b":2,"answer":20},{"a":23,"b":2,"answer":21},{"a":23,"b":3,"answer":20},{"a":24,"b":2,"answer":22},{"a":24,"b":3,"answer":21},{"a":24,"b":4,"answer":20},{"a":25,"b":2,"answer":23},{"a":25,"b":3,"answer":22},{"a":25,"b":4,"answer":21},{"a":26,"b":2,"answer":24},{"a":26,"b":3,"answer":23},{"a":26,"b":4,"answer":22},{"a":27,"b":2,"answer":25},{"a":27,"b":3,"answer":24},{"a":27,"b":4,"answer":23},{"a":28,"b":2,"answer":26},{"a":28,"b":3,"answer":25},{"a":28,"b":4,"answer":24},{"a":29,"b":2,"answer":27},{"a":29,"b":3,"answer":26},{"a":29,"b":4,"answer":25}],"hard":[{"a":20,"b":2,"answer":18},{"a":20,"b":3,"answer":17},{"a":20,"b":4,"answer":16},{"a":20,"b":5,"answer":15},{"a":20,"b":6,"answer":14},{"a":20,"b":7,"answer":13},{"a":20,"b":8,"answer":12},{"a":20,"b":9,"answer":11},{"a":20,"b":10,"answer":10},{"a":20,"b":11,"answer":9},{"a":20,"b":12,"answer":8},{"a":20,"b":13,"answer":7},{"a":20,"b":14,"answer":6},{"a":20,"b":15,"answer":5},{"a":20,"b":16,"answer":4},{"a":20,"b":17,"answer":3},{"a":20,"b":18,"answer":2},{"a":20,"b":19,"answer":1},{"a":21,"b":2,"answer":19},{"a":21,"b":3,"answer":18},{"a":21,"b":4,"answer":17},{"a":21,"b":5,"answer":16},{"a":21,"b":6,"answer":15},{"a":21,"b":7,"answer":14},{"a":21,"b":8,"answer":13},{"a":21,"b":9,"answer":12},{"a":21,"b":10,"answer":11},{"a":21,"b":11,"answer":10},{"a":21,"b":12,"answer":9},{"a":21,"b":13,"answer":8},{"a":21,"b":14,"answer":7},{"a":21,"b":15,"answer":6},{"a":21,"b":16,"answer":5},{"a":21,"b":17,"answer":4},{"a":21,"b":18,"answer":3},{"a":21,"b":19,"answer":2},{"a":21,"b":20,"answer":1},{"a":22,"b":3,"answer":19},{"a":22,"b":4,"answer":18},{"a":22,"b":5,"answer":17},{"a":22,"b":6,"answer":16},{"a":22,"b":7,"answer":15},{"a":22,"b":8,"answer":14},{"a":22,"b":9,"answer":13},{"a":22,"b":10,"answer":12},{"a":22,"b":11,"answer":11},{"a":22,"b":12,"answer":10},{"a":22,"b":13,"answer":9},{"a":22,"b":14,"answer":8},{"a":22,"b":15,"answer":7},{"a":22,"b":16,"answer":6},{"a":22,"b":17,"answer":5},{"a":22,"b":18,"answer":4},{"a":22,"b":19,"answer":3},{"a":22,"b":20,"answer":2},{"a":22,"b":21,"answer":1},{"a":23,"b":4,"answer":19},{"a":23,"b":5,"answer":18},{"a":23,"b":6,"answer":17},{"a":23,"b":7,"answer":16},{"a":23,"b":8,"answer":15},{"a":23,"b":9,"answer":14},{"a":23,"b":10,"answer":13},{"a":23,"b":11,"answer":12},{"a":23,"b":12,"answer":11},{"a":23,"b":13,"answer":10},{"a":23,"b":14,"answer":9},{"a":23,"b":15,"answer":8},{"a":23,"b":16,"answer":7},{"a":23,"b":17,"answer":6},{"a":23,"b":18,"answer":5},{"a":23,"b":19,"answer":4},{"a":23,"b":20,"answer":3},{"a":23,"b":21,"answer":2},{"a":23,"b":22,"answer":1},{"a":24,"b":5,"answer":19},{"a":24,"b":6,"answer":18},{"a":24,"b":7,"answer":17},{"a":24,"b":8,"answer":16},{"a":24,"b":9,"answer":15},{"a":24,"b":10,"answer":14},{"a":24,"b":11,"answer":13},{"a":24,"b":12,"answer":12},{"a":24,"b":13,"answer":11},{"a":24,"b":14,"answer":10},{"a":24,"b":15,"answer":9},{"a":24,"b":16,"answer":8},{"a":24,"b":17,"answer":7},{"a":24,"b":18,"answer":6},{"a":24,"b":19,"answer":5},{"a":24,"b":20,"answer":4},{"a":24,"b":21,"answer":3},{"a":24,"b":22,"answer":2},{"a":24,"b":23,"answer":1},{"a":25,"b":5,"answer":20},{"a":25,"b":6,"answer":19},{"a":25,"b":7,"answer":18},{"a":25,"b":8,"answer":17},{"a":25,"b":9,"answer":16},{"a":25,"b":10,"answer":15},{"a":25,"b":11,"answer":14},{"a":25,"b":12,"answer":13},{"a":25,"b":13,"answer":12},{"a":25,"b":14,"answer":11},{"a":25,"b":15,"answer":10},{"a":25,"b":16,"answer":9},{"a":25,"b":17,"answer":8},{"a":25,"b":18,"answer":7},{"a":25,"b":19,"answer":6},{"a":25,"b":20,"answer":5},{"a":25,"b":21,"answer":4},{"a":25,"b":22,"answer":3},{"a":25,"b":23,"answer":2},{"a":25,"b":24,"answer":1},{"a":26,"b":5,"answer":21},{"a":26,"b":6,"answer":20},{"a":26,"b":7,"answer":19},{"a":26,"b":8,"answer":18},{"a":26,"b":9,"answer":17},{"a":26,"b":10,"answer":16},{"a":26,"b":11,"answer":15},{"a":26,"b":12,"answer":14},{"a":26,"b":13,"answer":13},{"a":26,"b":14,"answer":12},{"a":26,"b":15,"answer":11},{"a":26,"b":16,"answer":10},{"a":26,"b":17,"answer":9},{"a":26,"b":18,"answer":8},{"a":26,"b":19,"answer":7},{"a":26,"b":20,"answer":6},{"a":26,"b":21,"answer":5},{"a":26,"b":22,"answer":4},{"a":26,"b":23,"answer":3},{"a":26,"b":24,"answer":2},{"a":26,"b":25,"answer":1},{"a":27,"b":5,"answer":22},{"a":27,"b":6,"answer":21},{"a":27,"b":7,"answer":20},{"a":27,"b":8,"answer":19},{"a":27,"b":9,"answer":18},{"a":27,"b":10,"answer":17},{"a":27,"b":11,"answer":16},{"a":27,"b":12,"answer":15},{"a":27,"b":13,"answer":14},{"a":27,"b":14,"answer":13},{"a":27,"b":15,"answer":12},{"a":27,"b":16,"answer":11},{"a":27,"b":17,"answer":10},{"a":27,"b":18,"answer":9},{"a":27,"b":19,"answer":8},{"a":27,"b":20,"answer":7},{"a":27,"b":21,"answer":6},{"a":27,"b":22,"answer":5},{"a":27,"b":23,"answer":4},{"a":27,"b":24,"answer":3},{"a":27,"b":25,"answer":2},{"a":27,"b":26,"answer":1},{"a":28,"b":5,"answer":23},{"a":28,"b":6,"answer":22},{"a":28,"b":7,"answer":21},{"a":28,"b":8,"answer":20},{"a":28,"b":9,"answer":19},{"a":28,"b":10,"answer":18},{"a":28,"b":11,"answer":17},{"a":28,"b":12,"answer":16},{"a":28,"b":13,"answer":15},{"a":28,"b":14,"answer":14},{"a":28,"b":15,"answer":13},{"a":28,"b":16,"answer":12},{"a":28,"b":17,"answer":11},{"a":28,"b":18,"answer":10},{"a":28,"b":19,"answer":9},{"a":28,"b":20,"answer":8},{"a":28,"b":21,"answer":7},{"a":28,"b":22,"answer":6},{"a":28,"b":23,"answer":5},{"a":28,"b":24,"answer":4},{"a":28,"b":25,"answer":3},{"a":28,"b":26,"answer":2},{"a":28,"b":27,"answer":1},{"a":29,"b":5,"answer":24},{"a":29,"b":6,"answer":23},{"a":29,"b":7,"answer":22},{"a":29,"b":8,"answer":21},{"a":29,"b":9,"answer":20},{"a":29,"b":10,"answer":19},{"a":29,"b":11,"answer":18},{"a":29,"b":12,"answer":17},{"a":29,"b":13,"answer":16},{"a":29,"b":14,"answer":15},{"a":29,"b":15,"answer":14},{"a":29,"b":16,"answer":13},{"a":29,"b":17,"answer":12},{"a":29,"b":18,"answer":11},{"a":29,"b":19,"answer":10},{"a":29,"b":20,"answer":9},{"a":29,"b":21,"answer":8},{"a":29,"b":22,"answer":7},{"a":29,"b":23,"answer":6},{"a":29,"b":24,"answer":5},{"a":29,"b":25,"answer":4},{"a":29,"b":26,"answer":3},{"a":29,"b":27,"answer":2},{"a":29,"b":28,"answer":1},{"a":30,"b":2,"answer":28},{"a":30,"b":3,"answer":27},{"a":30,"b":4,"answer":26},{"a":30,"b":5,"answer":25},{"a":30,"b":6,"answer":24},{"a":30,"b":7,"answer":23},{"a":30,"b":8,"answer":22},{"a":30,"b":9,"answer":21},{"a":30,"b":10,"answer":20},{"a":30,"b":11,"answer":19},{"a":30,"b":12,"answer":18},{"a":30,"b":13,"answer":17},{"a":30,"b":14,"answer":16},{"a":30,"b":15,"answer":15},{"a":30,"b":16,"answer":14},{"a":30,"b":17,"answer":13},{"a":30,"b":18,"answer":12},{"a":30,"b":19,"answer":11},{"a":30,"b":20,"answer":10},{"a":30,"b":21,"answer":9},{"a":30,"b":22,"answer":8},{"a":30,"b":23,"answer":7},{"a":30,"b":24,"answer":6},{"a":30,"b":25,"answer":5},{"a":30,"b":26,"answer":4},{"a":30,"b":27,"answer":3},{"a":30,"b":28,"answer":2},{"a":30,"b":29,"answer":1}]}}};
@@ -1213,6 +1219,131 @@ var FIND_CATS = ["colors","shapes","animals"];
 function findCatLabel(cat, he){
   if (cat === "colors") return "מצא את הצבע ה" + he + "!";
   return "מצא את ה" + he + "!";
+}
+
+/* ---- letters: glyph + spoken name. Confusable clusters drive the HARD distractors,
+   so the child has to truly discriminate (ב/כ, ד/ר, ה/ח/ת...) instead of pattern-matching. ---- */
+var FIND_LETTERS = [
+  {l:"א",name:"אָלֶף"},{l:"ב",name:"בֵּית"},{l:"ג",name:"גִימֶל"},{l:"ד",name:"דָלֶת"},
+  {l:"ה",name:"הֵא"},{l:"ו",name:"וָו"},{l:"ז",name:"זַיִן"},{l:"ח",name:"חֵית"},
+  {l:"ט",name:"טֵית"},{l:"י",name:"יוֹד"},{l:"כ",name:"כַּף"},{l:"ל",name:"לָמֶד"},
+  {l:"מ",name:"מֵם"},{l:"נ",name:"נוּן"},{l:"ס",name:"סָמֶך"},{l:"ע",name:"עַיִן"},
+  {l:"פ",name:"פֵּא"},{l:"צ",name:"צָדִי"},{l:"ק",name:"קוֹף"},{l:"ר",name:"רֵיש"},
+  {l:"ש",name:"שִין"},{l:"ת",name:"תָו"}
+];
+var LETTER_CONFUSE = [
+  ["ב","כ","נ","מ"], ["ג","נ"], ["ד","ר"], ["ה","ח","ת"],
+  ["ו","ז","ר","ן"], ["ע","צ"], ["ט","מ"], ["ס","ם"], ["פ","ף"]
+];
+var LETTER_NAME = {}; FIND_LETTERS.forEach(function(x){ LETTER_NAME[x.l] = x.name; });
+function letterByGlyph(g){ for (var i=0;i<FIND_LETTERS.length;i++){ if (FIND_LETTERS[i].l === g) return FIND_LETTERS[i]; } return null; }
+
+/* ---- reasoning / categorization: 1 "yes" + 2 "no" forces thinking about a property,
+   not recalling a label (who flies? what lives in the sea? find the fruit...). ---- */
+var FIND_REASON = [
+  {q:"מי יכול לעוף?",  yes:["🐦","🦋","🐝","🦅","🦜","🦉"],          no:["🐟","🐶","🐢","🐌","🐱","🦁","🐮","🐠"]},
+  {q:"מי חי בים?",     yes:["🐟","🐠","🐙","🦀","🐬","🐋","🦈","🐳"], no:["🐶","🐦","🦁","🐘","🐱","🐴","🐝","🦒"]},
+  {q:"מצאו את הפרי",   yes:["🍎","🍌","🍓","🍇","🍊","🍉","🍐","🍑"], no:["🥕","🚗","🐶","⚽","🪑","🌳","🥦","✏️"]},
+  {q:"מצאו את הירק",   yes:["🥕","🥦","🌽","🍅","🥒","🧅","🥔"],       no:["🍎","🍌","🚗","🐶","⚽","🍩","🐱","🌸"]},
+  {q:"מה נוסע בכביש?", yes:["🚗","🚌","🚚","🏍️","🚕","🚜"],          no:["✈️","🚢","🚁","🐶","🍎","🌳","🐦","⛵"]},
+  {q:"מצאו את החיה",   yes:["🐶","🐱","🦁","🐘","🐵","🐴","🐰","🐻"], no:["🍎","🚗","⚽","🪑","👟","🌳","✏️","🎈"]},
+  {q:"מה אפשר לאכול?", yes:["🍎","🍌","🍕","🍞","🧀","🍪","🥕","🍓"], no:["🚗","🪑","👟","⚽","✏️","📱","🧸","🔑"]},
+  {q:"מה צומח בגינה?", yes:["🌳","🌷","🌻","🌵","🍄","🌹","🌼"],       no:["🚗","🐶","📱","⚽","🪑","✈️","👟","🍕"]}
+];
+
+/* ---- phonics: say a letter's name, find a picture whose Hebrew word starts with it. ---- */
+var FIND_PHON = [
+  {he:"אריה",emoji:"🦁",l:"א"},{he:"בית",emoji:"🏠",l:"ב"},{he:"גלידה",emoji:"🍦",l:"ג"},
+  {he:"דג",emoji:"🐟",l:"ד"},{he:"הר",emoji:"⛰️",l:"ה"},{he:"ורד",emoji:"🌹",l:"ו"},
+  {he:"זברה",emoji:"🦓",l:"ז"},{he:"חתול",emoji:"🐱",l:"ח"},{he:"טרקטור",emoji:"🚜",l:"ט"},
+  {he:"יד",emoji:"✋",l:"י"},{he:"כלב",emoji:"🐶",l:"כ"},{he:"לב",emoji:"❤️",l:"ל"},
+  {he:"מכונית",emoji:"🚗",l:"מ"},{he:"נחש",emoji:"🐍",l:"נ"},{he:"סוס",emoji:"🐴",l:"ס"},
+  {he:"עץ",emoji:"🌳",l:"ע"},{he:"פיל",emoji:"🐘",l:"פ"},{he:"צב",emoji:"🐢",l:"צ"},
+  {he:"קוף",emoji:"🐵",l:"ק"},{he:"רכבת",emoji:"🚂",l:"ר"},{he:"שמש",emoji:"☀️",l:"ש"},
+  {he:"תפוח",emoji:"🍎",l:"ת"}
+];
+
+/* ---- find-game generators (one per kind). All return a uniform question object. ---- */
+function repeatStr(s, n){ var out = ""; for (var i=0;i<n;i++) out += s; return out; }
+function pickDistinct(arr, n, exclude){
+  var pool = shuffle(arr.filter(function(x){ return exclude.indexOf(x) === -1; }));
+  return pool.slice(0, n);
+}
+function pickDistinctBy(arr, n, excludeVals, keyFn){
+  var pool = shuffle(arr.filter(function(x){ return excludeVals.indexOf(keyFn(x)) === -1; }));
+  return pool.slice(0, n);
+}
+function findGenNum(ctx, p){
+  var maxNum = p.maxNum || 5, pool = [];
+  for (var n=1; n<=maxNum; n++){ if (ctx.usedKeys.indexOf("find:num:"+n) === -1) pool.push(n); }
+  if (!pool.length){ for (var m=1; m<=maxNum; m++) pool.push(m); }
+  return { op:"find", kind:"num", answer:pool[rnd(pool.length)], maxNum:maxNum };
+}
+function findGenCat(ctx, p){
+  var cat = FIND_CATS[rnd(FIND_CATS.length)], pack = FIND_PACKS[cat];
+  var avail = pack.filter(function(it){ return ctx.usedKeys.indexOf("find:cat:"+it.emoji) === -1; });
+  if (!avail.length) avail = pack;
+  var item = avail[rnd(avail.length)];
+  var distractors = pickDistinctBy(pack, 2, [item.emoji], function(it){ return it.emoji; });
+  return { op:"find", kind:"cat", cat:cat, item:item, options:shuffle([item].concat(distractors)), answer:item.emoji };
+}
+function findGenLetter(ctx, p){
+  var avail = FIND_LETTERS.filter(function(x){ return ctx.usedKeys.indexOf("find:let:"+x.l) === -1; });
+  if (!avail.length) avail = FIND_LETTERS;
+  var target = avail[rnd(avail.length)], distractors = [];
+  if (p.confuse){
+    var sims = [];
+    LETTER_CONFUSE.forEach(function(cl){
+      if (cl.indexOf(target.l) !== -1){ cl.forEach(function(g){ if (g !== target.l && sims.indexOf(g) === -1) sims.push(g); }); }
+    });
+    distractors = shuffle(sims).map(letterByGlyph).filter(Boolean).slice(0, 2);
+  }
+  if (distractors.length < 2){
+    var taken = [target.l].concat(distractors.map(function(d){ return d.l; }));
+    distractors = distractors.concat(pickDistinctBy(FIND_LETTERS, 2 - distractors.length, taken, function(x){ return x.l; }));
+  }
+  return { op:"find", kind:"letter", item:target, options:shuffle([target].concat(distractors)), answer:target.l };
+}
+function findGenReason(ctx, p){
+  var idx = rnd(FIND_REASON.length), cat = FIND_REASON[idx];
+  var ans = cat.yes[rnd(cat.yes.length)];
+  var distractors = pickDistinct(cat.no, 2, [ans]);
+  return { op:"find", kind:"reason", idx:idx, prompt:cat.q, options:shuffle([ans].concat(distractors)), answer:ans };
+}
+function findGenMore(ctx, p){
+  var em = countEmoji(), lo = p.qLo || 1, hi = p.qHi || 5, counts;
+  if (p.qClose){
+    var span = Math.max(1, (hi - 2) - lo + 1);
+    var start = lo + rnd(span);
+    counts = [start, start + 1, start + 2];
+  } else {
+    var range = []; for (var n=lo; n<=hi; n++) range.push(n);
+    counts = shuffle(range).slice(0, 3);
+    while (counts.length < 3) counts.push((counts[counts.length-1] || lo) + 1);
+  }
+  var answer = Math.max.apply(null, counts);
+  var options = shuffle(counts.map(function(c){ return { count:c, em:em }; }));
+  return { op:"find", kind:"more", em:em, options:options, answer:answer };
+}
+function findGenPhon(ctx, p){
+  var avail = FIND_PHON.filter(function(w){ return ctx.usedKeys.indexOf("find:phon:"+w.emoji) === -1; });
+  if (!avail.length) avail = FIND_PHON;
+  var target = avail[rnd(avail.length)];
+  var others = FIND_PHON.filter(function(w){ return w.l !== target.l && w.emoji !== target.emoji; });
+  return { op:"find", kind:"phon", item:target, options:shuffle([target].concat(shuffle(others).slice(0, 2))), answer:target.emoji };
+}
+/* "which number is bigger?" — abstract numeral comparison. On harder blocks (qClose)
+   the two numbers are adjacent (e.g. 7 vs 8), which forces real magnitude judgment. */
+function findGenBigNum(ctx, p){
+  var hi = p.maxNum || 9, lo = 1, a = lo + rnd(hi - lo + 1), b;
+  if (p.qClose){
+    var d = 1 + rnd(2);
+    b = a + (rnd(2) ? d : -d);
+    if (b < lo) b = a + d;
+    if (b > hi) b = a - d;
+  }
+  if (b === undefined || b === a || b < lo || b > hi){ do { b = lo + rnd(hi - lo + 1); } while (b === a); }
+  return { op:"find", kind:"bignum", options:shuffle([a, b]), answer:Math.max(a, b) };
 }
 
 /* ============ adaptive difficulty nudge (optional, around the profile baseline) ============ */
@@ -1374,50 +1505,72 @@ var PROVIDERS = {
 
   find: {
     generate: function(ctx){
-      var maxNum = diffParams("find", ctx.level, ctx.step).maxNum || 5;
-      var doNumber = (rnd(2) === 0);
-      if (doNumber){
-        var pool = [];
-        for (var n=1; n<=maxNum; n++){ if (ctx.usedKeys.indexOf("find:num:"+n) === -1) pool.push(n); }
-        if (pool.length){
-          var target = pool[rnd(pool.length)];
-          return { op:"find", kind:"num", answer:target, maxNum:maxNum };
-        }
+      var p = diffParams("find", ctx.level, ctx.step);
+      var kinds = p.kinds || ["letter","reason","more"];
+      switch (kinds[rnd(kinds.length)]){
+        case "num":    return findGenNum(ctx, p);
+        case "cat":    return findGenCat(ctx, p);
+        case "letter": return findGenLetter(ctx, p);
+        case "more":   return findGenMore(ctx, p);
+        case "bignum": return findGenBigNum(ctx, p);
+        case "phon":   return findGenPhon(ctx, p);
+        default:       return findGenReason(ctx, p);
       }
-      var cat = FIND_CATS[rnd(FIND_CATS.length)];
-      var pack = FIND_PACKS[cat];
-      var availItems = pack.filter(function(it){ return ctx.usedKeys.indexOf("find:cat:"+it.emoji) === -1; });
-      if (!availItems.length) availItems = pack;
-      var item = availItems[rnd(availItems.length)];
-      var distractors = [], guard = 0;
-      while (distractors.length < 2 && guard < 100){
-        guard++;
-        var d = pack[rnd(pack.length)];
-        if (d.emoji === item.emoji || distractors.indexOf(d) !== -1) continue;
-        distractors.push(d);
-      }
-      var options = shuffle([item].concat(distractors));
-      return { op:"find", kind:"cat", cat:cat, item:item, options:options, answer:item.emoji };
     },
-    key: function(q){ return q.kind === "num" ? ("find:num:" + q.answer) : ("find:cat:" + q.answer); },
+    key: function(q){
+      switch (q.kind){
+        case "num":    return "find:num:" + q.answer;
+        case "cat":    return "find:cat:" + q.answer;
+        case "letter": return "find:let:" + q.answer;
+        case "phon":   return "find:phon:" + q.answer;
+        case "reason": return "find:reason:" + q.idx + ":" + q.answer;
+        case "more":   return "find:more:" + q.options.map(function(o){ return o.count; }).sort(function(a,b){return a-b;}).join("-");
+        case "bignum": return "find:bignum:" + q.options.slice().sort(function(a,b){return a-b;}).join("-");
+      }
+      return "find:?";
+    },
     render: function(q){
       var row = $("shapesRow"); row.innerHTML = "";
       var prompt = document.createElement("div"); prompt.className = "findprompt";
+      var pointer = "<span class='enghint'>👆</span>";
       if (q.kind === "num"){
-        prompt.textContent = "מצאו את המספר " + q.answer;
-        row.appendChild(prompt);
-        $("digitsRow").innerHTML = "<span class='enghint'>👆</span>";
+        prompt.textContent = "מצאו את המספר " + (HEB_NUM[q.answer] || q.answer); row.appendChild(prompt);
+        $("digitsRow").innerHTML = pointer;
         renderChoiceButtons(numberOptions(q.answer, q.maxNum), function(v){return v;}, function(v){return v;}, "findnum");
+      } else if (q.kind === "letter"){
+        prompt.textContent = "מצאו את האות " + q.item.name; row.appendChild(prompt);
+        $("digitsRow").innerHTML = pointer;
+        renderChoiceButtons(q.options, function(o){return o.l;}, function(o){return o.l;}, "findnum");
+      } else if (q.kind === "phon"){
+        prompt.textContent = "מה מתחיל ב־ " + q.item.l; row.appendChild(prompt);
+        $("digitsRow").innerHTML = "<span class='enghint'>איזה מתחיל בּצליל הזה?</span>";
+        renderChoiceButtons(q.options, function(o){return o.emoji;}, function(o){return o.emoji;}, "engans");
+      } else if (q.kind === "more"){
+        prompt.textContent = "מצאו את הקבוצה עם הכי הרבה"; row.appendChild(prompt);
+        $("digitsRow").innerHTML = pointer;
+        renderChoiceButtons(q.options, function(o){return o.count;}, function(o){ return repeatStr(o.em, o.count); }, "findgroup");
+      } else if (q.kind === "bignum"){
+        prompt.textContent = "איזה מספר גדול יותר?"; row.appendChild(prompt);
+        $("digitsRow").innerHTML = pointer;
+        renderChoiceButtons(q.options, function(v){return v;}, function(v){return v;}, "findnum");
+      } else if (q.kind === "reason"){
+        prompt.textContent = q.prompt; row.appendChild(prompt);
+        $("digitsRow").innerHTML = pointer;
+        renderChoiceButtons(q.options, function(o){return o;}, function(o){return o;}, "engans");
       } else {
-        prompt.textContent = findCatLabel(q.cat, q.item.he);
-        row.appendChild(prompt);
-        $("digitsRow").innerHTML = "<span class='enghint'>👆</span>";
+        prompt.textContent = findCatLabel(q.cat, q.item.he); row.appendChild(prompt);
+        $("digitsRow").innerHTML = pointer;
         renderChoiceButtons(q.options, function(o){return o.emoji;}, function(o){return o.emoji;}, "engans");
       }
     },
     speakPrompt: function(q){
-      if (q.kind === "num") speak("לחצו על המספר " + HEB_NUM[q.answer] + "!", true);
-      else speak(findCatLabel(q.cat, q.item.he), true);
+      if (q.kind === "num")         speak("לחצו על המספר " + HEB_NUM[q.answer] + "!", true);
+      else if (q.kind === "letter") speak("מצאו את האות " + q.item.name + "!", true);
+      else if (q.kind === "phon")   speak("מה מתחיל באות " + LETTER_NAME[q.item.l] + "?", true);
+      else if (q.kind === "more")   speak("מצאו את הקבוצה עם הכי הרבה!", true);
+      else if (q.kind === "bignum") speak("איזה מספר גדול יותר?", true);
+      else if (q.kind === "reason") speak(q.prompt, true);
+      else                          speak(findCatLabel(q.cat, q.item.he), true);
     }
   }
 };
@@ -1427,7 +1580,7 @@ var GAMES = {
   add:  { title:"חיבור",  icon:"➕",  subtitle:"לחבר מספרים",        cardClass:"add",  provider:PROVIDERS.add },
   sub:  { title:"חיסור",  icon:"➖",  subtitle:"להוריד מספרים",       cardClass:"sub",  provider:PROVIDERS.sub },
   eng:  { title:"אנגלית", icon:"🔤", subtitle:"מילים באנגלית",       cardClass:"eng",  provider:PROVIDERS.eng },
-  find: { title:"מצא את...", icon:"🔍", subtitle:"מספרים, צבעים וצורות", cardClass:"find", provider:PROVIDERS.find }
+  find: { title:"מצא את...", icon:"🔍", subtitle:"אותיות, חשיבה, כמויות וצלילים", cardClass:"find", provider:PROVIDERS.find }
 };
 var GAME_ORDER = ["add","find","eng","sub"];
 function provider(){ return GAMES[run.gameId].provider; }
@@ -1474,7 +1627,6 @@ function renderRunHeader(){
   renderCharacterArt(currentFormArt(), $("runCharArt"));
   $("runCharName").textContent = c.he;
   $("profileBadge").innerHTML = avatarHTML(profile.avatar, 22) + " " + profile.name;
-  $("charBadge").textContent = artText(currentFormArt()) + " " + c.he;
   updateStepBadge();
   updateXpBar();
 }
@@ -1490,7 +1642,6 @@ function awardXp(amount){
   saveState();                            // autosave after every answer / beat
   updateXpBar();
   floatXpGain(amount);                     // colored "+N" pops up from the XP bar
-  $("charBadge").textContent = artText(c.forms[Math.min(after, c.forms.length - 1)]) + " " + c.he;
   if (after > before) run.pendingEvolve = after;      // play the evolution mini-game at the next beat
 }
 // Runs the deferred evolution mini-game (if any) before continuing the flow.
@@ -1744,22 +1895,24 @@ function onMissionAnswer(v, btn, correct){
   }
 }
 
-/* ============ play/feed mini-game (every-4): the character's signature reward ============ */
+/* ============ feed mini-game (every-4): feed the animal its food ============ */
+// Flat 3 bites every time (no ramp) — this beat is a guaranteed, low-pressure
+// nurture reward, not a difficulty test. The tappable item is the character's food.
 function startPlay(){
   run.locked = true;
   run.phase = "play";
-  var c = run.character, reward = c.reward;
-  var tapsNeeded = Math.min(7, 3 + blockForStep(run.step));   // a touch deeper later in
+  var c = run.character;
+  var tapsNeeded = (run.preset && run.preset.feedTaps) || 3;   // fewer bites when breaks are frequent
   var tapsDone = 0;
   $("ovCatch").style.background = "radial-gradient(circle at 50% 40%, " + c.sky + ", " + c.accent + ")";
-  $("catchTitle").textContent = reward.title + " " + reward.emoji;
+  $("catchTitle").textContent = "האכילו את ה" + c.he + "! " + c.food;
   var btn = $("catchCreature");
-  btn.textContent = reward.emoji;
+  btn.textContent = c.food;
   btn.style.display = ""; btn.style.transform = ""; btn.style.pointerEvents = "";
   function drawProgress(){ var d=""; for (var i=0;i<tapsNeeded;i++){ d += (i < tapsDone) ? "🟢" : "⚪"; } $("catchHint").textContent = d; }
   drawProgress();
   $("ovCatch").classList.add("show");
-  speak(reward.title + "!");
+  speak("האכילו את ה" + c.he + "!");
   function moveAway(){ btn.style.left = (8 + rnd(74)) + "%"; btn.style.top = (22 + rnd(58)) + "%"; }
   moveAway();
   btn.onclick = function(){
@@ -1773,9 +1926,9 @@ function startPlay(){
       var done = $("catchDone");
       done.innerHTML = "<div class='caughtCreature'>" + artText(currentFormArt()) + "</div>" +
                        "<div class='caughtCheck'>✨</div>" +
-                       "<div class='caughtText'>ה" + c.he + " התחזק!</div>";
+                       "<div class='caughtText'>ה" + c.he + " אכל והתחזק!</div>";
       done.classList.add("show");
-      speak("ה" + c.he + " התחזק!");
+      speak("ה" + c.he + " אכל והתחזק!");
       setTimeout(function(){
         done.classList.remove("show"); done.innerHTML = "";
         $("ovCatch").classList.remove("show");
@@ -1807,20 +1960,13 @@ function startSession(gameId){
   var introQ = run.current;
   setTimeout(function(){ if (run.current === introQ && !run.locked) provider().speakPrompt(introQ); }, 1300);
 }
-function openGamePicker(){
-  // switch game mid-session: XP is already banked in the character; new game starts fresh
-  $("playWrap").classList.remove("show");
-  $("topbar").classList.remove("show");
-  renderGameCards();
-  showScreen("scrGame");
-}
 function goHome(){
   try { speechSynthesis.cancel(); } catch(e){}
   $("playWrap").classList.remove("show");
   $("topbar").classList.remove("show");
   ["ovCatch","ovMission","ovCollection","ovVictory","ovClimb","ovRestart","ovEvolve"].forEach(function(id){ $(id).classList.remove("show"); });
   hideFilmstrip(); $("evolveCreature").style.display = "";   // reset evolve overlay state on screen change
-  showCharacters();
+  showCharacters(true);                                       // keep the same animal; only re-choose a game
 }
 
 /* ============ persistence (versioned, multi-profile) ============ */
@@ -1835,11 +1981,11 @@ function defaultGames(){
     eng:  { enabled:false, level:"easy" }
   };
 }
-function newProfile(name, avatar, rhythm){
+function newProfile(name, avatar){
   var chars = {};
   CHARACTERS.forEach(function(c){ if (c.starter) chars[c.id] = { form:0, totalXp:0 }; });
   return { id:"p" + Date.now() + "_" + rnd(99999), name:name || "ילד/ה", avatar:avatar || "🙂",
-           rhythm:rhythm || "kid", games:defaultGames(), characters:chars, activeCharacterId:null };
+           games:defaultGames(), characters:chars, activeCharacterId:null };
 }
 function migrateProfile(p){
   // fill missing fields without touching existing progress (forward-compatible)
@@ -1851,7 +1997,6 @@ function migrateProfile(p){
   if (!p.characters) p.characters = {};
   // ensure every starter is owned (adds newly-released starters to old saves, progress untouched)
   CHARACTERS.forEach(function(c){ if (c.starter && !p.characters[c.id]) p.characters[c.id] = { form:0, totalXp:0 }; });
-  if (!p.rhythm) p.rhythm = "kid";
   if (!p.avatar) p.avatar = "🙂";
   return p;
 }
@@ -1867,13 +2012,13 @@ function loadState(){
 function saveState(){ try { localStorage.setItem(STATE_KEY, JSON.stringify(appState)); } catch(e){} }
 function seedPresetProfiles(){
   var presets = [
-    { name:"אלי",  avatar:PHOTOS.ellie, rhythm:"toddler", eng:false },
-    { name:"איתן", avatar:PHOTOS.ethan, rhythm:"kid",     eng:true  },
-    { name:"נובה", avatar:PHOTOS.nova,  rhythm:"kid",     eng:true  },
-    { name:"יוני", avatar:PHOTOS.uni,   rhythm:"toddler", eng:false }
+    { name:"אלי",  avatar:PHOTOS.ellie, eng:false },
+    { name:"איתן", avatar:PHOTOS.ethan, eng:true  },
+    { name:"נובה", avatar:PHOTOS.nova,  eng:true  },
+    { name:"יוני", avatar:PHOTOS.uni,   eng:false }
   ];
   presets.forEach(function(pr){
-    var p = newProfile(pr.name, pr.avatar, pr.rhythm);
+    var p = newProfile(pr.name, pr.avatar);
     p.games.eng.enabled = pr.eng;
     appState.profiles.push(p);
   });
@@ -1937,17 +2082,16 @@ function selectProfile(id){
 
 /* ---- profile create / edit (non-destructive: never touches characters) ---- */
 var AVATAR_EMOJIS = ["🦄","🦖","🚀","🐬","🦁","🐶","🐱","🐉","🐧","🐼","🦊","🐢"];
-var editor = { id:null, avatar:"🙂", rhythm:"kid", games:null };
+var editor = { id:null, avatar:"🙂", games:null };
 function openProfileEditor(id){
   var p = id ? findProfile(id) : null;
   editor.id = id || null;
   editor.avatar = p ? p.avatar : "🙂";
-  editor.rhythm = p ? p.rhythm : "kid";
   editor.games = p ? JSON.parse(JSON.stringify(p.games)) : defaultGames();
   $("profileEditTitle").textContent = p ? ("עריכת " + p.name) : "פרופיל חדש";
   $("profileName").value = p ? p.name : "";
   $("profileDelete").style.display = id ? "" : "none";
-  renderAvatarGrid(); renderRhythmSeg(); renderGameRows(); renderAdvChars();
+  renderAvatarGrid(); renderGameRows(); renderAdvChars();
   showScreen("scrProfileEdit");
 }
 function renderAvatarGrid(){
@@ -1961,16 +2105,6 @@ function renderAvatarGrid(){
   }
   AVATAR_EMOJIS.forEach(function(e){ addOpt(e, false); });
   [PHOTOS.ellie, PHOTOS.ethan, PHOTOS.nova, PHOTOS.uni].forEach(function(ph){ addOpt(ph, true); });
-}
-function renderRhythmSeg(){
-  var s = $("rhythmSeg"); s.innerHTML = "";
-  ["toddler","kid"].forEach(function(r){
-    var b = document.createElement("button");
-    b.className = "segBtn" + (editor.rhythm === r ? " sel" : "");
-    b.textContent = RHYTHM_LABELS[r];
-    b.addEventListener("click", function(){ editor.rhythm = r; renderRhythmSeg(); });
-    s.appendChild(b);
-  });
 }
 function renderGameRows(){
   var host = $("gameRows"); host.innerHTML = "";
@@ -2026,7 +2160,7 @@ function saveProfileEditor(){
   var name = ($("profileName").value || "").trim() || "ילד/ה";
   if (editor.id){
     var p = findProfile(editor.id);              // targeted edit: settings + advanced XP
-    p.name = name; p.avatar = editor.avatar; p.rhythm = editor.rhythm; p.games = editor.games;
+    p.name = name; p.avatar = editor.avatar; p.games = editor.games;
     $("advChars").querySelectorAll("input[data-cid]").forEach(function(inp){
       var cid = inp.getAttribute("data-cid"), c = characterById(cid), prog = p.characters[cid];
       if (!c || !prog) return;
@@ -2035,7 +2169,7 @@ function saveProfileEditor(){
       prog.form = formForXp(xp, c.forms.length);  // keep stored form in sync with edited XP
     });
   } else {
-    var np = newProfile(name, editor.avatar, editor.rhythm);
+    var np = newProfile(name, editor.avatar);
     np.games = editor.games;
     appState.profiles.push(np);
   }
@@ -2052,11 +2186,16 @@ function deleteProfileEditor(){
 
 /* ---- character picker ---- */
 var pickedCharId = null;   // animal marked on the picker (tap = preview + mark; pick button starts)
-function showCharacters(){
+function showCharacters(keepActive){
   showScreen("scrProfiles");
+  // keepActive (e.g. pressing 🏠 mid-game): land back on the same animal with its
+  // games revealed, so only the game needs re-choosing — no re-picking the animal.
+  var keepId = (keepActive && profile && profile.activeCharacterId &&
+                profile.characters[profile.activeCharacterId]) ? profile.activeCharacterId : null;
   pickedCharId = null;
   $("gameSection").classList.remove("show");      // games hidden until an animal is chosen
   var grid = $("charGrid"); grid.innerHTML = "";
+  var keepCard = null;
   CHARACTERS.forEach(function(c){
     var owned = !!profile.characters[c.id];
     var card = document.createElement("button");
@@ -2087,12 +2226,19 @@ function showCharacters(){
         previewLifecycle(c.id);
         selectCharacter(c.id);
       });
+      if (c.id === keepId) keepCard = card;
     }
     grid.appendChild(card);
   });
   var section = $("charSection");
   section.classList.add("show");
-  section.scrollIntoView({ behavior:"smooth", block:"nearest" });
+  if (keepId && keepCard){
+    keepCard.classList.add("picked");
+    pickedCharId = keepId;
+    selectCharacter(keepId);                       // re-reveal this animal's game cards (skip the preview)
+  } else {
+    section.scrollIntoView({ behavior:"smooth", block:"nearest" });
+  }
 }
 // Plays every transition back-to-back in the evolve overlay (no tap game) as a preview.
 function previewLifecycle(charId){
@@ -2189,17 +2335,30 @@ function buildAbout(){
       "<tr><td>קשה ומאוחר</td><td>קשה</td><td>20</td><td>0</td><td>" + xpForCorrect("hard",20,0) + "</td></tr>" +
       "<tr><td>אחרי 2 טעויות</td><td>קשה</td><td>20</td><td>2</td><td>" + xpForCorrect("hard",20,2) + "</td></tr>" +
     "</table>" +
-    "<p>משימות הקצב נותנות XP קבוע וקל: האכלה +" + XP_BEAT.mission + ", מיני-משחק +" + XP_BEAT.play + " (לא תלוי שלב/דיוק — אלו ניצחונות קלים במכוון).</p>" +
+    "<p>משימות הקצב נותנות XP קבוע וקל: משימת ביטחון +" + XP_BEAT.mission + ", האכלת החיה +" + XP_BEAT.play + " (לא תלוי שלב/דיוק — אלו ניצחונות קלים במכוון).</p>" +
     "<p>סבב מלא מושלם נותן בערך: קל 120, בינוני 144, קשה 168 XP (כולל משימות הקצב).</p>" +
 
     "<h3>הצורות תלויות אך ורק ב-XP המצטבר</h3>" +
     "<p>לכל חיה 4 צורות (3 התפתחויות). הספים <b>מצטברים ועולים</b> — כל התפתחות יקרה מהקודמת (FORM_XP_STEP=" + FORM_XP_STEP + ", כלומר 1·STEP, 3·STEP, 6·STEP...): מצטבר <b>" + th.join(", ") + "</b>. כך <b>כל סבב מלא מקדם צורה</b> — תמריץ לחזור ולשחק שוב. הפס מציג <b>XP מצטבר / הסף הבא</b> (למשל 110/200 אחרי התפתחות ראשונה) — ה-XP <b>לא מתאפס</b> בצורה חדשה, רק יעד ההתקדמות גדל. שינוי רמה/שלב/דיוק משפיע רק על <b>קצב</b> צבירת ה-XP, אף פעם לא על חוקי הצורות. ה-XP <b>לא נעצר</b> גם בצורה האחרונה — אפשר להוסיף צורה 5 ו-6 בעתיד וה-XP שכבר נצבר ייחשב מיד.</p>" +
 
     "<h3>קצב וקשב (מה שמחזיק ילדים צעירים)</h3>" +
-    "<p>טיפוס שטוח ארוך מתיש לבת 3. לכן הקצב בנוי <b>נתונים</b> (RHYTHM_PRESETS): כל <b>2 שלבים</b> משימת האכלה קלה, כל <b>4 שלבים</b> מיני-משחק חתימה של החיה. כשמשתמשים בשני מרווחים על אותו שלב — <b>המרווח הגדול מנצח</b>. הקצב הוא <b>לפי משחק</b> וניתן לעקיפה לכל ילד (רך לגיל 3, רגיל ל-4+). המשחק <b>פתוח</b> — משחקים כמה שרוצים; ה-round רק מסמן רגע חגיגה טבעי, לא עצירה.</p>" +
+    "<p>בין שלבי הלימוד יש <b>הפסקה</b> — מיני-משחק קצר של <b>האכלת החיה</b>. כברירת מחדל ההפסקה היא <b>כל 3 שלבים</b> (ACTIVE_RHYTHM = 'every3'): כך רוב השלבים הם לימוד אמיתי, עם תגמול האכלה תכוף מספיק. <b>אין בורר בממשק</b> — הקצב מוגדר בקוד וניתן להרחבה: עורכים את טבלת RHYTHM_PRESETS (אפשר להוסיף every2, every5, או beats מורכבים) ומחליפים את ACTIVE_RHYTHM כדי לכוונן.</p>" +
+    "<p>מיני-משחק ההאכלה: מאכילים את החיה באוכל שלה (c.food) ב-<b>feedTaps</b> נגיסות (כרגע 3, קבוע — לא עולה עם השלב, במכוון: רגע טיפוח רגוע ולא מבחן). המשחק <b>פתוח</b> — משחקים כמה שרוצים; ה-round רק מסמן רגע חגיגה טבעי, לא עצירה.</p>" +
 
     "<h3>קושי מתכוונן (לכל משחק × רמה × בלוק שלבים)</h3>" +
     "<p>טבלה אחת (GAME_DIFFICULTY) קובעת לכל משחק וכל רמה את פרמטרי יצירת השאלה לכל בלוק — עם <b>רצפה ותקרה</b> שעולות יחד, כך שהשאלות נעשות קשות יותר בהדרגה (אין יותר 1+1 בשלב מאוחר). לדוגמה בחיבור קל: בלוק ראשון סכום 2–6, אחר כך 6–9, ובסוף 9–12; בינוני וקשה גבוהים יותר. השאלות נוצרות <b>אלגוריתמית</b> מהפרמטרים — לכן כל משחק נראה שונה. יש גם <b>כוונון עדין אדפטיבי</b>: אם שתי התשובות האחרונות היו עם טעות, יורדים דרגה אחת זמנית (אף פעם לא מעל הרמה שהוגדרה).</p>" +
+
+    "<h3>משחק \"מצא את...\" — מזיהוי לחשיבה אמיתית</h3>" +
+    "<p>בעבר המשחק היה <b>התאמה ויזואלית</b> בלבד (שומעים 'כלב', לוחצים על 🐶, או 'מצא את הצבע האדום') — הילד כבר ידע את התשובה מראש, אז לא נלמד דבר. התאמת הצבעים/צורות הוסרה מהמשחק, ובמקומה נכנסו <b>שש סוגי שאלות</b> שדורשות יותר, ונפתחות לפי רמה דרך שדה <code>kinds</code> ב-GAME_DIFFICULTY:</p>" +
+    "<ul>" +
+    "<li><b>אותיות (letter):</b> 'מצאו את האות בֵּית' — הילד שומע את שם האות וצריך לזהות את הצורה. ברמות גבוהות (<code>confuse</code>) המסיחים הם אותיות <b>דומות במכוון</b> (ב/כ/נ, ד/ר, ה/ח/ת) — מאמן הבחנה אמיתית, הבסיס לקריאה.</li>" +
+    "<li><b>חשיבה/קטגוריות (reason):</b> 'מי עף?', 'מי חי בים?', 'מצאו את הפרי' — בוחרים לפי <b>תכונה</b>, לא לפי שם. כאן מתרחשת חשיבה ולא שליפה.</li>" +
+    "<li><b>כמויות (more):</b> 'מצאו את הקבוצה עם הכי הרבה' — תחושת מספר <b>קונקרטית</b> (סופרים אובייקטים). ברמות גבוהות הכמויות <b>קרובות</b> (4 מול 5) ומחייבות ספירה.</li>" +
+    "<li><b>השוואת מספרים (bignum):</b> 'איזה מספר גדול יותר?' — הגרסה ה<b>מופשטת</b> של כמויות: משווים <b>ספרות</b>, לא ערימות. ברמות גבוהות המספרים <b>צמודים</b> (7 מול 8) והטווח גדל (עד 50), מה שמחייב הבנת גודל אמיתית.</li>" +
+    "<li><b>צלילים/פוֹנֵטיקה (phon):</b> 'מה מתחיל באות כּ?' — מגשר בין אות לקריאה.</li>" +
+    "<li><b>מספרים (num):</b> 'מצאו את המספר תשע' — שומעים/רואים את <b>שם</b> המספר (HEB_NUM) וצריך לזהות את ה<b>ספרה</b>. בעבר הוצגה הספרה עצמה בשאלה — התאמת צורה טריוויאלית — וזה תוקן.</li>" +
+    "</ul>" +
+    "<p>התוכן יושב בטבלאות נתונים (FIND_LETTERS + LETTER_CONFUSE, FIND_REASON, FIND_PHON) — הוספת אות/קטגוריה/מילה = עריכת טבלה אחת.</p>" +
 
     "<h3>פרופילים ושמירה (לא הרסני)</h3>" +
     "<p>לכל ילד פרופיל: שם, תמונה, קצב, ולכל משחק <b>הפעלה + רמת קושי</b>. כלל ברזל: <b>שינוי הגדרות לעולם לא מאפס התקדמות של חיות</b> — ההגדרות וה-XP/הצורות שמורים בנפרד בתוך הפרופיל, והעדכון נוגע רק בשדה הספציפי. הכול מקומי ב-localStorage, בלי שרת.</p>" +
@@ -2237,9 +2396,7 @@ if (appState.lastProfileId && findProfile(appState.lastProfileId)){
 $("profileSave").addEventListener("click", saveProfileEditor);
 $("profileCancel").addEventListener("click", function(){ showScreen("scrProfiles"); });
 $("profileDelete").addEventListener("click", deleteProfileEditor);
-$("gameBack").addEventListener("click", function(){ showCharacters(); });
 $("gamePlay").addEventListener("click", function(){ if (selectedGameId) startSession(selectedGameId); });
-$("swapGameBtn").addEventListener("click", openGamePicker);
 $("homeBtn").addEventListener("click", goHome);
 
 $("speakBtn").addEventListener("click", function(){
