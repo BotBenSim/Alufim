@@ -1,0 +1,11 @@
+# Python virtualenv (image-processing scripts only; not part of the game)
+.venv/
+
+# rembg AI model cache (downloaded on demand, 170MB+)
+.u2net/
+
+# Generated offline single-file build (22MB, all images inlined as base64)
+alufim.standalone.html
+
+# OS / editor cruft
+.DS_Store
