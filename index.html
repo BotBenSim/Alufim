@@ -269,18 +269,14 @@
     background:linear-gradient(90deg,#FFD93D,#FF8A3D); transition:width .18s ease-out; }
   #evolveHint { font-size:clamp(18px,5vw,30px); font-weight:800; color:#fff; direction:rtl;
     text-shadow:0 2px 8px rgba(0,0,0,.35); min-height:1.2em; }
-  /* lifecycle filmstrip: each form lights up, then shades as the next lights (left -> right) */
-  #evolveStrip { display:none; direction:ltr; align-items:center; justify-content:flex-start;
-    gap:clamp(10px,4vw,28px); flex-wrap:nowrap; width:100%; overflow-x:hidden; scroll-behavior:smooth;
-    padding:0 32vw; }
-  .evoCell { flex:0 0 auto; width:clamp(150px,62vw,360px); height:clamp(150px,62vw,360px);
-    opacity:.28; transform:scale(.8); filter:grayscale(.75) brightness(.7);
-    transition:opacity .22s ease, transform .22s ease, filter .22s ease; }
-  .evoCell.trans { width:clamp(120px,50vw,300px); height:clamp(120px,50vw,300px); }
+  /* lifecycle preview: one big form, centered, swapped one at a time (sized by the
+     smaller of width/height so it never gets clipped top/bottom on any screen) */
+  #evolveStrip { display:none; align-items:center; justify-content:center; width:100%; }
+  .evoCell { flex:0 0 auto; }
+  .evoCell.solo { width:min(80vw,62vh,440px); height:min(80vw,62vh,440px); }
   .evoCell img { width:100%; height:100%; object-fit:contain; }
-  .evoCell.done { opacity:.5; transform:scale(.9); filter:grayscale(.45) brightness(.85); }
-  .evoCell.lit { opacity:1; transform:scale(1.22);
-    filter:drop-shadow(0 0 22px #FFE9A8) brightness(1.18); }
+  .evoCell.popIn { animation: evoPop .42s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes evoPop { 0%{transform:scale(.5);opacity:0} 70%{transform:scale(1.08);opacity:1} 100%{transform:scale(1)} }
 
   /* ---------- collection ---------- */
   #collectionPanel { max-width:92%; }
@@ -1573,40 +1569,40 @@ function playEvolveAnimation(fromArt, toArt, elm, done, fromFormIdx){
 var animSeq = 0;
 // Filmstrip morph: render every form in a row and sweep a "spotlight" left->right,
 // lighting each form then shading it as the next lights up. Ends lit on uptoIdx.
+// Shows ONE big centered form at a time, swapping forms[0..uptoIdx] with a pop.
 function playFilmstrip(c, uptoIdx, step, token, done){
   step = step || 300;
-  var strip = $("evolveStrip"), cells = [];
+  var strip = $("evolveStrip");
   strip.innerHTML = ""; strip.style.display = "flex";
+  var cell = document.createElement("div");
+  cell.className = "evoCell solo";
+  strip.appendChild(cell);
   var pending = 0, started = false;
-  function begin(){ if (started || token !== animSeq) return; started = true; lightUp(0); }
-  for (var i = 0; i < c.forms.length; i++){
-    var cell = document.createElement("div");
-    cell.className = "evoCell";
-    renderCharacterArt(c.forms[i], cell);
-    strip.appendChild(cell); cells.push(cell);
-    var img = cell.querySelector("img");
-    if (img && !img.complete){
-      pending++;
-      var onReady = function(){ if (--pending <= 0) begin(); };
-      img.addEventListener("load", onReady);
-      img.addEventListener("error", onReady);
+  function begin(){ if (started || token !== animSeq) return; started = true; showForm(0); }
+  for (var i = 0; i <= uptoIdx; i++){          // preload so swaps never flash blank
+    var art = c.forms[i];
+    var src = (art && art.type === "image") ? art.src : null;
+    if (src){
+      var pre = new Image();
+      pre.src = src;
+      if (!pre.complete){
+        pending++;
+        var onReady = function(){ if (--pending <= 0) begin(); };
+        pre.addEventListener("load", onReady);
+        pre.addEventListener("error", onReady);
+      }
     }
   }
-  function centerCell(cell){
-    var cr = cell.getBoundingClientRect(), sr = strip.getBoundingClientRect();
-    strip.scrollLeft += (cr.left + cr.width / 2) - (sr.left + sr.width / 2);
-  }
-  function lightUp(i){
-    if (token !== animSeq) return;     // a newer animation took over -> stop quietly
+  function showForm(i){
+    if (token !== animSeq) return;             // a newer animation took over -> stop quietly
     if (i > uptoIdx){ if (done) done(); return; }
-    if (i > 0){ cells[i - 1].classList.remove("lit"); cells[i - 1].classList.add("done"); }
-    cells[i].classList.add("lit");
-    centerCell(cells[i]);              // pan filmstrip so the active form sits center-screen
+    renderCharacterArt(c.forms[i], cell);
+    cell.classList.remove("popIn"); void cell.offsetWidth; cell.classList.add("popIn");
     sXpGain(Math.min(7, 3 + i)); confetti(10);
-    setTimeout(function(){ lightUp(i + 1); }, step);
+    setTimeout(function(){ showForm(i + 1); }, step);
   }
-  if (pending === 0) begin();          // all cached -> start now
-  else setTimeout(begin, 2500);        // safety: never hang if an image stalls
+  if (pending === 0) begin();                  // all cached -> start now
+  else setTimeout(begin, 2500);                // safety: never hang if an image stalls
 }
 function hideFilmstrip(){ var s = $("evolveStrip"); s.style.display = "none"; s.innerHTML = ""; }
 function unlockNext(){
