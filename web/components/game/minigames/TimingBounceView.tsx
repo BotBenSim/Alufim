@@ -44,10 +44,7 @@ export function TimingBounceView({ session, formArt, onInput, playSfx }: Minigam
   playSfxRef.current = playSfx;
 
   const report = (quality: "good" | "miss") => {
-    onInputRef.current(
-      { type: "action", action: "hop", quality },
-      { good: quality === "good" }
-    );
+    onInputRef.current({ type: "action", action: "hop", quality });
   };
 
   const applySpawn = (x: number, tallNext: boolean) => {

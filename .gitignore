@@ -14,6 +14,7 @@ alufim.standalone.html
 web/node_modules/
 web/.next/
 web/out/
+web/*.tsbuildinfo
 
 # Generated agent files — rebuilt from playbooks/ via `make agents` (single source of truth)
 .cursor/rules/knowledge.mdc

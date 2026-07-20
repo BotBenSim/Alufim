@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { CharacterArt } from "@/components/art/CharacterArt";
-import { getMinigameUi } from "@/components/game/minigames/registry";
-import { currentFormArt } from "@/lib/missions";
+import { MINIGAME_UI } from "@/components/game/minigames/registry";
 import type { ArtDescriptor, CharacterDef } from "@/lib/types";
 import type { MinigameInput, MinigameOverlay } from "@/lib/minigames/types";
 import { useAudio, type MinigameSfx } from "@/hooks/useAudio";
@@ -15,7 +14,6 @@ type Props = {
   overlay: MinigameOverlay;
   character: CharacterDef;
   formArt: ArtDescriptor;
-  totalXp: number;
 };
 
 export function MinigameHost({ overlay, character, formArt }: Props) {
@@ -24,7 +22,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
   const { burst } = useConfetti();
   const { speak } = useSpeech();
   const lastMissSpeak = useRef(0);
-  const strategy = getMinigameUi(overlay.engineId);
+  const strategy = MINIGAME_UI[overlay.engineId];
   const View = strategy.View;
 
   useEffect(() => {
@@ -42,12 +40,9 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
     speak(`ה${character.he} שיחק והתחזק!`);
   };
 
-  const onInput = (input: MinigameInput, opts?: { good?: boolean }) => {
+  const onInput = (input: MinigameInput) => {
     audio.ensure();
-    const isMiss =
-      opts?.good === false ||
-      (input.type === "action" && input.quality === "miss");
-    const isGood = !isMiss && opts?.good !== false;
+    const isMiss = input.quality === "miss";
 
     if (isMiss) {
       playSfx(strategy.missSfx);
@@ -56,7 +51,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
         lastMissSpeak.current = now;
         speak("עוד פעם!");
       }
-    } else if (isGood) {
+    } else {
       playSfx(strategy.goodSfx);
       burst(14);
     }
@@ -104,8 +99,4 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
       </div>
     </div>
   );
-}
-
-export function formArtFor(character: CharacterDef, totalXp: number) {
-  return currentFormArt(character, totalXp);
 }

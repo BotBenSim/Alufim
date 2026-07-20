@@ -27,41 +27,31 @@ export function CharacterPreviewOverlay({ characterId, onClose }: CharacterPrevi
     const token = ++tokenRef.current;
     setFormIdx(0);
     setSwept(false);
+    playFanfare();
     burst(60);
 
     const maxIdx = character.forms.length - 1;
     let i = 0;
-    const timers: number[] = [];
 
     const showNext = () => {
       if (token !== tokenRef.current) return;
       if (i > maxIdx) {
         setSwept(true);
-        timers.push(
-          window.setTimeout(() => {
-            if (token === tokenRef.current) onClose();
-          }, 800)
-        );
+        window.setTimeout(() => {
+          if (token === tokenRef.current) onClose();
+        }, 800);
         return;
       }
       setFormIdx(i);
       playXpGain(Math.min(7, 3 + i));
       burst(10);
       i += 1;
-      timers.push(window.setTimeout(showNext, 340));
+      window.setTimeout(showNext, 340);
     };
 
-    // Delay SFX so animal-name TTS isn't drowned out
-    timers.push(
-      window.setTimeout(() => {
-        if (token !== tokenRef.current) return;
-        playFanfare();
-        showNext();
-      }, 550)
-    );
+    showNext();
 
     return () => {
-      timers.forEach((t) => window.clearTimeout(t));
       tokenRef.current += 1;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onClose identity is stable enough; characterId drives replay

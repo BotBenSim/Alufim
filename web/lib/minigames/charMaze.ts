@@ -10,7 +10,6 @@ export type CharMazeState = {
   needed: number;
   /** Exit marker emoji (skin.items[0]) */
   exitEmoji: string;
-  lastQuality: "good" | "miss" | null;
 };
 
 export type MazeLayout = {
@@ -121,7 +120,6 @@ export const charMazeEngine: MinigameEngine = {
         score: 0,
         needed,
         exitEmoji,
-        lastQuality: null,
       } satisfies CharMazeState,
       progress: 0,
       complete: false,
@@ -129,19 +127,13 @@ export const charMazeEngine: MinigameEngine = {
   },
   applyInput(session, input) {
     if (session.complete) return session;
-    if (input.type !== "action" || input.action !== "step") return session;
+    if (input.action !== "step" || input.quality === "miss") return session;
     const st = asState(session);
-    if (input.quality === "miss") {
-      return {
-        ...session,
-        state: { ...st, lastQuality: "miss" },
-      };
-    }
     const score = st.score + 1;
     const complete = score >= st.needed;
     return {
       ...session,
-      state: { ...st, score, lastQuality: "good" },
+      state: { ...st, score },
       progress: Math.min(1, score / st.needed),
       complete,
     };

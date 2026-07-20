@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { characterMinigameNotes, type MinigameSfx } from "./characterMinigameSfx";
 
-const SFX: MinigameSfx[] = ["jump", "land", "slice", "bonk", "pop", "good", "miss", "fanfare"];
+const SFX: MinigameSfx[] = ["jump", "land", "slice", "bonk", "pop", "miss", "fanfare"];
 const ANIMALS = ["lion", "rabbit", "dragon", "shark", "turtle"];
 
 describe("characterMinigameNotes", () => {

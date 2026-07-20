@@ -165,10 +165,12 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
         setBursts((prev) => [...prev.slice(-2), burst]);
         setFlash("good");
         sync(flyersRef.current.filter((x) => x.id !== f.id).concat(spawn(pool, performance.now())));
-        onInputRef.current(
-          { type: "action", action: "slice", quality: "good", targetId: f.emoji },
-          { good: true }
-        );
+        onInputRef.current({
+          type: "action",
+          action: "slice",
+          quality: "good",
+          targetId: f.emoji,
+        });
         window.setTimeout(() => {
           setBursts((prev) => prev.filter((b) => b.id !== burst.id));
         }, 600);

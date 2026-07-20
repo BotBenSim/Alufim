@@ -1,5 +1,4 @@
 export type MinigameSfx =
-  | "good"
   | "miss"
   | "jump"
   | "land"
@@ -116,12 +115,6 @@ export function characterMinigameNotes(
       return [
         { freq: v.pop, t0: 0, dur: 0.07, type: "triangle", vol: 0.13 },
         { freq: v.pop * 1.35, t0: 0.05, dur: 0.1, type: "sine", vol: 0.1 },
-      ];
-    case "good":
-      return [
-        { freq: v.land * 1.6, t0: 0, dur: 0.12, type: "triangle", vol: 0.16 },
-        { freq: v.land * 2.0, t0: 0.08, dur: 0.14, type: "triangle", vol: 0.16 },
-        { freq: v.land * 2.4, t0: 0.16, dur: 0.18, type: "sine", vol: 0.14 },
       ];
     case "miss":
       return [

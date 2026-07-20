@@ -230,7 +230,6 @@ export function GameScreen() {
                   overlay={minigameOverlay}
                   character={run.character}
                   formArt={formArt}
-                  totalXp={prog.totalXp}
                 />
               ) : undefined
             }

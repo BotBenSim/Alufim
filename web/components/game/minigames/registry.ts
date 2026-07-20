@@ -28,7 +28,3 @@ export const MINIGAME_UI: Record<MinigameEngineId, MinigameUiStrategy> = {
   charMaze: { View: CharMazeView, goodSfx: "pop", missSfx: "bonk" },
   cutRope: { View: CutRopeView, goodSfx: "pop", missSfx: "miss" },
 };
-
-export function getMinigameUi(id: MinigameEngineId): MinigameUiStrategy {
-  return MINIGAME_UI[id];
-}

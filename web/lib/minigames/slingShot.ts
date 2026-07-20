@@ -4,8 +4,6 @@ export type SlingShotState = {
   score: number;
   needed: number;
   pool: string[];
-  lastQuality: "good" | "miss" | null;
-  lastHitEmoji: string | null;
 };
 
 function asState(session: MinigameSession): SlingShotState {
@@ -25,8 +23,6 @@ export const slingShotEngine: MinigameEngine = {
         score: 0,
         needed,
         pool,
-        lastQuality: null,
-        lastHitEmoji: null,
       } satisfies SlingShotState,
       progress: 0,
       complete: false,
@@ -34,24 +30,13 @@ export const slingShotEngine: MinigameEngine = {
   },
   applyInput(session, input) {
     if (session.complete) return session;
-    if (input.type !== "action" || input.action !== "launch") return session;
+    if (input.action !== "launch" || input.quality === "miss") return session;
     const st = asState(session);
-    if (input.quality === "miss") {
-      return {
-        ...session,
-        state: { ...st, lastQuality: "miss", lastHitEmoji: null },
-      };
-    }
     const score = st.score + 1;
     const complete = score >= st.needed;
     return {
       ...session,
-      state: {
-        ...st,
-        score,
-        lastQuality: "good",
-        lastHitEmoji: input.targetId ?? st.pool[0] ?? "🍎",
-      },
+      state: { ...st, score },
       progress: Math.min(1, score / st.needed),
       complete,
     };

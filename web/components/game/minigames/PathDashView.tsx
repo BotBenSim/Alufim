@@ -89,10 +89,7 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
   playSfxRef.current = playSfx;
 
   const report = (quality: "good" | "miss") => {
-    onInputRef.current(
-      { type: "action", action: "jump", quality },
-      { good: quality === "good" }
-    );
+    onInputRef.current({ type: "action", action: "jump", quality });
   };
 
   const awardLanding = () => {

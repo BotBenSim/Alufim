@@ -4,7 +4,6 @@ export type CutRopeState = {
   score: number;
   needed: number;
   pool: string[];
-  lastQuality: "good" | "miss" | null;
 };
 
 export type Vec = { x: number; y: number };
@@ -200,7 +199,6 @@ export const cutRopeEngine: MinigameEngine = {
         score: 0,
         needed,
         pool,
-        lastQuality: null,
       } satisfies CutRopeState,
       progress: 0,
       complete: false,
@@ -208,19 +206,13 @@ export const cutRopeEngine: MinigameEngine = {
   },
   applyInput(session, input) {
     if (session.complete) return session;
-    if (input.type !== "action" || input.action !== "cut") return session;
+    if (input.action !== "cut" || input.quality === "miss") return session;
     const st = asState(session);
-    if (input.quality === "miss") {
-      return {
-        ...session,
-        state: { ...st, lastQuality: "miss" },
-      };
-    }
     const score = st.score + 1;
     const complete = score >= st.needed;
     return {
       ...session,
-      state: { ...st, score, lastQuality: "good" },
+      state: { ...st, score },
       progress: Math.min(1, score / st.needed),
       complete,
     };

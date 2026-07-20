@@ -18,12 +18,6 @@ export type {
 
 export { ACTIVE_ENGINES } from "./types";
 export { pickMinigameSkin, resetMinigameRecent } from "./pickMinigame";
-export {
-  JUMP_CONFIG_BY_ENGINE,
-  resolveJumpConfig,
-  tryBeginJump,
-  type JumpPlayConfig,
-} from "./jumpConfig";
 
 export const MINIGAME_ENGINES: Record<MinigameEngineId, MinigameEngine> = {
   pathDash: pathDashEngine,

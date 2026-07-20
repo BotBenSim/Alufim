@@ -40,17 +40,12 @@ export type MinigameContext = {
   skin: MinigameSkin;
 };
 
-export type MinigameInput =
-  | { type: "tap"; targetId?: string; x?: number; y?: number }
-  | { type: "swipe"; x0: number; y0: number; x1: number; y1: number }
-  | { type: "hold"; active: boolean }
-  | { type: "tick"; t: number }
-  | {
-      type: "action";
-      action: "jump" | "hop" | "slice" | "launch" | "step" | "cut";
-      targetId?: string;
-      quality: "good" | "miss";
-    };
+export type MinigameInput = {
+  type: "action";
+  action: "jump" | "hop" | "slice" | "launch" | "step" | "cut";
+  targetId?: string;
+  quality: "good" | "miss";
+};
 
 export type MinigameSession = {
   engineId: MinigameEngineId;

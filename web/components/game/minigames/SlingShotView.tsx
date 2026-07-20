@@ -187,10 +187,12 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
           window.setTimeout(() => setChomp(false), 420);
           setFlash("good");
           window.setTimeout(() => setFlash(null), 400);
-          onInputRef.current(
-            { type: "action", action: "launch", quality: "good", targetId: emoji },
-            { good: true }
-          );
+          onInputRef.current({
+            type: "action",
+            action: "launch",
+            quality: "good",
+            targetId: emoji,
+          });
           window.setTimeout(() => {
             if (!completeRef.current) {
               loadNextFood();
@@ -204,10 +206,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
           setPhaseSync("reset");
           setFlash("miss");
           window.setTimeout(() => setFlash(null), 350);
-          onInputRef.current(
-            { type: "action", action: "launch", quality: "miss" },
-            { good: false }
-          );
+          onInputRef.current({ type: "action", action: "launch", quality: "miss" });
           window.setTimeout(() => {
             if (!completeRef.current) {
               loadNextFood();

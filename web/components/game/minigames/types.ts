@@ -9,7 +9,7 @@ export type MinigameViewProps = {
   formArt: ArtDescriptor;
   character: CharacterDef;
   /** Forward engine input; Host applies store + default good/miss FX */
-  onInput: (input: MinigameInput, opts?: { good?: boolean }) => void;
+  onInput: (input: MinigameInput) => void;
   /** Play a mechanic-specific sound (jump, slice, bonk, …) */
   playSfx: (sfx: MinigameSfx) => void;
 };

@@ -82,15 +82,12 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
     const next: Board = { ...b, playerR: nr, playerC: nc };
     boardRef.current = next;
     setBoard(next);
-    playSfxRef.current("pop");
 
     if (atExit) {
+      // Host plays goodSfx ("pop") via onInput — don't double-fire here
       setFlash("good");
       window.setTimeout(() => setFlash(null), 420);
-      onInputRef.current(
-        { type: "action", action: "step", quality: "good" },
-        { good: true }
-      );
+      onInputRef.current({ type: "action", action: "step", quality: "good" });
       const nextScore = scoreRef.current + 1;
       window.setTimeout(() => {
         movingRef.current = false;
@@ -105,6 +102,7 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
       return;
     }
 
+    playSfxRef.current("pop");
     window.setTimeout(() => {
       movingRef.current = false;
     }, 90);

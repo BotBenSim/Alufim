@@ -14,7 +14,7 @@ related: [game-provider-pattern, data-driven-content, pure-logic-in-lib, play-be
 
 The play beat every N steps needed many short no-fail micro-games without rewriting the run
 loop for each one. Learning games already use a provider registry; play interludes needed the
-same additive pattern. Views also drifted (score/hint placement, sounds), so the UI side needed
+same additive pattern. Views also drifted (score placement, sounds), so the UI side needed
 the same strategy discipline.
 
 ## Decision
@@ -27,10 +27,10 @@ the same strategy discipline.
 [`web/components/game/minigames/registry.ts`](../../web/components/game/minigames/registry.ts)
 (`View` + `goodSfx` / `missSfx`). [`MinigameHost`](../../web/components/game/MinigameHost.tsx)
 looks up the strategy — no per-engine switch. All views share
-[`MinigameShell`](../../web/design-system/components/MinigameShell.tsx) so prompt / score /
-stage / hint stay in one place.
+[`MinigameShell`](../../web/design-system/components/MinigameShell.tsx) so score row +
+play stage stay consistent (prompts are spoken, not shown as reading text).
 
-**Jump feel:** double-jump, pace, gaps, and hints are not hardcoded in views. Defaults live in
+**Jump feel:** double-jump, pace, and gaps are not hardcoded in views. Defaults live in
 [`JUMP_CONFIG_BY_ENGINE`](../../web/lib/minigames/jumpConfig.ts); skins may override via
 `skin.jump`. Engines stash the resolved config on `session.state.jump`.
 
@@ -60,7 +60,7 @@ type MinigameUiStrategy = {
 
 - **Hard-coded feed overlay only** — no variety; kids tire quickly.
 - **One giant switch in the store / host** — every new game edits the engine.
-- **Per-view bespoke score/hint layout** — inconsistent and hard to teach.
+- **Per-view bespoke score layout** — inconsistent and hard to teach.
 
 ## Consequences: how to add an engine
 

@@ -11,6 +11,3 @@ build:
 
 test:
 	npm test
-
-test-speech:
-	npm run test:speech

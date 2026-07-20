@@ -154,10 +154,12 @@ export function CutRopeView({ session, formArt, onInput, playSfx }: MinigameView
           window.setTimeout(() => setChomp(false), 400);
           setFlash("good");
           window.setTimeout(() => setFlash(null), 420);
-          onInputRef.current(
-            { type: "action", action: "cut", quality: "good", targetId: r.food },
-            { good: true }
-          );
+          onInputRef.current({
+            type: "action",
+            action: "cut",
+            quality: "good",
+            targetId: r.food,
+          });
           window.setTimeout(() => {
             if (!completeRef.current) nextRound();
           }, 450);
@@ -166,10 +168,7 @@ export function CutRopeView({ session, formArt, onInput, playSfx }: MinigameView
           applyRound({ ...r, candy, vel: v, phase: "reset" });
           setFlash("miss");
           window.setTimeout(() => setFlash(null), 350);
-          onInputRef.current(
-            { type: "action", action: "cut", quality: "miss" },
-            { good: false }
-          );
+          onInputRef.current({ type: "action", action: "cut", quality: "miss" });
           window.setTimeout(() => {
             if (!completeRef.current) {
               settledRef.current = false;

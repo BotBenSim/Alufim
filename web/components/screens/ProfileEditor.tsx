@@ -255,7 +255,6 @@ export function ProfileEditor() {
               overlay={minigameOverlay}
               character={previewCharacter}
               formArt={previewFormArt}
-              totalXp={previewXp}
             />
             <button
               type="button"
