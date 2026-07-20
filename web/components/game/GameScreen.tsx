@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { CharacterArt } from "@/components/art/CharacterArt";
 import { AvatarFace } from "@/components/cards/ProfileCard";
 import { EvolvePreview } from "@/components/game/EvolvePreview";
+import { evolveCelebrateLine } from "@/data/characters";
 import { GamePlayPanel } from "@/components/game/GamePlayPanel";
 import { MinigameHost } from "@/components/game/MinigameHost";
 import { Badge, KidButton } from "@/design-system";
@@ -99,14 +100,21 @@ export function GameScreen() {
   }, [run, burst]);
 
   useEffect(() => {
-    if (evolveOverlay?.phase === "filmstrip" && evolveOverlay.filmstripForm === 0) {
-      burst(10);
+    if (!evolveOverlay) return;
+    // Reveal of the new form — the big payoff after tapping.
+    if (
+      evolveOverlay.phase === "filmstrip" &&
+      evolveOverlay.filmstripForm === evolveOverlay.formIdx
+    ) {
+      burst(90);
       playFanfare();
     }
-    if (evolveOverlay?.phase === "done") {
-      burst(130);
+    if (evolveOverlay.phase === "done") {
+      burst(160);
       playFanfare();
-      if (run) speak(run.character.cheer);
+      if (run) speak(evolveCelebrateLine(run.character, evolveOverlay.formIdx));
+      const wave = window.setTimeout(() => burst(100), 900);
+      return () => window.clearTimeout(wave);
     }
   }, [evolveOverlay?.phase, evolveOverlay?.filmstripForm, burst, playFanfare, run, speak]);
 

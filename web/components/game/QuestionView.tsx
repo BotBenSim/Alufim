@@ -12,7 +12,7 @@ import type { AnswerChoice } from "@/lib/answerChoice";
 import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
 import type { RunState } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { repeatStr } from "@/lib/random";
+import { numberOptions, repeatStr } from "@/lib/random";
 
 function emojiSize(n: number) {
   if (n <= 3) return 44;
@@ -116,11 +116,15 @@ export function QuestionView({
       const pointer = "👆";
 
       if (fq.kind === "num") {
+        const answer = fq.answer as number;
+        const maxNum = (fq.maxNum as number) || Math.max(5, answer);
+        const raw = (fq as { options?: number[] }).options;
+        const options = (raw?.length ? raw : numberOptions(answer, maxNum)).map(String);
         return {
           kind: "find" as const,
-          prompt: `מצאו את המספר ${HEB_NUM[fq.answer as number] || fq.answer}`,
+          prompt: `מצאו את המספר ${HEB_NUM[answer] || answer}`,
           hint: pointer,
-          options: (fq as { options?: number[] }).options?.map(String) ?? [],
+          options,
           variant: "answerFind" as const,
         };
       }
