@@ -115,7 +115,7 @@ type Store = UiState & {
   selectProfile: (id: string) => void;
   selectCharacter: (id: string) => void;
   selectGame: (id: GameId) => void;
-  startGame: () => void;
+  startGame: (gameId?: GameId) => void;
   goHome: () => void;
   openProfileEditor: (id: string | null) => void;
   updateEditorDraft: (patch: Partial<NonNullable<UiState["editorDraft"]>>) => void;
@@ -212,15 +212,12 @@ export const useStore = create<Store>()(
       setScreen: (screen) => set({ screen }),
 
       selectProfile: (id) => {
-        set((state) => {
-          const p = findProfile(state.app, id);
-          return {
-            app: { ...state.app, lastProfileId: id },
-            selectedGameId: null,
-            homeCharSection: true,
-            // Keep games visible when this profile already has a chosen animal
-            homeGameSection: profileHasActiveAnimal(p),
-          };
+        set({
+          app: { ...get().app, lastProfileId: id },
+          selectedGameId: null,
+          homeCharSection: true,
+          // Always land on animal pick next — games open only after choosing an animal.
+          homeGameSection: false,
         });
       },
 
@@ -242,8 +239,9 @@ export const useStore = create<Store>()(
 
       selectGame: (id) => set({ selectedGameId: id }),
 
-      startGame: () => {
-        const { app, selectedGameId } = get();
+      startGame: (gameId) => {
+        const { app } = get();
+        const selectedGameId = gameId ?? get().selectedGameId;
         const p = findProfile(app, app.lastProfileId);
         const char = p?.activeCharacterId ? characterById(p.activeCharacterId) : null;
         if (!p || !char || !selectedGameId) return;
@@ -278,6 +276,7 @@ export const useStore = create<Store>()(
         };
 
         set({
+          selectedGameId,
           run: readyRun,
           screen: "game",
           feedback: "",

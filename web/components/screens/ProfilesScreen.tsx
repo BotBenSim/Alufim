@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AddProfileCard,
   ProfileCard,
@@ -31,6 +31,9 @@ export function ProfilesScreen() {
   const { ensure } = useAudio();
   const { speak } = useSpeech();
   const [previewCharacterId, setPreviewCharacterId] = useState<string | null>(null);
+  const charSectionRef = useRef<HTMLElement>(null);
+  const gameSectionRef = useRef<HTMLElement>(null);
+  const playBtnRef = useRef<HTMLDivElement>(null);
 
   const profile = useMemo(
     () => app.profiles.find((p) => p.id === app.lastProfileId) ?? null,
@@ -42,6 +45,17 @@ export function ProfilesScreen() {
     [profile]
   );
 
+  // After each pick, jump the viewport to the next choice.
+  useEffect(() => {
+    if (!homeCharSection || homeGameSection) return;
+    charSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [homeCharSection, homeGameSection, app.lastProfileId]);
+
+  useEffect(() => {
+    if (!selectedGameId) return;
+    playBtnRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [selectedGameId]);
+
   const handleSelectProfile = (id: string, name: string) => {
     ensure();
     selectProfile(id);
@@ -49,12 +63,19 @@ export function ProfilesScreen() {
   };
 
   const handleSelectCharacter = (id: string, he: string) => {
-    // Always ensure games section opens for the active animal (even if already picked).
     ensure();
     selectCharacter(id);
     if (previewCharacterId === id) return;
     speak(he);
     setPreviewCharacterId(id);
+  };
+
+  const handlePreviewClose = () => {
+    setPreviewCharacterId(null);
+    // After the animal show, jump to choosing a game.
+    window.requestAnimationFrame(() => {
+      gameSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
 
   const handleSelectGame = (id: GameId) => {
@@ -94,7 +115,11 @@ export function ProfilesScreen() {
       </section>
 
       {homeCharSection && profile && (
-        <section id="charSection" className="show flex w-full flex-col items-center gap-6">
+        <section
+          ref={charSectionRef}
+          id="charSection"
+          className="show flex w-full scroll-mt-4 flex-col items-center gap-6"
+        >
           <h2 className="text-center text-[clamp(20px,4.2vw,28px)] font-extrabold text-heading">
             בחרו חיה
           </h2>
@@ -121,7 +146,11 @@ export function ProfilesScreen() {
       )}
 
       {homeGameSection && profile && (
-        <section id="gameSection" className="show flex w-full flex-col items-center gap-6">
+        <section
+          ref={gameSectionRef}
+          id="gameSection"
+          className="show flex w-full scroll-mt-4 flex-col items-center gap-6"
+        >
           <h2 className="text-center text-[clamp(20px,4.2vw,28px)] font-extrabold text-heading">
             בחרו משחק
           </h2>
@@ -138,22 +167,24 @@ export function ProfilesScreen() {
               />
             ))}
           </div>
-          <KidButton
-            id="gamePlay"
-            variant="play"
-            disabled={!selectedGameId}
-            onClick={() => {
-              ensure();
-              startGame();
-            }}
-          >
-            שחקו
-          </KidButton>
+          <div ref={playBtnRef} className="scroll-mt-6">
+            <KidButton
+              id="gamePlay"
+              variant="play"
+              disabled={!selectedGameId}
+              onClick={() => {
+                ensure();
+                startGame();
+              }}
+            >
+              שחקו
+            </KidButton>
+          </div>
         </section>
       )}
       <CharacterPreviewOverlay
         characterId={previewCharacterId}
-        onClose={() => setPreviewCharacterId(null)}
+        onClose={handlePreviewClose}
       />
     </Screen>
   );

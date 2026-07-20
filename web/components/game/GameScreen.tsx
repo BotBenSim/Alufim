@@ -182,25 +182,52 @@ export function GameScreen() {
 
   return (
     <>
-      <div id="topbar" className="relative z-[3] flex items-center gap-2.5 px-3.5 py-2.5 [direction:rtl]">
-        <KidButton variant="top" id="homeBtn" onClick={handleHome}>
-          🏠
-        </KidButton>
-        <Badge className="badge">
-          <AvatarFace avatar={profile.avatar} size={22} />
-          {profile.name}
+      <div
+        id="topbar"
+        className="relative z-[3] flex items-center gap-3 px-3 py-2.5 [direction:rtl]"
+      >
+        <Badge className="badge min-w-0 flex-1 overflow-hidden px-2.5 text-[clamp(14px,3.6vw,18px)]">
+          <AvatarFace avatar={profile.avatar} size={22} className="shrink-0" />
+          <span className="truncate">{profile.name}</span>
         </Badge>
-        <Badge variant="step" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <Badge variant="step" className="shrink-0 px-2.5 text-[clamp(14px,3.6vw,18px)]">
           שלב {run.step}
         </Badge>
-        <button
-          type="button"
-          id="restartBtn"
-          className="mr-auto rounded-[18px] border-none bg-[#FF6B6B] px-3.5 py-2 text-[17px] font-bold text-white shadow-[0_4px_0_#C94A4A] active:translate-y-0.5"
-          onClick={restartGame}
-        >
-          🔄
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <KidButton variant="top" id="homeBtn" className="shrink-0" onClick={handleHome}>
+            🏠
+          </KidButton>
+          <button
+            type="button"
+            id="restartBtn"
+            aria-label="התחילו מחדש"
+            className="inline-flex items-center justify-center rounded-[18px] border-none bg-[#FF6B6B] px-3 py-2 text-white shadow-[0_4px_0_#C94A4A] active:translate-y-0.5"
+            onClick={restartGame}
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden
+              className="block"
+            >
+              <path
+                d="M21 12a9 9 0 1 1-2.6-6.3"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M21 3v6h-6"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div id="playWrap" className="relative z-[2] flex min-h-0 flex-1 flex-col">
