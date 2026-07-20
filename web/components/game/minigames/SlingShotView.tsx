@@ -16,8 +16,13 @@ type Burst = {
   y: number;
 };
 
-/** Tuned so a normal pull’s arc lands in the catch zone. */
-const ANCHOR: Vec = { x: 0.22, y: 0.7 };
+/** Fork crotch / launch origin. */
+const ANCHOR: Vec = { x: 0.24, y: 0.68 };
+/**
+ * Rest pouch — snack sits a bit behind the bow so the ready state is obvious
+ * (Angry Birds–style: bird loaded left of the Y-fork).
+ */
+const REST: Vec = { x: 0.155, y: 0.74 };
 const CATCH: Vec = { x: 0.72, y: 0.62 };
 const CATCH_R = 0.2;
 const MAX_PULL = 0.22;
@@ -80,7 +85,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
   const st = session.state as SlingShotState;
   const stageRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<"ready" | "aim" | "fly" | "reset">("ready");
-  const [pos, setPos] = useState<Vec>(ANCHOR);
+  const [pos, setPos] = useState<Vec>(REST);
   const [pathDots, setPathDots] = useState<Vec[]>([]);
   const [food, setFood] = useState(() => pickFood(st.pool));
   const [bursts, setBursts] = useState<Burst[]>([]);
@@ -91,7 +96,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
   const phaseRef = useRef(phase);
   const posRef = useRef(pos);
   posRef.current = pos;
-  const pullRef = useRef<Vec>(ANCHOR);
+  const pullRef = useRef<Vec>(REST);
   const foodRef = useRef(food);
   foodRef.current = food;
   const velRef = useRef<Vec>({ x: 0, y: 0 });
@@ -130,9 +135,9 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
   const resetToSling = () => {
     velRef.current = { x: 0, y: 0 };
     hitThisFlightRef.current = false;
-    posRef.current = ANCHOR;
-    pullRef.current = ANCHOR;
-    setPos(ANCHOR);
+    posRef.current = REST;
+    pullRef.current = REST;
+    setPos(REST);
     setPathDots([]);
     setTilt(0);
     setPhaseSync("ready");
@@ -223,8 +228,8 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
     if (completeRef.current || phaseRef.current !== "ready") return;
     const n = toNorm(e.clientX, e.clientY);
     if (!n) return;
-    // Generous grab area around the sling
-    if (Math.hypot(n.x - ANCHOR.x, n.y - ANCHOR.y) > 0.28) return;
+    // Grab near the resting snack / pouch (behind the bow)
+    if (Math.hypot(n.x - REST.x, n.y - REST.y) > 0.22) return;
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
@@ -282,11 +287,15 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
       flash={flash}
       flashGoodLabel="טעים!"
       flashMissLabel="עוד פעם!"
-      stageClassName="border-none bg-transparent"
+      stageClassName="border-none"
     >
       <div
-        className="pointer-events-none absolute inset-x-0 bg-[#6B8F3C]/90"
-        style={{ bottom: 0, height: "16%" }}
+        className="pointer-events-none absolute inset-x-0 bg-[#E8D5A8]"
+        style={{
+          bottom: 0,
+          height: "16%",
+          boxShadow: "inset 0 3px 0 #C4A96A",
+        }}
       />
       <div
         className="pointer-events-none absolute inset-x-0 bg-[#8B5A2B]/85"
@@ -310,7 +319,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
 
       {phase === "aim" && (
         <div
-          className="pointer-events-none absolute rounded-full border-2 border-dashed border-white/70 bg-white/10"
+          className="pointer-events-none absolute rounded-full border-[3px] border-dashed border-[#E8590C]"
           style={{
             left: `${CATCH.x * 100}%`,
             top: `${CATCH.y * 100}%`,
@@ -321,21 +330,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
         />
       )}
 
-      <div
-        className="pointer-events-none absolute"
-        style={{
-          left: `${ANCHOR.x * 100}%`,
-          top: `${(ANCHOR.y - 0.12) * 100}%`,
-          width: 28,
-          height: 70,
-          transform: "translate(-50%, 0)",
-        }}
-      >
-        <div className="absolute bottom-0 left-1/2 h-[42px] w-[10px] -translate-x-1/2 rounded-sm bg-[#6B3F1A]" />
-        <div className="absolute left-0 top-0 h-[38px] w-[10px] -rotate-[18deg] rounded-sm bg-[#8B5A2B]" />
-        <div className="absolute right-0 top-0 h-[38px] w-[10px] rotate-[18deg] rounded-sm bg-[#8B5A2B]" />
-      </div>
-
+      {/* Rubber bands — pouch behind the fork at rest */}
       {showFoodOnSling && (
         <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
           <line
@@ -363,18 +358,19 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
         pathDots.map((d, i) => (
           <div
             key={`d${i}`}
-            className="pointer-events-none absolute rounded-full bg-white/75"
+            className="pointer-events-none absolute rounded-full bg-[#E8590C] ring-2 ring-[#FFE8CC]"
             style={{
               left: `${d.x * 100}%`,
               top: `${d.y * 100}%`,
-              width: 6 + (i % 3),
-              height: 6 + (i % 3),
+              width: 7 + (i % 3),
+              height: 7 + (i % 3),
               transform: "translate(-50%, -50%)",
-              opacity: 0.9 - i * 0.035,
+              opacity: 0.95 - i * 0.04,
             }}
           />
         ))}
 
+      {/* Snack first (behind), then the bow on top so rest pose reads as “loaded” */}
       {(showFoodOnSling || showFoodFlying) && (
         <div
           className="pointer-events-none absolute flex items-center justify-center leading-none"
@@ -384,12 +380,28 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
             width: FOOD,
             height: FOOD,
             fontSize: FOOD,
+            zIndex: showFoodFlying ? 2 : 1,
             transform: `translate(-50%, -50%) rotate(${showFoodFlying ? tilt : 0}deg)`,
           }}
         >
           {food}
         </div>
       )}
+
+      <div
+        className="pointer-events-none absolute z-[2]"
+        style={{
+          left: `${ANCHOR.x * 100}%`,
+          top: `${(ANCHOR.y - 0.12) * 100}%`,
+          width: 28,
+          height: 70,
+          transform: "translate(-50%, 0)",
+        }}
+      >
+        <div className="absolute bottom-0 left-1/2 h-[42px] w-[10px] -translate-x-1/2 rounded-sm bg-[#6B3F1A]" />
+        <div className="absolute left-0 top-0 h-[38px] w-[10px] -rotate-[18deg] rounded-sm bg-[#8B5A2B]" />
+        <div className="absolute right-0 top-0 h-[38px] w-[10px] rotate-[18deg] rounded-sm bg-[#8B5A2B]" />
+      </div>
 
       {bursts.map((b) => (
         <div

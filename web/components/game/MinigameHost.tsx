@@ -67,18 +67,20 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
     if (before && after?.done && !before.done) finishFx();
   };
 
+  // Preview (settings): full overlay. In-run: sits in the question-card slot under the XP bar.
+  const shellClass = overlay.preview
+    ? "overlay show absolute inset-0 z-[1] flex items-center justify-center bg-transparent"
+    : "relative w-full";
+
   return (
-    <div
-      id="ovMinigame"
-      className={
-        overlay.preview
-          ? "overlay show absolute inset-0 z-[1] flex items-center justify-center bg-transparent"
-          : "overlay show absolute inset-0 z-[9] flex items-center justify-center bg-transparent"
-      }
-    >
-      {/* Soft veil so score/prompt stay readable over the shared sky */}
-      <div className="pointer-events-none absolute inset-0 bg-white/25" />
-      <div className="relative z-[1] flex h-full w-full max-w-[960px] flex-col items-center justify-center gap-2 px-2 py-3">
+    <div id="ovMinigame" className={shellClass}>
+      <div
+        className={
+          overlay.preview
+            ? "relative z-[1] flex h-full w-full max-w-[520px] flex-col items-center justify-center gap-2 px-2 py-3"
+            : "relative w-full"
+        }
+      >
         {!overlay.done && (
           <View
             session={overlay.session}
@@ -89,12 +91,12 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
           />
         )}
         {overlay.done && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-1.5">
-            <div className="animate-[caughtBounce_1.4s_ease-in-out_infinite] text-[clamp(90px,22vw,170px)] drop-shadow-lg">
-              <CharacterArt art={formArt} size={160} />
+          <div className="flex min-h-[min(42vh,360px)] w-full flex-col items-center justify-center gap-1.5 rounded-[26px] bg-white/90 px-3 py-4 shadow-[0_8px_22px_rgba(29,78,122,.18)]">
+            <div className="animate-[caughtBounce_1.4s_ease-in-out_infinite] text-[clamp(72px,18vw,140px)] drop-shadow-lg">
+              <CharacterArt art={formArt} size={120} />
             </div>
-            <div className="text-[clamp(40px,9vw,64px)]">✨</div>
-            <div className="text-[clamp(24px,6vw,42px)] font-extrabold text-heading [text-shadow:0_1px_0_#fff]">
+            <div className="text-[clamp(32px,7vw,52px)]">✨</div>
+            <div className="text-center text-[clamp(20px,4.5vw,34px)] font-extrabold text-heading [text-shadow:0_1px_0_#fff]">
               ה{character.he} שיחק והתחזק!
             </div>
           </div>

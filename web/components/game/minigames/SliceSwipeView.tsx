@@ -187,7 +187,7 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
       needed={st.needed}
       flash={flash}
       flashGoodLabel="חתכת!"
-      stageClassName="touch-none bg-transparent"
+      stageClassName="touch-none"
       stageProps={{
         onPointerDown: (e) => {
           (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
@@ -216,7 +216,7 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
           ref={(el) => {
             elRefs.current[f.id] = el;
           }}
-          className="absolute z-[1] border-none bg-transparent p-0 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
+          className="absolute z-[1] border-none p-0 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
           style={{
             left: `${f.x * 100}%`,
             top: `${f.y * 100}%`,

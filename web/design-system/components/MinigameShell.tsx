@@ -42,7 +42,8 @@ export function MinigameShell({
   return (
     <div
       className={cn(
-        "flex w-full max-w-[560px] shrink-0 flex-col items-center gap-2 px-2",
+        // Matches #questionCard / play column width (parent is w-[min(94vw,520px)])
+        "flex w-full shrink-0 flex-col items-stretch gap-2",
         className
       )}
     >
@@ -77,7 +78,8 @@ export function MinigameShell({
 
       <div
         className={cn(
-          "relative h-[min(42vh,360px)] w-full shrink-0 overflow-hidden rounded-[22px] bg-white/30 shadow-inner ring-1 ring-white/50 backdrop-blur-[1px]",
+          // Same footprint as #questionCard
+          "relative h-[min(42vh,360px)] w-full shrink-0 overflow-hidden rounded-[26px] bg-white/90 shadow-[0_8px_22px_rgba(29,78,122,.18)]",
           stageClassName,
           stageExtra
         )}

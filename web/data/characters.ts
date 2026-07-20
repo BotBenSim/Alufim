@@ -30,7 +30,8 @@ export const CHARACTERS = [
     sky: "#F6D58A",
     ground: "#C8923B",
     accent: "#E0892E",
-    counts: "🐾",
+    // Single clear mark — 🐾 reads as two prints and confuses counting
+    counts: "🦁",
     food: "🍖",
     reward: { title: "תפסו פקעת חוט", emoji: "🧶" },
     cheer: "שאגה ענקית!",
@@ -86,7 +87,8 @@ export const CHARACTERS = [
     sky: "#BFE9FF",
     ground: "#8FBF6A",
     accent: "#4CAF50",
-    counts: "🍃",
+    // 🍃 often draws as several leaves — bad for one-to-one counting
+    counts: "🐢",
     food: "🌿",
     reward: { title: "תפסו טיפות", emoji: "💧" },
     cheer: "צמחת חזק!",

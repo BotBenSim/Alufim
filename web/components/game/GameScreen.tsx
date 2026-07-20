@@ -214,6 +214,7 @@ export function GameScreen() {
 
       <div id="playWrap" className="relative z-[2] flex min-h-0 flex-1 flex-col">
         <div id="gameArea" className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3.5 px-2.5 pb-3.5 pt-1.5">
+          {/* XP bar always stays; only the question card swaps for the minigame */}
           <GamePlayPanel
             run={run}
             formArt={formArt}
@@ -223,11 +224,26 @@ export function GameScreen() {
             wobbleAnswer={wobbleAnswer}
             onAnswer={handleAnswer}
             onSpeak={handleSpeak}
+            body={
+              minigameOverlay ? (
+                <MinigameHost
+                  overlay={minigameOverlay}
+                  character={run.character}
+                  formArt={formArt}
+                  totalXp={prog.totalXp}
+                />
+              ) : undefined
+            }
           />
 
-          <div id="feedback" className="min-h-[34px] text-center text-[clamp(19px,3.6vw,28px)] font-bold text-heading">
-            {feedback}
-          </div>
+          {!minigameOverlay && (
+            <div
+              id="feedback"
+              className="min-h-[34px] text-center text-[clamp(19px,3.6vw,28px)] font-bold text-heading"
+            >
+              {feedback}
+            </div>
+          )}
         </div>
       </div>
 
@@ -251,15 +267,6 @@ export function GameScreen() {
             </div>
           </div>
         </div>
-      )}
-
-      {minigameOverlay && (
-        <MinigameHost
-          overlay={minigameOverlay}
-          character={run.character}
-          formArt={formArt}
-          totalXp={prog.totalXp}
-        />
       )}
 
       {evolveOverlay && <EvolvePreview />}

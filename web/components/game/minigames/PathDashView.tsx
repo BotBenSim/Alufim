@@ -16,6 +16,9 @@ import type { MinigameViewProps } from "./types";
 
 type Roof = { id: number; x: number; w: number };
 
+/** Half-width of feet for land/stand tests (normalized). Generous so edge landings stick. */
+const FEET_HALF = 0.055;
+
 function makeRoof(id: number, x: number, cfg: JumpPlayConfig): Roof {
   return { id, x, w: randRange(cfg.roofWidth) };
 }
@@ -32,9 +35,12 @@ function seedRoofs(cfg: JumpPlayConfig): Roof[] {
   return roofs;
 }
 
+/** True if any part of the feet overlaps the roof — not just the center pixel. */
 function onRoof(roofs: Roof[], px: number): Roof | null {
+  const left = px - FEET_HALF;
+  const right = px + FEET_HALF;
   for (const r of roofs) {
-    if (px >= r.x && px <= r.x + r.w) return r;
+    if (right >= r.x && left <= r.x + r.w) return r;
   }
   return null;
 }
@@ -237,7 +243,7 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
       flash={flash}
       flashGoodLabel="גג!"
       flashMissLabel="אופס…"
-      stageClassName="cursor-pointer border-none bg-transparent"
+      stageClassName="cursor-pointer border-none"
       stageProps={{
         role: "button",
         tabIndex: 0,

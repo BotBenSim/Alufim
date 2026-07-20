@@ -283,7 +283,7 @@ export function CutRopeView({ session, formArt, onInput, playSfx }: MinigameView
       flash={flash}
       flashGoodLabel="טעים!"
       flashMissLabel="עוד פעם!"
-      stageClassName="border-none bg-transparent"
+      stageClassName="border-none"
     >
       <div
         ref={stageRef}
@@ -297,8 +297,12 @@ export function CutRopeView({ session, formArt, onInput, playSfx }: MinigameView
         onPointerCancel={onPointerUp}
       >
         <div
-          className="pointer-events-none absolute inset-x-0 bg-[#6B8F3C]/85"
-          style={{ bottom: 0, height: "14%" }}
+          className="pointer-events-none absolute inset-x-0 bg-[#E8D5A8]"
+          style={{
+            bottom: 0,
+            height: "14%",
+            boxShadow: "inset 0 3px 0 #C4A96A",
+          }}
         />
 
         <div
@@ -315,8 +319,9 @@ export function CutRopeView({ session, formArt, onInput, playSfx }: MinigameView
           <CharacterArt art={formArt} size={ART} className="drop-shadow-md" />
         </div>
 
+        {/* Target ring — orange border only so the character stays crisp */}
         <div
-          className="pointer-events-none absolute rounded-full border-2 border-dashed border-white/50"
+          className="pointer-events-none absolute rounded-full border-[3px] border-dashed border-[#E8590C]"
           style={{
             left: `${layout.mouth.x * 100}%`,
             top: `${layout.mouth.y * 100}%`,

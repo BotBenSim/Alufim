@@ -7,6 +7,7 @@ import { findCatLabel } from "@/data/find";
 import { addRenderMeta, type AddQuestion } from "@/lib/providers/add";
 import { subRenderMeta, type SubQuestion } from "@/lib/providers/sub";
 import type { EngQuestion } from "@/lib/providers/eng";
+import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
 import type { RunState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { repeatStr } from "@/lib/random";
@@ -189,7 +190,10 @@ export function QuestionView({
   return (
     <div
       id="questionCard"
-      className="relative flex w-full flex-col items-center gap-2 rounded-[26px] bg-white/90 px-4 py-3.5 pr-14 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
+      className={cn(
+        PLAY_CARD_STAGE_CLASS,
+        "flex flex-col items-center justify-center gap-2 bg-white/90 px-4 py-3.5 pr-14 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
+      )}
     >
       <KidButton
         variant="speak"

@@ -171,7 +171,7 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
       flash={flash}
       flashGoodLabel="יצאת!"
       flashMissLabel="קיר!"
-      stageClassName="border-none bg-transparent"
+      stageClassName="border-none"
     >
       <div
         className="absolute inset-0 z-10 touch-none select-none"

@@ -201,7 +201,7 @@ export function TimingBounceView({ session, formArt, onInput, playSfx }: Minigam
       flash={flash}
       flashGoodLabel="יופי!"
       flashMissLabel="אוי!"
-      stageClassName="cursor-pointer border-none bg-transparent"
+      stageClassName="cursor-pointer border-none"
       stageProps={{
         role: "button",
         tabIndex: 0,
