@@ -35,7 +35,6 @@ export function GameScreen() {
   const { speak, speakEn, cancel } = useSpeech();
   const { burst } = useConfetti();
   const lastSpokenKey = useRef<string | null>(null);
-  const introPendingKey = useRef<string | null>(null);
   const prevStep = useRef<number | null>(null);
 
   const profile = app.profiles.find((p) => p.id === app.lastProfileId) ?? null;
@@ -56,42 +55,14 @@ export function GameScreen() {
     if (showMission || minigameOverlay || evolveOverlay) return;
     if (run.phase !== "learn") return;
     if (lastSpokenKey.current === run.currentKey) return;
-    if (introPendingKey.current === run.currentKey) return;
 
     ensure();
-
-    const isIntro = run.step === 1 && lastSpokenKey.current === null;
-    if (isIntro) {
-      introPendingKey.current = run.currentKey;
-      speak("יוצאים לדרך!");
-      const key = run.currentKey;
-      const t = window.setTimeout(() => {
-        const st = useStore.getState();
-        const r = st.run;
-        if (
-          r?.currentKey === key &&
-          r.current &&
-          !r.locked &&
-          !st.showMission &&
-          !st.minigameOverlay &&
-          !st.evolveOverlay
-        ) {
-          speakQuestion(r.current, speak, speakEn);
-          lastSpokenKey.current = key;
-        }
-        introPendingKey.current = null;
-      }, 1300);
-      return () => window.clearTimeout(t);
-    }
-
     speakQuestion(run.current, speak, speakEn);
     lastSpokenKey.current = run.currentKey;
   }, [
     run?.current,
     run?.currentKey,
-    run?.step,
     run?.phase,
-    run?.locked,
     showMission,
     minigameOverlay,
     evolveOverlay,
@@ -103,7 +74,6 @@ export function GameScreen() {
   useEffect(() => {
     if (!run) {
       lastSpokenKey.current = null;
-      introPendingKey.current = null;
     }
   }, [run]);
 
@@ -185,7 +155,6 @@ export function GameScreen() {
   const handleHome = () => {
     cancel();
     lastSpokenKey.current = null;
-    introPendingKey.current = null;
     goHome();
   };
 
@@ -214,6 +183,7 @@ export function GameScreen() {
 
       <div id="playWrap" className="relative z-[2] flex min-h-0 flex-1 flex-col">
         <div id="gameArea" className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3.5 px-2.5 pb-3.5 pt-1.5">
+          {/* XP bar always stays; only the question card swaps for the minigame */}
           <GamePlayPanel
             run={run}
             formArt={formArt}
@@ -223,11 +193,25 @@ export function GameScreen() {
             wobbleAnswer={wobbleAnswer}
             onAnswer={handleAnswer}
             onSpeak={handleSpeak}
+            body={
+              minigameOverlay ? (
+                <MinigameHost
+                  overlay={minigameOverlay}
+                  character={run.character}
+                  formArt={formArt}
+                />
+              ) : undefined
+            }
           />
 
-          <div id="feedback" className="min-h-[34px] text-center text-[clamp(19px,3.6vw,28px)] font-bold text-heading">
-            {feedback}
-          </div>
+          {!minigameOverlay && (
+            <div
+              id="feedback"
+              className="min-h-[34px] text-center text-[clamp(19px,3.6vw,28px)] font-bold text-heading"
+            >
+              {feedback}
+            </div>
+          )}
         </div>
       </div>
 
@@ -251,15 +235,6 @@ export function GameScreen() {
             </div>
           </div>
         </div>
-      )}
-
-      {minigameOverlay && (
-        <MinigameHost
-          overlay={minigameOverlay}
-          character={run.character}
-          formArt={formArt}
-          totalXp={prog.totalXp}
-        />
       )}
 
       {evolveOverlay && <EvolvePreview />}

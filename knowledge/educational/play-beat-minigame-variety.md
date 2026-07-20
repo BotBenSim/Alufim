@@ -33,5 +33,6 @@ host runs `start` / `applyInput` until `isComplete`, then awards play XP and ret
 - Never introduce fail states, lives, or bomb punishments (especially slice-swipe).
 - Do not celebrate every micro-win as hard as evolution.
 - Each active engine needs a real skill moment (timing or aim); miss means “try again,” never lose.
-- Stub engines (`meterBurst`, `tapCollect`, `catch`) stay registered but are not in the play-beat
-  picker until they meet that bar (`ACTIVE_ENGINES` in `web/lib/minigames/types.ts`).
+- Only skill engines ship: city roofs, dino race, ninja slice, sling-shot snack feed,
+  character maze, and cut-rope (`ACTIVE_ENGINES`). Stub engines (`meterBurst`, `tapCollect`,
+  `catch`) were removed rather than left half-built.

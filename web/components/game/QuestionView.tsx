@@ -7,6 +7,7 @@ import { findCatLabel } from "@/data/find";
 import { addRenderMeta, type AddQuestion } from "@/lib/providers/add";
 import { subRenderMeta, type SubQuestion } from "@/lib/providers/sub";
 import type { EngQuestion } from "@/lib/providers/eng";
+import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
 import type { RunState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { repeatStr } from "@/lib/random";
@@ -69,10 +70,10 @@ export function QuestionView({
 
     if (q.op === "add") {
       const aq = q as unknown as AddQuestion;
-      const meta = addRenderMeta(aq, run.step, em);
+      const meta = addRenderMeta(aq, run.step, em, run.curriculum, run.level);
       return {
         kind: "math" as const,
-        countOn: meta.countOn,
+        visual: meta.visual,
         a: aq.a,
         b: aq.b,
         op: "+",
@@ -84,9 +85,10 @@ export function QuestionView({
 
     if (q.op === "sub") {
       const sq = q as unknown as SubQuestion;
-      const meta = subRenderMeta(sq);
+      const meta = subRenderMeta(sq, run.step, run.curriculum, run.level);
       return {
         kind: "sub" as const,
+        visual: meta.visual,
         a: sq.a,
         b: sq.b,
         digits: meta.digits,
@@ -182,44 +184,64 @@ export function QuestionView({
     }
 
     return null;
-  }, [q, run.step, em]);
+  }, [q, run.step, run.curriculum, run.level, em]);
 
   if (!q || !choiceProps) return null;
 
   return (
     <div
       id="questionCard"
-      className="relative flex w-full flex-col items-center gap-2 rounded-[26px] bg-white/90 px-4 py-3.5 pr-14 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
+      className={cn(
+        PLAY_CARD_STAGE_CLASS,
+        "relative flex flex-col items-center justify-center gap-2 bg-white/90 px-4 pb-3.5 pt-11 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
+      )}
     >
       <KidButton
         variant="speak"
         id="speakBtn"
-        className="absolute right-3 top-3 z-[1]"
+        className="absolute end-2.5 top-2.5 z-[1]"
         onClick={onSpeak}
         aria-label="השמע שוב"
       >
-        🔊
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="currentColor"
+          aria-hidden
+        >
+          <path d="M3 9v6h4l5 4V5L7 9H3Zm13.5 3a4.5 4.5 0 0 0-2.4-4v8a4.5 4.5 0 0 0 2.4-4Zm2.5 0c0 2.5-1.1 4.7-2.8 6.2l1.4 1.4A9.5 9.5 0 0 0 21 12a9.5 9.5 0 0 0-3.4-7.2l-1.4 1.4A7.5 7.5 0 0 1 19 12Z" />
+        </svg>
       </KidButton>
 
       {choiceProps.kind === "math" && (
         <>
-          <div id="shapesRow" className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]">
-            {choiceProps.countOn ? (
-              <>
-                <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
-                  {choiceProps.a}
-                </span>
-                <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">+</span>
-                <EmojiGroup emoji={em} count={choiceProps.b!} />
-              </>
-            ) : (
-              <>
-                <EmojiGroup emoji={em} count={choiceProps.a!} />
-                <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">+</span>
-                <EmojiGroup emoji={em} count={choiceProps.b!} />
-              </>
-            )}
-          </div>
+          {choiceProps.visual !== "numbers" && (
+            <div
+              id="shapesRow"
+              className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
+            >
+              {choiceProps.visual === "countOn" ? (
+                <>
+                  <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                    {choiceProps.a}
+                  </span>
+                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                    +
+                  </span>
+                  <EmojiGroup emoji={em} count={choiceProps.b!} />
+                </>
+              ) : (
+                <>
+                  <EmojiGroup emoji={em} count={choiceProps.a!} />
+                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                    +
+                  </span>
+                  <EmojiGroup emoji={em} count={choiceProps.b!} />
+                </>
+              )}
+            </div>
+          )}
           <div
             id="digitsRow"
             className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
@@ -232,9 +254,26 @@ export function QuestionView({
 
       {choiceProps.kind === "sub" && (
         <>
-          <div id="shapesRow" className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]">
-            <EmojiGroup emoji={em} count={choiceProps.a!} crossed={choiceProps.b} />
-          </div>
+          {choiceProps.visual !== "numbers" && (
+            <div
+              id="shapesRow"
+              className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
+            >
+              {choiceProps.visual === "countOn" ? (
+                <>
+                  <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                    {choiceProps.a}
+                  </span>
+                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                    −
+                  </span>
+                  <EmojiGroup emoji={em} count={choiceProps.b!} />
+                </>
+              ) : (
+                <EmojiGroup emoji={em} count={choiceProps.a!} crossed={choiceProps.b} />
+              )}
+            </div>
+          )}
           <div
             id="digitsRow"
             className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"

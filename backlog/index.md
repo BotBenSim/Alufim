@@ -37,12 +37,15 @@ Off-ramps: `rejected`, `superseded`.
 | --- | --- | --- | --- |
 | [start-from-first-form](start-from-first-form.md) | Start animals at first living form (not egg) | accepted | SDT relatedness |
 | [play-beat-minigame-host](play-beat-minigame-host.md) | Extendable MinigameHost + engine registry on the play beat | accepted | Attention span + novelty |
-| [minigame-engine-tap-collect](minigame-engine-tap-collect.md) | Engine: tap-collect (savanna sparkles / reef gems) | accepted | Attention span + novelty |
-| [minigame-engine-catch](minigame-engine-catch.md) | Engine: catch (falling treats / shrimp catch) | accepted | Attention span + novelty |
+| [minigame-engine-tap-collect](minigame-engine-tap-collect.md) | Engine: tap-collect (removed stub) | superseded | Attention span + novelty |
+| [minigame-engine-catch](minigame-engine-catch.md) | Engine: catch (removed stub) | superseded | Attention span + novelty |
 | [minigame-engine-path-dash](minigame-engine-path-dash.md) | Engine: path-dash (savanna dash / reef swim) | accepted | Attention span + novelty |
 | [minigame-engine-timing-bounce](minigame-engine-timing-bounce.md) | Engine: timing-bounce (happy hops) | accepted | Attention span + novelty |
-| [minigame-engine-meter-burst](minigame-engine-meter-burst.md) | Engine: meter-burst (roar / splash / cheer) | accepted | Attention span + novelty |
+| [minigame-engine-meter-burst](minigame-engine-meter-burst.md) | Engine: meter-burst (removed stub) | superseded | Attention span + novelty |
 | [minigame-engine-slice-swipe](minigame-engine-slice-swipe.md) | Engine: slice-swipe (fruit toss / snack slash) | accepted | Attention span + novelty |
+| [minigame-engine-sling-shot](minigame-engine-sling-shot.md) | Engine: sling-shot (fling food to the character) | accepted | Attention span + novelty + motor planning |
+| [minigame-engine-char-maze](minigame-engine-char-maze.md) | Engine: char-maze (guide animal to the exit) | accepted | Attention span + novelty + spatial reasoning |
+| [minigame-engine-cut-rope](minigame-engine-cut-rope.md) | Engine: cut-rope (swipe ropes so snack falls) | accepted | Attention span + novelty + cause-and-effect |
 | [varied-surprising-feed-beat](varied-surprising-feed-beat.md) | Varied foods/reactions on feed (superseded by host + engines) | superseded | Variable-ratio reinforcement + novelty |
 | [alternate-mission-play-beats](alternate-mission-play-beats.md) | Schedule find-mission in rhythm (related to tap-collect) | proposed | Attention span + interleaving |
 | [visible-collection-board](visible-collection-board.md) | Collection gallery + near "next friend" goal | proposed | Curiosity gap + goal-gradient + SDT |

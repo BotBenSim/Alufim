@@ -5,7 +5,7 @@ status: accepted
 date: 2026-07-20
 tags: [educational, difficulty, mastery]
 theory: Zone of Proximal Development (Vygotsky) + flow
-related: [always-gain-xp, celebrate-progress]
+related: [always-gain-xp, celebrate-progress, parent-tuned-difficulty-bands]
 ---
 
 # Right-sized difficulty with rising rewards

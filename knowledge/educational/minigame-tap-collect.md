@@ -1,7 +1,7 @@
 ---
 id: minigame-tap-collect
 title: Tap-collect play-beat engine stays no-fail
-status: accepted
+status: superseded
 date: 2026-07-20
 tags: [educational, minigame]
 theory: Attention span + novelty
@@ -12,17 +12,18 @@ related: [play-beat-minigame-variety, minigame-provider-pattern]
 
 ## Decision
 
-The tap-collect engine scatters habitat treats to tap; the session always completes after
-enough collects. Implemented in `web/lib/minigames/tapCollect.ts`.
+**Superseded / removed from product (2026-07-20).** The stub `tapCollect` engine was deleted;
+play-beat catalog keeps only skill engines (`pathDash`, `timingBounce`, `sliceSwipe`,
+`slingShot`, `charMaze`).
 
 ## Why it helps the child
 
-Simple motor play resets attention with clear, immediate success.
+(Historical) Simple motor play resets attention with clear, immediate success.
 
 ## How it works
 
-Skins supply items and `targetCount`; each tap on a target marks it collected until done.
+N/A — code removed.
 
 ## Watch-outs
 
-Targets must stay large for small fingers; never time out a miss as failure.
+Do not reintroduce stub engines without a real timing/aim skill moment.

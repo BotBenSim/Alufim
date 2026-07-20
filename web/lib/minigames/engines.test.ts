@@ -14,16 +14,21 @@ function skinFor(engineId: MinigameEngineId) {
 }
 
 describe("minigame engines", () => {
-  it("registers all six engines", () => {
+  it("registers the six active engines", () => {
     expect(Object.keys(MINIGAME_ENGINES).sort()).toEqual(
-      ["catch", "meterBurst", "pathDash", "sliceSwipe", "tapCollect", "timingBounce"].sort()
+      [
+        "charMaze",
+        "cutRope",
+        "pathDash",
+        "sliceSwipe",
+        "slingShot",
+        "timingBounce",
+      ].sort()
     );
   });
 
-  it("active play-beat engines are city roofs + dino + ninja", () => {
-    expect([...ACTIVE_ENGINES].sort()).toEqual(
-      ["pathDash", "sliceSwipe", "timingBounce"].sort()
-    );
+  it("all registered engines are on the play beat", () => {
+    expect([...ACTIVE_ENGINES].sort()).toEqual(Object.keys(MINIGAME_ENGINES).sort());
   });
 
   for (const id of ACTIVE_ENGINES) {
@@ -38,7 +43,13 @@ describe("minigame engines", () => {
           ? ("jump" as const)
           : id === "timingBounce"
             ? ("hop" as const)
-            : ("slice" as const);
+            : id === "slingShot"
+              ? ("launch" as const)
+              : id === "charMaze"
+                ? ("step" as const)
+                : id === "cutRope"
+                  ? ("cut" as const)
+                  : ("slice" as const);
 
       session = engine.applyInput(session, {
         type: "action",
@@ -61,15 +72,4 @@ describe("minigame engines", () => {
       expect(session.progress).toBe(1);
     });
   }
-
-  it("stub meterBurst still completes via taps", () => {
-    const engine = MINIGAME_ENGINES.meterBurst;
-    const skin = skinFor("meterBurst");
-    let session = engine.start({ characterId: "lion", character: lion, skin });
-    const needed = (session.state as { needed: number }).needed;
-    for (let i = 0; i < needed; i++) {
-      session = engine.applyInput(session, { type: "tap" });
-    }
-    expect(session.complete).toBe(true);
-  });
 });

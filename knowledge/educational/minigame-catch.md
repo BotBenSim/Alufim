@@ -1,7 +1,7 @@
 ---
 id: minigame-catch
 title: Catch play-beat engine — misses never fail
-status: accepted
+status: superseded
 date: 2026-07-20
 tags: [educational, minigame]
 theory: Attention span + novelty
@@ -12,17 +12,17 @@ related: [play-beat-minigame-variety, minigame-provider-pattern]
 
 ## Decision
 
-Falling/appearing treats are caught by tap; empty taps spawn more items instead of ending the
-run. `web/lib/minigames/catch.ts`.
+**Superseded / removed from product (2026-07-20).** The stub `catch` engine was deleted;
+play-beat catalog keeps only skill engines.
 
 ## Why it helps the child
 
-Motion keeps the break lively while staying safe to try.
+(Historical) Motion keeps the break lively while staying safe to try.
 
 ## How it works
 
-Complete after N catches; always award play XP.
+N/A — code removed.
 
 ## Watch-outs
 
-Keep spawn speed gentle; no lives or countdown fail.
+Do not reintroduce stub engines without a real timing/aim skill moment.

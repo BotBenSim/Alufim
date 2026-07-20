@@ -1,6 +1,6 @@
 "use client";
 
-import { KidButton, Screen } from "@/design-system";
+import { KidButton, Panel, Screen } from "@/design-system";
 import { CHARACTERS, artText } from "@/data/characters";
 import {
   FORM_XP_STEP,
@@ -16,11 +16,8 @@ export function AboutScreen() {
   const th = formThresholds(4);
 
   return (
-    <Screen id="scrAbout" scroll className="z-[11]">
-      <div
-        id="aboutContent"
-        className="mx-auto w-full max-w-[680px] rounded-[22px] bg-white/90 p-5 text-[#1D3550] shadow-[0_10px_30px_rgba(0,0,0,.18)] [direction:rtl] leading-relaxed"
-      >
+    <Screen id="scrAbout" scroll className="z-[11]" contentClassName="gap-6 max-w-[720px]">
+      <Panel id="aboutContent" variant="surface">
         <h2 className="text-[clamp(24px,5vw,34px)] text-heading">🐣 אלופים — מאחורי הקלעים</h2>
         <p>
           משחק חינוכי לילדים: מגדלים חיות, מרוויחים XP, ומתפתחים דרך חיבור, חיסור, אנגלית
@@ -96,7 +93,7 @@ export function AboutScreen() {
           <li>בלי עונש, טיימר או חיים</li>
           <li>שינוי הגדרות לא מאפס התקדמות</li>
         </ul>
-      </div>
+      </Panel>
 
       <KidButton variant="continue" onClick={() => setScreen("profiles")}>
         ← חזרה

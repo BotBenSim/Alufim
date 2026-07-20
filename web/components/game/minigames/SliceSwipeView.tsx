@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { MinigameShell } from "@/design-system";
 import { rnd } from "@/lib/random";
 import type { SliceSwipeState } from "@/lib/minigames/sliceSwipe";
-import type { MinigameSession } from "@/lib/minigames/types";
+import type { MinigameViewProps } from "./types";
 
 type Flyer = {
   id: string;
@@ -23,12 +24,11 @@ type Burst = {
   drops: { id: string; dx: string; dy: string; color: string }[];
 };
 
-type Props = {
-  session: MinigameSession;
-  onSlice: (quality: "good" | "miss", emoji?: string) => void;
-};
-
-const PAD = 36;
+/** Near-miss padding around each snack — enough for little fingers, not the whole stage. */
+const PAD = 44;
+const SLICE_SAMPLES = 12;
+/** Minimum pointer travel before a drag counts as a slice (px). */
+const SLICE_MOVE = 4;
 
 const JUICE: Record<string, string[]> = {
   "🍎": ["#FF6B6B", "#FF922B", "#FFD43B"],
@@ -71,8 +71,8 @@ function segmentHitsRect(
     top: r.top - PAD,
     bottom: r.bottom + PAD,
   };
-  for (let i = 0; i <= 8; i++) {
-    const t = i / 8;
+  for (let i = 0; i <= SLICE_SAMPLES; i++) {
+    const t = i / SLICE_SAMPLES;
     const x = x0 + (x1 - x0) * t;
     const y = y0 + (y1 - y0) * t;
     if (
@@ -102,17 +102,17 @@ function makeBurst(f: Flyer): Burst {
   return { id: f.id, emoji: f.emoji, x: f.x, y: f.y, drops };
 }
 
-export function SliceSwipeView({ session, onSlice }: Props) {
+export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
   const st = session.state as SliceSwipeState;
   const [flyers, setFlyers] = useState<Flyer[]>([]);
   const [bursts, setBursts] = useState<Burst[]>([]);
-  const [flash, setFlash] = useState<"good" | null>(null);
+  const [flash, setFlash] = useState<"good" | "miss" | null>(null);
   const flyersRef = useRef<Flyer[]>([]);
   const elRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const pointer = useRef<{ x: number; y: number } | null>(null);
   const coolRef = useRef(false);
-  const onSliceRef = useRef(onSlice);
-  onSliceRef.current = onSlice;
+  const onInputRef = useRef(onInput);
+  onInputRef.current = onInput;
   const pool = st.pool;
 
   const sync = useCallback((next: Flyer[]) => {
@@ -169,7 +169,12 @@ export function SliceSwipeView({ session, onSlice }: Props) {
         setBursts((prev) => [...prev.slice(-2), burst]);
         setFlash("good");
         sync(flyersRef.current.filter((x) => x.id !== f.id).concat(spawn(pool, performance.now())));
-        onSliceRef.current("good", f.emoji);
+        onInputRef.current({
+          type: "action",
+          action: "slice",
+          quality: "good",
+          targetId: f.emoji,
+        });
         window.setTimeout(() => {
           setBursts((prev) => prev.filter((b) => b.id !== burst.id));
         }, 600);
@@ -183,32 +188,33 @@ export function SliceSwipeView({ session, onSlice }: Props) {
   };
 
   return (
-    <div
-      className="relative h-[55vh] w-full max-w-[520px] touch-none overflow-hidden rounded-[28px] bg-white/15"
-      onPointerDown={(e) => {
-        (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-        pointer.current = { x: e.clientX, y: e.clientY };
-      }}
-      onPointerMove={(e) => {
-        if (!pointer.current) return;
-        const prev = pointer.current;
-        pointer.current = { x: e.clientX, y: e.clientY };
-        if (Math.hypot(e.clientX - prev.x, e.clientY - prev.y) > 6) {
-          trySlice(prev.x, prev.y, e.clientX, e.clientY);
-        }
-      }}
-      onPointerUp={() => {
-        pointer.current = null;
-      }}
-      onPointerCancel={() => {
-        pointer.current = null;
+    <MinigameShell
+      score={st.score}
+      needed={st.needed}
+      flash={flash}
+      flashGoodLabel="חתכת!"
+      stageClassName="touch-none"
+      stageProps={{
+        onPointerDown: (e) => {
+          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+          pointer.current = { x: e.clientX, y: e.clientY };
+        },
+        onPointerMove: (e) => {
+          if (!pointer.current) return;
+          const prev = pointer.current;
+          pointer.current = { x: e.clientX, y: e.clientY };
+          if (Math.hypot(e.clientX - prev.x, e.clientY - prev.y) > SLICE_MOVE) {
+            trySlice(prev.x, prev.y, e.clientX, e.clientY);
+          }
+        },
+        onPointerUp: () => {
+          pointer.current = null;
+        },
+        onPointerCancel: () => {
+          pointer.current = null;
+        },
       }}
     >
-      <div className="absolute top-2 z-[2] w-full text-center text-[clamp(16px,3.5vw,22px)] font-extrabold text-heading">
-        {st.score} / {st.needed}
-        {flash === "good" && <span className="mr-2 text-[#2F9E44]"> חתכת!</span>}
-      </div>
-
       {flyers.map((f) => (
         <button
           key={f.id}
@@ -216,7 +222,7 @@ export function SliceSwipeView({ session, onSlice }: Props) {
           ref={(el) => {
             elRefs.current[f.id] = el;
           }}
-          className="absolute z-[1] border-none bg-transparent p-0 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
+          className="absolute z-[1] border-none px-2 py-2 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
           style={{
             left: `${f.x * 100}%`,
             top: `${f.y * 100}%`,
@@ -243,14 +249,12 @@ export function SliceSwipeView({ session, onSlice }: Props) {
           className="pointer-events-none absolute z-[3]"
           style={{ left: `${b.x * 100}%`, top: `${b.y * 100}%` }}
         >
-          {/* center pop */}
           <div
             className="slice-pop absolute text-[clamp(48px,12vw,88px)] leading-none"
             style={{ left: 0, top: 0 }}
           >
             {b.emoji}
           </div>
-          {/* split halves */}
           <div
             className="slice-half-l absolute text-[clamp(40px,10vw,72px)] leading-none"
             style={{ left: 0, top: 0, clipPath: "inset(0 50% 0 0)" }}
@@ -263,12 +267,10 @@ export function SliceSwipeView({ session, onSlice }: Props) {
           >
             {b.emoji}
           </div>
-          {/* slash streak */}
           <div
             className="slice-slash absolute h-[6px] w-[120px] rounded-full bg-white shadow-[0_0_12px_4px_rgba(255,255,255,.85)]"
             style={{ left: 0, top: 0 }}
           />
-          {/* juice droplets */}
           {b.drops.map((d) => (
             <div
               key={d.id}
@@ -287,10 +289,6 @@ export function SliceSwipeView({ session, onSlice }: Props) {
           ))}
         </div>
       ))}
-
-      <div className="absolute bottom-2 z-[2] w-full text-center text-[15px] font-bold text-heading/85">
-        החליקו על החטיפים באוויר!
-      </div>
-    </div>
+    </MinigameShell>
   );
 }

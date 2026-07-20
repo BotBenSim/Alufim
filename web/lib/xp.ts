@@ -20,9 +20,15 @@ export const XP_TABLE: Record<DifficultyLevel, number[][]> = {
 };
 export const XP_BEAT = { mission: 1, play: 3 } as const;
 export const FORM_XP_STEP = 50;
+/** Factory default: steps spent in each difficulty band before advancing. */
+export const DIFFICULTY_BLOCK_SIZE = 4;
 
-export function blockForStep(stepIndex: number): number {
-  return Math.floor((stepIndex - 1) / 4);
+export function blockForStep(
+  stepIndex: number,
+  stepsPerBlock: number = DIFFICULTY_BLOCK_SIZE
+): number {
+  const size = Math.max(1, Math.floor(stepsPerBlock) || DIFFICULTY_BLOCK_SIZE);
+  return Math.floor((stepIndex - 1) / size);
 }
 
 export function xpTier(level: DifficultyLevel, stepIndex: number): number {

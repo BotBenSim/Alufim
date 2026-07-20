@@ -1,16 +1,18 @@
 import { CHARACTERS } from "@/data/characters";
 import { GAME_ORDER } from "@/data/games";
 import { defaultMinigameConfig, MINIGAME_ORDER } from "@/data/minigameMeta";
-import type { AppState, Profile } from "./types";
+import { defaultCurriculum, ensureCurriculum } from "./difficulty";
+import { clampPlayEverySteps, DEFAULT_PLAY_EVERY_STEPS } from "./rhythm";
+import type { AppState, GameId, Profile } from "./types";
 
 export const STATE_KEY = "alufim_state_v2";
 
 export function defaultGames(): Profile["games"] {
   return {
-    find: { enabled: true, level: "easy" },
-    add: { enabled: true, level: "easy" },
-    sub: { enabled: true, level: "easy" },
-    eng: { enabled: false, level: "easy" },
+    find: { enabled: true, level: "easy", curriculum: defaultCurriculum("find") },
+    add: { enabled: true, level: "easy", curriculum: defaultCurriculum("add") },
+    sub: { enabled: true, level: "easy", curriculum: defaultCurriculum("sub") },
+    eng: { enabled: false, level: "easy", curriculum: defaultCurriculum("eng") },
   };
 }
 
@@ -25,6 +27,7 @@ export function newProfile(name: string, avatar: string): Profile {
     avatar: avatar || "🙂",
     games: defaultGames(),
     minigames: defaultMinigameConfig(),
+    playEverySteps: DEFAULT_PLAY_EVERY_STEPS,
     characters: chars,
     activeCharacterId: null,
   };
@@ -32,17 +35,30 @@ export function newProfile(name: string, avatar: string): Profile {
 
 export function migrateProfile(p: Profile): Profile {
   if (!p.games) p.games = defaultGames();
-  GAME_ORDER.forEach((g) => {
-    if (!p.games[g]) p.games[g] = { enabled: g !== "eng", level: "easy" };
+  GAME_ORDER.forEach((g: GameId) => {
+    if (!p.games[g]) {
+      p.games[g] = {
+        enabled: g !== "eng",
+        level: "easy",
+        curriculum: defaultCurriculum(g),
+      };
+    }
     if (!p.games[g].level) p.games[g].level = "easy";
+    p.games[g].curriculum = ensureCurriculum(g, p.games[g].curriculum);
   });
+  // Rebuild from known engines only — drops removed stub ids (tapCollect/catch/meterBurst)
   const defaults = defaultMinigameConfig();
-  if (!p.minigames) p.minigames = { ...defaults };
-  else {
-    MINIGAME_ORDER.forEach((id) => {
-      if (!p.minigames[id]) p.minigames[id] = { ...defaults[id] };
-    });
+  const prev = p.minigames;
+  const next = { ...defaults };
+  if (prev) {
+    for (const id of MINIGAME_ORDER) {
+      if (prev[id]) next[id] = { ...prev[id] };
+    }
   }
+  p.minigames = next;
+  p.playEverySteps = clampPlayEverySteps(
+    p.playEverySteps ?? DEFAULT_PLAY_EVERY_STEPS
+  );
   if (!p.characters) p.characters = {};
   CHARACTERS.forEach((c) => {
     if (c.starter && !p.characters[c.id]) {

@@ -1,6 +1,12 @@
 "use client";
 
 import { useCallback, useRef } from "react";
+import {
+  characterMinigameNotes,
+  type MinigameSfx,
+} from "@/lib/audio/characterMinigameSfx";
+
+export type { MinigameSfx };
 
 export function useAudio() {
   const ctxRef = useRef<AudioContext | null>(null);
@@ -72,5 +78,22 @@ export function useAudio() {
     [tone]
   );
 
-  return { ensure, playCorrect, playWrong, playFanfare, playXpGain };
+  /** Minigame SFX voiced for the active animal (jump, knife cut, …). */
+  const playMinigameSfx = useCallback(
+    (sfx: MinigameSfx, characterId: string) => {
+      for (const n of characterMinigameNotes(characterId, sfx)) {
+        tone(n.freq, n.t0, n.dur, n.type, n.vol);
+      }
+    },
+    [tone]
+  );
+
+  return {
+    ensure,
+    playCorrect,
+    playWrong,
+    playFanfare,
+    playXpGain,
+    playMinigameSfx,
+  };
 }

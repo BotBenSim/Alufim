@@ -1,10 +1,10 @@
 import type { MinigameEngine, MinigameEngineId } from "./types";
-import { meterBurstEngine } from "./meterBurst";
-import { tapCollectEngine } from "./tapCollect";
-import { catchEngine } from "./catch";
 import { pathDashEngine } from "./pathDash";
 import { timingBounceEngine } from "./timingBounce";
 import { sliceSwipeEngine } from "./sliceSwipe";
+import { slingShotEngine } from "./slingShot";
+import { charMazeEngine } from "./charMaze";
+import { cutRopeEngine } from "./cutRope";
 
 export type {
   MinigameEngine,
@@ -20,12 +20,12 @@ export { ACTIVE_ENGINES } from "./types";
 export { pickMinigameSkin, resetMinigameRecent } from "./pickMinigame";
 
 export const MINIGAME_ENGINES: Record<MinigameEngineId, MinigameEngine> = {
-  meterBurst: meterBurstEngine,
-  tapCollect: tapCollectEngine,
-  catch: catchEngine,
   pathDash: pathDashEngine,
   timingBounce: timingBounceEngine,
   sliceSwipe: sliceSwipeEngine,
+  slingShot: slingShotEngine,
+  charMaze: charMazeEngine,
+  cutRope: cutRopeEngine,
 };
 
 export function getMinigameEngine(id: MinigameEngineId): MinigameEngine {

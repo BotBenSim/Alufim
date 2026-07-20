@@ -1,7 +1,7 @@
 ---
 id: minigame-meter-burst
 title: Meter-burst play-beat engine — roar / splash / cheer
-status: accepted
+status: superseded
 date: 2026-07-20
 tags: [educational, minigame]
 theory: Attention span + novelty
@@ -12,17 +12,17 @@ related: [play-beat-minigame-variety, minigame-provider-pattern, celebrate-progr
 
 ## Decision
 
-Mash taps fill a meter then burst with animal flavor. Celebration stays smaller than
-evolution. `web/lib/minigames/meterBurst.ts`.
+**Superseded / removed from product (2026-07-20).** The stub `meterBurst` engine was deleted;
+play-beat catalog keeps only skill engines.
 
 ## Why it helps the child
 
-Familiar agency (like evolve taps) as a frequent light break.
+(Historical) Familiar agency (like evolve taps) as a frequent light break.
 
 ## How it works
 
-`targetCount` taps → complete → play XP.
+N/A — code removed.
 
 ## Watch-outs
 
-Do not confuse with the evolve overlay; keep copy and fanfare lighter.
+Do not reintroduce stub engines without a real timing/aim skill moment.

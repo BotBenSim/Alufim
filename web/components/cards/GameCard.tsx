@@ -15,7 +15,7 @@ export function GameCard({ gameId, selected, onClick }: GameCardProps) {
   return (
     <Card variant="game" selected={selected} onClick={onClick}>
       <CardBig>{g.icon}</CardBig>
-      <span>{g.title}</span>
+      <span className="shrink-0">{g.title}</span>
     </Card>
   );
 }

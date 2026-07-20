@@ -1,7 +1,7 @@
 ---
 id: minigame-engine-tap-collect
 title: Mini-game engine — tap-collect (savanna sparkles / reef gems)
-status: accepted
+status: superseded
 date: 2026-07-20
 tags: [backlog, educational, engagement, minigame]
 theory: Attention span + novelty / curiosity (no-fail interlude)
@@ -24,6 +24,9 @@ related:
 ---
 
 # Mini-game engine — tap-collect (savanna sparkles / reef gems)
+
+> **Superseded / removed.** Stub engine deleted from the product — do not reintroduce.
+> Live play-beat engines: path-dash, timing-bounce, slice-swipe, sling-shot, char-maze, cut-rope.
 
 ## Problem / opportunity
 

@@ -25,9 +25,9 @@ describe("pickMinigameSkin", () => {
     expect(skin.characterTags.includes("lion")).toBe(true);
   });
 
-  it("can still filter an explicit stub engine for tests", () => {
-    const skin = pickMinigameSkin("shark", "meterBurst");
-    expect(skin.engineId).toBe("meterBurst");
+  it("can filter an explicit engine for tests", () => {
+    const skin = pickMinigameSkin("shark", "slingShot");
+    expect(skin.engineId).toBe("slingShot");
     expect(MINIGAME_SKINS.some((s) => s.id === skin.id)).toBe(true);
   });
 

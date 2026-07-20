@@ -2,7 +2,11 @@
 
 import { characterById, CHARACTERS } from "@/data/characters";
 import { PHOTOS } from "@/data/photos";
-import { effectiveLevel } from "@/lib/difficulty";
+import {
+  clampCurriculum,
+  defaultCurriculum,
+  effectiveLevel,
+} from "@/lib/difficulty";
 import { defaultMinigameConfig, enabledMinigameIds } from "@/data/minigameMeta";
 import {
   createDefaultState,
@@ -15,7 +19,12 @@ import { STATE_KEY, alufimStorage } from "@/state/storage";
 import { nextMission, currentFormArt } from "@/lib/missions";
 import { getProvider } from "@/lib/providers";
 import { pickNoRepeat } from "@/lib/random";
-import { buildBeat, resolveRhythm } from "@/lib/rhythm";
+import {
+  buildBeat,
+  clampPlayEverySteps,
+  DEFAULT_PLAY_EVERY_STEPS,
+  resolveRhythm,
+} from "@/lib/rhythm";
 import type {
   AppState,
   DifficultyLevel,
@@ -26,6 +35,7 @@ import type {
   RunState,
   ScreenId,
 } from "@/lib/types";
+import { GAME_ORDER } from "@/data/games";
 import { xpForCorrect, formForXp, XP_BEAT } from "@/lib/xp";
 import {
   getMinigameEngine,
@@ -73,6 +83,7 @@ type UiState = {
     avatar: string;
     games: Profile["games"];
     minigames: Record<MinigameEngineId, { enabled: boolean }>;
+    playEverySteps: number;
     charXp: Record<string, number>;
   } | null;
   selectedGameId: GameId | null;
@@ -123,6 +134,10 @@ function findProfile(app: AppState, id: string | null) {
   return app.profiles.find((p) => p.id === id) ?? null;
 }
 
+function profileHasActiveAnimal(p: Profile | null | undefined): boolean {
+  return !!p?.activeCharacterId && !!p.characters[p.activeCharacterId];
+}
+
 function buildContext(run: RunState) {
   return {
     gameId: run.gameId,
@@ -131,7 +146,20 @@ function buildContext(run: RunState) {
     usedKeys: run.usedKeys,
     recent: run.completed,
     countEmoji: run.character.counts,
+    curriculum: run.curriculum,
   };
+}
+
+function clampGamesCurriculum(games: Profile["games"]): Profile["games"] {
+  const next = { ...games };
+  for (const gid of GAME_ORDER) {
+    if (!next[gid]) continue;
+    next[gid] = {
+      ...next[gid],
+      curriculum: clampCurriculum(gid, next[gid].curriculum),
+    };
+  }
+  return next;
 }
 
 function initialApp(): AppState {
@@ -175,12 +203,16 @@ export const useStore = create<Store>()(
       setScreen: (screen) => set({ screen }),
 
       selectProfile: (id) => {
-        set((state) => ({
-          app: { ...state.app, lastProfileId: id },
-          selectedGameId: null,
-          homeCharSection: true,
-          homeGameSection: false,
-        }));
+        set((state) => {
+          const p = findProfile(state.app, id);
+          return {
+            app: { ...state.app, lastProfileId: id },
+            selectedGameId: null,
+            homeCharSection: true,
+            // Keep games visible when this profile already has a chosen animal
+            homeGameSection: profileHasActiveAnimal(p),
+          };
+        });
       },
 
       selectCharacter: (id) => {
@@ -207,11 +239,15 @@ export const useStore = create<Store>()(
         const char = p?.activeCharacterId ? characterById(p.activeCharacterId) : null;
         if (!p || !char || !selectedGameId) return;
 
+        const gameCfg = p.games[selectedGameId];
         const run: RunState = {
           character: char,
           gameId: selectedGameId,
-          level: (p.games[selectedGameId]?.level || "easy") as DifficultyLevel,
-          preset: resolveRhythm(),
+          level: (gameCfg?.level || "easy") as DifficultyLevel,
+          curriculum: gameCfg?.curriculum
+            ? JSON.parse(JSON.stringify(gameCfg.curriculum))
+            : defaultCurriculum(selectedGameId),
+          preset: resolveRhythm(p.playEverySteps),
           step: 1,
           usedKeys: [],
           completed: [],
@@ -245,8 +281,6 @@ export const useStore = create<Store>()(
 
       goHome: () => {
         const p = findProfile(get().app, get().app.lastProfileId);
-        const keepAnimal =
-          !!p?.activeCharacterId && !!p.characters[p.activeCharacterId];
         set({
           screen: "profiles",
           run: null,
@@ -256,7 +290,7 @@ export const useStore = create<Store>()(
           minigameOverlay: null,
           evolveOverlay: null,
           homeCharSection: true,
-          homeGameSection: keepAnimal,
+          homeGameSection: profileHasActiveAnimal(p),
         });
       },
 
@@ -274,9 +308,15 @@ export const useStore = create<Store>()(
             minigames: migrated
               ? { ...defaultMinigameConfig(), ...migrated.minigames }
               : defaultMinigameConfig(),
+            playEverySteps: migrated
+              ? clampPlayEverySteps(migrated.playEverySteps)
+              : DEFAULT_PLAY_EVERY_STEPS,
             charXp: migrated
               ? Object.fromEntries(
-                  Object.entries(migrated.characters).map(([cid, prog]) => [cid, prog.totalXp])
+                  Object.entries(migrated.characters).map(([cid, prog]) => [
+                    cid,
+                    Math.max(0, Number(prog?.totalXp) || 0),
+                  ])
                 )
               : {},
           },
@@ -294,6 +334,8 @@ export const useStore = create<Store>()(
         if (!editorDraft) return;
         const trimmed = name.trim() || "ילד/ה";
 
+        const games = clampGamesCurriculum(editorDraft.games);
+
         if (editingProfileId) {
           const profiles = app.profiles.map((p) => {
             if (p.id !== editingProfileId) return p;
@@ -301,8 +343,9 @@ export const useStore = create<Store>()(
               ...p,
               name: trimmed,
               avatar: editorDraft.avatar,
-              games: editorDraft.games,
+              games,
               minigames: editorDraft.minigames,
+              playEverySteps: clampPlayEverySteps(editorDraft.playEverySteps),
             });
             Object.entries(editorDraft.charXp).forEach(([cid, xp]) => {
               const c = characterById(cid);
@@ -314,21 +357,27 @@ export const useStore = create<Store>()(
             });
             return next;
           });
+          const saved = profiles.find((p) => p.id === editingProfileId) ?? null;
           set({
             app: { ...app, profiles },
             screen: "profiles",
             editingProfileId: null,
             editorDraft: null,
+            homeCharSection: true,
+            homeGameSection: profileHasActiveAnimal(saved),
           });
         } else {
           const np = newProfile(trimmed, editorDraft.avatar);
-          np.games = editorDraft.games;
+          np.games = games;
           np.minigames = editorDraft.minigames;
+          np.playEverySteps = clampPlayEverySteps(editorDraft.playEverySteps);
           set({
             app: { ...app, profiles: [...app.profiles, np] },
             screen: "profiles",
             editingProfileId: null,
             editorDraft: null,
+            homeCharSection: true,
+            homeGameSection: false,
           });
         }
       },
@@ -688,14 +737,13 @@ export const useStore = create<Store>()(
         const p = persisted as { app?: AppState } | undefined;
         if (!p?.app) return current;
         const app = { ...p.app, profiles: p.app.profiles.map(migrateProfile) };
-        const hasProfile = !!(
-          app.lastProfileId && findProfile(app, app.lastProfileId)
-        );
+        const last = findProfile(app, app.lastProfileId);
+        const hasProfile = !!last;
         return {
           ...current,
           app,
           homeCharSection: hasProfile,
-          homeGameSection: false,
+          homeGameSection: profileHasActiveAnimal(last),
         };
       },
     }

@@ -1,12 +1,30 @@
 import type { BeatType, RhythmPreset } from "./types";
 
-export const RHYTHM_PRESETS: Record<string, RhythmPreset> = {
-  every2: { round: 8, feedTaps: 2, beats: [{ every: 2, type: "play" }] },
-  every3: { round: 9, feedTaps: 3, beats: [{ every: 3, type: "play" }] },
-  every4: { round: 12, feedTaps: 3, beats: [{ every: 4, type: "play" }] },
-};
+/** Factory default: minigame every N learning steps. Copied onto profiles. */
+export const DEFAULT_PLAY_EVERY_STEPS = 3;
 
-export const ACTIVE_RHYTHM = "every3";
+export function clampPlayEverySteps(n: unknown): number {
+  const v = Math.floor(Number(n));
+  if (!Number.isFinite(v)) return DEFAULT_PLAY_EVERY_STEPS;
+  return Math.max(2, Math.min(20, v));
+}
+
+/** Build a rhythm preset from a numeric "every N steps" cadence. */
+export function rhythmFromPlayEvery(playEverySteps: number): RhythmPreset {
+  const every = clampPlayEverySteps(playEverySteps);
+  return {
+    round: every * 3,
+    feedTaps: Math.min(3, every),
+    beats: [{ every, type: "play" }],
+  };
+}
+
+/** @deprecated Named presets kept for tests / reference — prefer rhythmFromPlayEvery. */
+export const RHYTHM_PRESETS: Record<string, RhythmPreset> = {
+  every2: rhythmFromPlayEvery(2),
+  every3: rhythmFromPlayEvery(3),
+  every4: rhythmFromPlayEvery(4),
+};
 
 export function buildBeat(preset: RhythmPreset, stepIndex: number): BeatType {
   let chosen: BeatType = "learn";
@@ -20,6 +38,6 @@ export function buildBeat(preset: RhythmPreset, stepIndex: number): BeatType {
   return chosen;
 }
 
-export function resolveRhythm(): RhythmPreset {
-  return RHYTHM_PRESETS[ACTIVE_RHYTHM] || RHYTHM_PRESETS.every3;
+export function resolveRhythm(playEverySteps?: number): RhythmPreset {
+  return rhythmFromPlayEvery(playEverySteps ?? DEFAULT_PLAY_EVERY_STEPS);
 }

@@ -5,7 +5,7 @@ status: accepted
 date: 2026-07-20
 tags: [architecture, pattern, content, data]
 supersedes: []
-related: [game-provider-pattern, pure-logic-in-lib]
+related: [game-provider-pattern, pure-logic-in-lib, per-profile-curriculum]
 ---
 
 # Content and tuning live in data/, not in code

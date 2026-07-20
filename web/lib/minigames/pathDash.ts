@@ -1,3 +1,4 @@
+import { resolveJumpConfig, type JumpPlayConfig } from "./jumpConfig";
 import type { MinigameEngine, MinigameSession } from "./types";
 
 export type PathDashState = {
@@ -5,7 +6,8 @@ export type PathDashState = {
   needed: number;
   /** Coin / star collected vibe on successful roof landings */
   treatEmoji: string;
-  lastQuality: "good" | "miss" | null;
+  /** Resolved jump feel (engine defaults + skin overrides) */
+  jump: JumpPlayConfig;
 };
 
 function asState(session: MinigameSession): PathDashState {
@@ -25,7 +27,7 @@ export const pathDashEngine: MinigameEngine = {
         score: 0,
         needed,
         treatEmoji,
-        lastQuality: null,
+        jump: resolveJumpConfig("pathDash", ctx.skin),
       } satisfies PathDashState,
       progress: 0,
       complete: false,
@@ -33,19 +35,13 @@ export const pathDashEngine: MinigameEngine = {
   },
   applyInput(session, input) {
     if (session.complete) return session;
-    if (input.type !== "action" || input.action !== "jump") return session;
+    if (input.action !== "jump" || input.quality === "miss") return session;
     const st = asState(session);
-    if (input.quality === "miss") {
-      return {
-        ...session,
-        state: { ...st, lastQuality: "miss" },
-      };
-    }
     const score = st.score + 1;
     const complete = score >= st.needed;
     return {
       ...session,
-      state: { ...st, score, lastQuality: "good" },
+      state: { ...st, score },
       progress: Math.min(1, score / st.needed),
       complete,
     };

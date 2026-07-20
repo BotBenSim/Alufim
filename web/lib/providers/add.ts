@@ -1,7 +1,12 @@
-import { diffParams } from "@/lib/difficulty";
-import { blockForStep } from "@/lib/xp";
+import { diffParams, normalizeMathVisual } from "@/lib/difficulty";
 import { rnd, numberOptions } from "@/lib/random";
-import type { Provider, ProviderContext } from "@/lib/types";
+import type {
+  DifficultyLevel,
+  GameCurriculum,
+  MathVisual,
+  Provider,
+  ProviderContext,
+} from "@/lib/types";
 
 export type AddQuestion = {
   op: "add";
@@ -12,7 +17,11 @@ export type AddQuestion = {
 
 export const addProvider: Provider = {
   generate(ctx: ProviderContext): AddQuestion {
-    const p = diffParams<{ minSum: number; maxSum: number }>("add", ctx.level, ctx.step);
+    const p = diffParams<{ minSum: number; maxSum: number }>(
+      ctx.curriculum,
+      ctx.level,
+      ctx.step
+    );
     const maxSum = p.maxSum || 10;
     const minSum = Math.min(p.minSum || 2, maxSum);
     let a = 1,
@@ -35,10 +44,17 @@ export const addProvider: Provider = {
   },
 };
 
-export function addRenderMeta(q: AddQuestion, step: number, countEmoji: string) {
-  const countOn = blockForStep(step) >= 2;
+export function addRenderMeta(
+  q: AddQuestion,
+  step: number,
+  countEmoji: string,
+  curriculum: GameCurriculum,
+  level: DifficultyLevel
+) {
+  const p = diffParams<{ visual?: MathVisual }>(curriculum, level, step);
+  const visual = normalizeMathVisual(p.visual);
   return {
-    countOn,
+    visual,
     countEmoji,
     options: numberOptions(q.answer, Math.max(10, q.answer + 4)),
     digits: `${q.a} + ${q.b} = ?`,

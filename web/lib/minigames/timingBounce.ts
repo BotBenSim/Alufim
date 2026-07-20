@@ -1,3 +1,4 @@
+import { resolveJumpConfig, type JumpPlayConfig } from "./jumpConfig";
 import type { MinigameEngine, MinigameSession } from "./types";
 
 export type TimingBounceState = {
@@ -5,7 +6,8 @@ export type TimingBounceState = {
   needed: number;
   /** Obstacle emoji kids jump over */
   obstacleEmoji: string;
-  lastQuality: "good" | "miss" | null;
+  /** Resolved jump feel (engine defaults + skin overrides) */
+  jump: JumpPlayConfig;
 };
 
 function asState(session: MinigameSession): TimingBounceState {
@@ -25,7 +27,7 @@ export const timingBounceEngine: MinigameEngine = {
         score: 0,
         needed,
         obstacleEmoji,
-        lastQuality: null,
+        jump: resolveJumpConfig("timingBounce", ctx.skin),
       } satisfies TimingBounceState,
       progress: 0,
       complete: false,
@@ -33,19 +35,13 @@ export const timingBounceEngine: MinigameEngine = {
   },
   applyInput(session, input) {
     if (session.complete) return session;
-    if (input.type !== "action" || input.action !== "hop") return session;
+    if (input.action !== "hop" || input.quality === "miss") return session;
     const st = asState(session);
-    if (input.quality === "miss") {
-      return {
-        ...session,
-        state: { ...st, lastQuality: "miss" },
-      };
-    }
     const score = st.score + 1;
     const complete = score >= st.needed;
     return {
       ...session,
-      state: { ...st, score, lastQuality: "good" },
+      state: { ...st, score },
       progress: Math.min(1, score / st.needed),
       complete,
     };

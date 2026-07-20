@@ -1,10 +1,18 @@
 export { Card, CardBig, CardSub } from "./components/Card";
+export { Panel } from "./components/Panel";
 export { KidButton } from "./components/KidButton";
 export { Badge } from "./components/Badge";
 export { Screen, Brand, BrandTitle } from "./components/Screen";
 export { SegmentedControl } from "./components/SegmentedControl";
+export { PillControl } from "./components/PillControl";
+export type { PillOption } from "./components/PillControl";
+export { LevelControl } from "./components/LevelControl";
+export { SettingsNumberField } from "./components/SettingsNumberField";
+export { SettingsButton } from "./components/SettingsButton";
 export { Toggle } from "./components/Toggle";
 export { XpBar } from "./components/XpBar";
 export { Modal } from "./components/Modal";
+export { MinigameShell } from "./components/MinigameShell";
+export type { MinigameFlash, MinigameShellProps } from "./components/MinigameShell";
 export { tokens, characterThemeVars } from "./tokens";
 export type { CharacterTheme } from "./tokens";

@@ -156,7 +156,7 @@ function findGenBigNum(ctx: ProviderContext, p: FindParams): FindQuestion {
 
 export const findProvider: Provider = {
   generate(ctx: ProviderContext): FindQuestion {
-    const p = diffParams<FindParams>("find", ctx.level, ctx.step);
+    const p = diffParams<FindParams>(ctx.curriculum, ctx.level, ctx.step);
     const kinds = p.kinds || ["letter", "reason", "more"];
     switch (kinds[rnd(kinds.length)]) {
       case "num":

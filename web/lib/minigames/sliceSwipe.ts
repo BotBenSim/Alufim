@@ -4,8 +4,6 @@ export type SliceSwipeState = {
   score: number;
   needed: number;
   pool: string[];
-  lastQuality: "good" | "miss" | null;
-  lastSlicedEmoji: string | null;
 };
 
 function asState(session: MinigameSession): SliceSwipeState {
@@ -25,8 +23,6 @@ export const sliceSwipeEngine: MinigameEngine = {
         score: 0,
         needed,
         pool,
-        lastQuality: null,
-        lastSlicedEmoji: null,
       } satisfies SliceSwipeState,
       progress: 0,
       complete: false,
@@ -34,24 +30,13 @@ export const sliceSwipeEngine: MinigameEngine = {
   },
   applyInput(session, input) {
     if (session.complete) return session;
-    if (input.type !== "action" || input.action !== "slice") return session;
+    if (input.action !== "slice" || input.quality === "miss") return session;
     const st = asState(session);
-    if (input.quality === "miss") {
-      return {
-        ...session,
-        state: { ...st, lastQuality: "miss", lastSlicedEmoji: null },
-      };
-    }
     const score = st.score + 1;
     const complete = score >= st.needed;
     return {
       ...session,
-      state: {
-        ...st,
-        score,
-        lastQuality: "good",
-        lastSlicedEmoji: input.targetId ?? st.pool[0] ?? "🍎",
-      },
+      state: { ...st, score },
       progress: Math.min(1, score / st.needed),
       complete,
     };
