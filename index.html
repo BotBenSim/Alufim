@@ -1071,7 +1071,7 @@ var XP_TABLE = {
   hard:   [[1, 2, 5], [1, 2, 6], [1, 2, 7]]
 };
 var XP_BEAT = { mission:1, play:3 };   // flat, guaranteed XP for rhythm beats
-var FORM_XP_STEP = 70;                 // Progressive: thresholds are 1*STEP, 3*STEP, 6*STEP, ...
+var FORM_XP_STEP = 50;                 // Progressive: thresholds are 1*STEP, 3*STEP, 6*STEP, ...
 function blockForStep(stepIndex){ return Math.floor((stepIndex - 1) / 4); } // questions: steps 1-4 -> block 0
 function xpTier(level, stepIndex){
   var rows = (XP_TABLE[level] || XP_TABLE.easy).length;

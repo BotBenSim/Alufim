@@ -1,0 +1,303 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 205 60% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 205 60% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 205 60% 20%;
+    --primary: 205 70% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 30% 94%;
+    --secondary-foreground: 205 60% 20%;
+    --muted: 210 30% 94%;
+    --muted-foreground: 205 20% 45%;
+    --accent: 210 30% 94%;
+    --accent-foreground: 205 60% 20%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 30% 85%;
+    --input: 210 30% 85%;
+    --ring: 205 70% 45%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-gradient-to-b from-sky via-sky-mid to-sky-light text-foreground;
+    font-family: -apple-system, "Arial Hebrew", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+  }
+}
+
+@layer utilities {
+  .text-shadow-brand {
+    text-shadow:
+      -2px -2px 0 #fff,
+      2px -2px 0 #fff,
+      -2px 2px 0 #fff,
+      2px 2px 0 #fff,
+      0 3px 0 #e69a00,
+      0 6px 9px rgba(0, 0, 0, 0.28);
+  }
+}
+
+/* Background scene — decorative, always LTR regardless of page direction */
+#bgScene {
+  direction: ltr;
+}
+
+@keyframes skyDrift {
+  from { transform: translateX(-34vw); }
+  to { transform: translateX(120vw); }
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+.skyCloud {
+  position: absolute;
+  left: 0;
+  background: #fff;
+  border-radius: 50px;
+  opacity: 0.95;
+  box-shadow: 0 8px 16px rgba(60, 90, 120, 0.1);
+}
+.skyCloud::before,
+.skyCloud::after {
+  content: "";
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+}
+.sc1 { top: 14%; width: 100px; height: 30px; animation: skyDrift 46s linear infinite; }
+.sc1::before { width: 48px; height: 48px; top: -22px; left: 16px; }
+.sc1::after { width: 34px; height: 34px; top: -16px; left: 54px; }
+.sc2 { top: 30%; width: 70px; height: 22px; opacity: 0.85; animation: skyDrift 64s linear infinite; animation-delay: -26s; }
+.sc2::before { width: 32px; height: 32px; top: -15px; left: 10px; }
+.sc2::after { width: 24px; height: 24px; top: -11px; left: 36px; }
+.sc3 { top: 8%; width: 56px; height: 18px; opacity: 0.8; animation: skyDrift 54s linear infinite; animation-delay: -40s; }
+.sc3::before { width: 26px; height: 26px; top: -12px; left: 9px; }
+.sc3::after { width: 19px; height: 19px; top: -9px; left: 30px; }
+.sc4 { top: 22%; width: 84px; height: 26px; opacity: 0.9; animation: skyDrift 58s linear infinite; animation-delay: -15s; }
+.sc4::before { width: 40px; height: 40px; top: -19px; left: 13px; }
+.sc4::after { width: 28px; height: 28px; top: -13px; left: 46px; }
+.sc5 { top: 42%; width: 60px; height: 19px; opacity: 0.7; animation: skyDrift 72s linear infinite; animation-delay: -50s; }
+.sc5::before { width: 28px; height: 28px; top: -13px; left: 9px; }
+.sc5::after { width: 20px; height: 20px; top: -9px; left: 32px; }
+.sc6 { top: 5%; width: 78px; height: 24px; opacity: 0.85; animation: skyDrift 50s linear infinite; animation-delay: -33s; }
+.sc6::before { width: 36px; height: 36px; top: -17px; left: 12px; }
+.sc6::after { width: 26px; height: 26px; top: -12px; left: 42px; }
+.sc7 { top: 18%; width: 92px; height: 28px; opacity: 0.8; animation: skyDrift 68s linear infinite; animation-delay: -8s; }
+.sc7::before { width: 44px; height: 44px; top: -20px; left: 15px; }
+.sc7::after { width: 30px; height: 30px; top: -14px; left: 50px; }
+.sc8 { top: 37%; width: 66px; height: 20px; opacity: 0.72; animation: skyDrift 60s linear infinite; animation-delay: -45s; }
+.sc8::before { width: 30px; height: 30px; top: -14px; left: 10px; }
+.sc8::after { width: 22px; height: 22px; top: -10px; left: 34px; }
+
+.tree {
+  position: absolute;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, #67c53f, #3f9a27);
+  box-shadow: -46px 24px 0 -14px #4fae30, 46px 24px 0 -14px #4fae30;
+}
+.tree::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 76%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 92px;
+  background: linear-gradient(90deg, #9a6433, #7a4e26);
+  border-radius: 6px;
+  z-index: -1;
+}
+/* Trees sit on the grass hill — positioned from .ground container (vanilla) */
+.ground .tree.t1 { left: 5%; bottom: 58%; transform: scale(1.35); }
+.ground .tree.t2 { left: 23%; bottom: 54%; transform: scale(0.95); }
+.ground .tree.t3 { right: 8%; bottom: 58%; transform: scale(1.5); }
+.ground .tree.t4 { right: 29%; bottom: 52%; transform: scale(0.85); }
+
+.group span.x::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  top: 46%;
+  width: 88%;
+  height: 8%;
+  background: #e2574c;
+  border-radius: 4px;
+  transform: rotate(-18deg);
+}
+
+.charArt.evolving {
+  animation: evolvePop 1.12s ease-in-out;
+}
+
+@keyframes evolvePop {
+  0% { transform: scale(1); filter: none; }
+  35% { transform: scale(1.35) rotate(-6deg); filter: drop-shadow(0 0 22px #ffd93d) brightness(1.4); }
+  65% { transform: scale(1.35) rotate(6deg); filter: drop-shadow(0 0 34px #fff6) brightness(1.6); }
+  100% { transform: scale(1); filter: none; }
+}
+
+@keyframes pop {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes wob {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-9px); }
+  50% { transform: translateX(9px); }
+  75% { transform: translateX(-6px); }
+}
+
+@keyframes xpBarPulse {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.06); box-shadow: 0 0 0 3px var(--xp-gain, #ffd43b), 0 0 20px var(--xp-gain, #58c26e); }
+  100% { transform: scale(1); }
+}
+
+@keyframes xpFillShine {
+  0% { filter: brightness(1); }
+  40% { filter: brightness(1.35); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes xpTextPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.22); color: #2e9e5b; }
+  100% { transform: scale(1); }
+}
+
+.xpBar.gain { animation: xpBarPulse 0.75s ease-out; }
+.xpFill.gain { animation: xpFillShine 0.75s ease-out; }
+.xpText.tick { animation: xpTextPop 0.45s ease-out; }
+
+.cf {
+  position: fixed;
+  top: -20px;
+  width: 12px;
+  height: 12px;
+  z-index: 50;
+  pointer-events: none;
+  border-radius: 3px;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes caughtBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.05); }
+}
+
+.catchDone.show {
+  display: flex;
+  animation: pop 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skyCloud,
+  #bgScene .sun {
+    animation: none !important;
+  }
+}
+
+@media (max-height: 520px) {
+  #questionCard { padding: 8px 12px; padding-inline-end: 52px; }
+  #gameArea { gap: 8px; }
+  #gamePanel { gap: 8px; }
+  #runHeader { padding: 5px 10px; }
+}
+
+#questionCard { position: relative; }
+#speakBtn { position: absolute; top: 12px; right: 12px; z-index: 1; }
+
+/* ---------- profile editor form ---------- */
+.formCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  padding: 18px 18px 22px;
+  width: min(94vw, 520px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 10px 26px rgba(29, 78, 122, 0.16);
+  direction: rtl;
+}
+.flabel {
+  font-size: clamp(15px, 3vw, 18px);
+  font-weight: 800;
+  color: #2f6b9e;
+  margin-top: 8px;
+}
+.finput {
+  font-family: inherit;
+  font-size: 20px;
+  padding: 10px 14px;
+  border: 2px solid #c5d8ec;
+  border-radius: 14px;
+  color: #1d3550;
+  background: #fff;
+}
+.finput:focus {
+  outline: none;
+  border-color: #4da3ff;
+}
+.avatarGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  border-top: 1px solid #e2ecf5;
+}
+.gameRow .gName {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1d4e7a;
+  flex: 1;
+}
+.advForm {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2f6b9e;
+  white-space: nowrap;
+}
