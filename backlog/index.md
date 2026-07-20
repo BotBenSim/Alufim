@@ -35,4 +35,16 @@ Off-ramps: `rejected`, `superseded`.
 
 | ID | Proposal | Status | Theory |
 | --- | --- | --- | --- |
-| _none yet_ | | | |
+| [start-from-first-form](start-from-first-form.md) | Start animals at first living form (not egg) | proposed | SDT relatedness |
+| [play-beat-minigame-host](play-beat-minigame-host.md) | Extendable MinigameHost + engine registry on the play beat | proposed | Attention span + novelty |
+| [minigame-engine-tap-collect](minigame-engine-tap-collect.md) | Engine: tap-collect (savanna sparkles / reef gems) | proposed | Attention span + novelty |
+| [minigame-engine-catch](minigame-engine-catch.md) | Engine: catch (falling treats / shrimp catch) | proposed | Attention span + novelty |
+| [minigame-engine-path-dash](minigame-engine-path-dash.md) | Engine: path-dash (savanna dash / reef swim) | proposed | Attention span + novelty |
+| [minigame-engine-timing-bounce](minigame-engine-timing-bounce.md) | Engine: timing-bounce (happy hops) | proposed | Attention span + novelty |
+| [minigame-engine-meter-burst](minigame-engine-meter-burst.md) | Engine: meter-burst (roar / splash / cheer) | proposed | Attention span + novelty |
+| [minigame-engine-slice-swipe](minigame-engine-slice-swipe.md) | Engine: slice-swipe (fruit toss / snack slash) | proposed | Attention span + novelty |
+| [varied-surprising-feed-beat](varied-surprising-feed-beat.md) | Varied foods/reactions on feed (superseded by host + engines) | superseded | Variable-ratio reinforcement + novelty |
+| [alternate-mission-play-beats](alternate-mission-play-beats.md) | Schedule find-mission in rhythm (related to tap-collect) | proposed | Attention span + interleaving |
+| [visible-collection-board](visible-collection-board.md) | Collection gallery + near "next friend" goal | proposed | Curiosity gap + goal-gradient + SDT |
+| [positive-bond-affection](positive-bond-affection.md) | Growing mood/affection feedback (positive-only, no decay) | proposed | SDT relatedness + positive reinforcement |
+| [session-quest-surprise-chest](session-quest-surprise-chest.md) | Tiny per-run quest ending in a surprise chest | proposed | Goal-gradient + variable always-positive reward |
