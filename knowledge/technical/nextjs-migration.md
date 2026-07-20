@@ -41,6 +41,6 @@ subdirectory, keeping the vanilla version at the repo root only until parity was
 
 - Two-step build: source in `web/`, static output in `web/out`.
 - Porting hand-written logic required careful parity checks (see
-  [parity-testing](parity-testing.md)).
+  [pure-logic-in-lib](pure-logic-in-lib.md)).
 - SSR/hydration introduced a new class of bug (see [hydration-gating](hydration-gating.md)).
 - The vanilla `index.html` and root `assets/` were removed once the port was live.

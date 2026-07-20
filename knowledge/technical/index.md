@@ -19,16 +19,25 @@ Shared OKF frontmatter (`id`, `title`, `status`, `date`, `tags`) plus `supersede
 `related`, with sections: **Context -> Decision -> Why -> Alternatives rejected ->
 Consequences**. See [`TEMPLATE.md`](TEMPLATE.md).
 
-## Decisions
+## Design patterns
+
+The core patterns that keep the app extensible — start here to understand the architecture.
+
+| ID | Title | Status |
+| --- | --- | --- |
+| [game-provider-pattern](game-provider-pattern.md) | Games are pluggable providers (how to add a game) | accepted |
+| [data-driven-content](data-driven-content.md) | Content + tuning live in `data/`, not code | accepted |
+| [question-dispatch-by-op](question-dispatch-by-op.md) | Dispatch render/speech by `Question.op` | accepted |
+| [pure-logic-in-lib](pure-logic-in-lib.md) | Pure, testable logic in `lib/`, split from React | accepted |
+| [design-system](design-system.md) | Design system: tokens + primitives | accepted |
+
+## Platform and state
 
 | ID | Title | Status |
 | --- | --- | --- |
 | [nextjs-migration](nextjs-migration.md) | Migrate vanilla index.html to Next.js/React/TS in `web/` | accepted |
+| [static-export-pages](static-export-pages.md) | Static export to GitHub Pages via Actions (public repo) | accepted |
+| [pwa-serwist](pwa-serwist.md) | Offline play via Serwist PWA | accepted |
 | [state-persistence](state-persistence.md) | Preserve `alufim_state_v2` localStorage shape | accepted |
 | [zustand-store](zustand-store.md) | Zustand + persist for app state | accepted |
 | [hydration-gating](hydration-gating.md) | Gate UI until store rehydrates | accepted |
-| [static-export-pages](static-export-pages.md) | Static export to GitHub Pages via Actions | accepted |
-| [public-repo](public-repo.md) | Repo stays public for GitHub Pages | accepted |
-| [pwa-serwist](pwa-serwist.md) | Offline play via Serwist PWA | accepted |
-| [design-system](design-system.md) | Design system: tokens + primitives | accepted |
-| [parity-testing](parity-testing.md) | Vitest parity tests for ported logic | accepted |

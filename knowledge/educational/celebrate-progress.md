@@ -36,4 +36,4 @@ Each correct answer moves the XP bar instantly. Evolution triggers at cumulative
   evolution.
 - Blocking animations that delay the next question weaken the effort-reward link.
 - Thresholds are balance: change them deliberately and update
-  [parity-testing](../technical/parity-testing.md).
+  [pure-logic-in-lib](../technical/pure-logic-in-lib.md).

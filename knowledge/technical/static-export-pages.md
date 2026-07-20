@@ -4,8 +4,8 @@ title: Static export to GitHub Pages via Actions
 status: accepted
 date: 2026-06-22
 tags: [deployment, ci, github-pages, nextjs]
-supersedes: []
-related: [nextjs-migration, public-repo, pwa-serwist]
+supersedes: [public-repo]
+related: [nextjs-migration, pwa-serwist]
 ---
 
 # Static export to GitHub Pages via Actions
@@ -36,6 +36,16 @@ base path.
 - **Vercel/Netlify** — great tools, but add another account/service for zero benefit here.
 - **A Node server** — unnecessary; the app has no server-side needs.
 
+## Public repository
+
+Free GitHub Pages serves from a public repository, so the repo is public and everything in
+it is world-readable. This is safe here: the app is client-only with no backend, secrets, or
+API keys. The rejected alternative (private repo + paid Pages) buys nothing because nothing
+is sensitive.
+
+Corollary: never commit secrets to this repo. If a key is ever needed, route it through CI
+secrets or external config, not the source tree.
+
 ## Consequences
 
 - Dynamic Next.js routes must opt into static (e.g. `export const dynamic = "force-static"`
@@ -43,3 +53,4 @@ base path.
 - All internal links and asset URLs must respect the `/Alufim/` base path.
 - Running `npm run build` while the dev server is live can corrupt `.next`; clear it if the
   dev page goes blank.
+- The repo must stay public (or move to paid Pages) for hosting to work.
