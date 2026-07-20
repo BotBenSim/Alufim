@@ -12,7 +12,7 @@ import type { AnswerChoice } from "@/lib/answerChoice";
 import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
 import type { RunState } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { repeatStr } from "@/lib/random";
+import { numberOptions, repeatStr } from "@/lib/random";
 
 function emojiSize(n: number) {
   if (n <= 3) return 44;
@@ -116,11 +116,15 @@ export function QuestionView({
       const pointer = "👆";
 
       if (fq.kind === "num") {
+        const answer = fq.answer as number;
+        const maxNum = (fq.maxNum as number) || Math.max(5, answer);
+        const raw = (fq as { options?: number[] }).options;
+        const options = (raw?.length ? raw : numberOptions(answer, maxNum)).map(String);
         return {
           kind: "find" as const,
-          prompt: `מצאו את המספר ${HEB_NUM[fq.answer as number] || fq.answer}`,
+          prompt: `מצאו את המספר ${HEB_NUM[answer] || answer}`,
           hint: pointer,
-          options: (fq as { options?: number[] }).options?.map(String) ?? [],
+          options,
           variant: "answerFind" as const,
         };
       }
@@ -196,160 +200,167 @@ export function QuestionView({
       id="questionCard"
       className={cn(
         PLAY_CARD_STAGE_CLASS,
-        "relative flex flex-col items-center justify-center gap-2 bg-white/90 px-4 pb-3.5 pt-11 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
+        "relative flex flex-col bg-white/90 px-4 pb-3.5 pt-2.5 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
       )}
     >
-      <KidButton
-        variant="speak"
-        id="speakBtn"
-        className="absolute end-2.5 top-2.5 z-[1]"
-        onClick={onSpeak}
-        aria-label="השמע שוב"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="currentColor"
-          aria-hidden
+      {/* Own row + opaque strip so emoji content can never paint over the speaker */}
+      <div className="relative z-20 flex shrink-0 justify-end pb-1.5">
+        <KidButton
+          variant="speak"
+          id="speakBtn"
+          onClick={onSpeak}
+          aria-label="השמע שוב"
         >
-          <path d="M3 9v6h4l5 4V5L7 9H3Zm13.5 3a4.5 4.5 0 0 0-2.4-4v8a4.5 4.5 0 0 0 2.4-4Zm2.5 0c0 2.5-1.1 4.7-2.8 6.2l1.4 1.4A9.5 9.5 0 0 0 21 12a9.5 9.5 0 0 0-3.4-7.2l-1.4 1.4A7.5 7.5 0 0 1 19 12Z" />
-        </svg>
-      </KidButton>
-
-      {choiceProps.kind === "math" && (
-        <>
-          {choiceProps.visual !== "numbers" && (
-            <div
-              id="shapesRow"
-              className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
-            >
-              {choiceProps.visual === "countOn" ? (
-                <>
-                  <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
-                    {choiceProps.a}
-                  </span>
-                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
-                    +
-                  </span>
-                  <EmojiGroup emoji={em} count={choiceProps.b!} />
-                </>
-              ) : (
-                <>
-                  <EmojiGroup emoji={em} count={choiceProps.a!} />
-                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
-                    +
-                  </span>
-                  <EmojiGroup emoji={em} count={choiceProps.b!} />
-                </>
-              )}
-            </div>
-          )}
-          <div
-            id="digitsRow"
-            className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="currentColor"
+            aria-hidden
           >
-            <b className="text-heading">{choiceProps.a}</b> +{" "}
-            <b className="text-heading">{choiceProps.b}</b> = ?
-          </div>
-        </>
-      )}
+            <path d="M3 9v6h4l5 4V5L7 9H3Zm13.5 3a4.5 4.5 0 0 0-2.4-4v8a4.5 4.5 0 0 0 2.4-4Zm2.5 0c0 2.5-1.1 4.7-2.8 6.2l1.4 1.4A9.5 9.5 0 0 0 21 12a9.5 9.5 0 0 0-3.4-7.2l-1.4 1.4A7.5 7.5 0 0 1 19 12Z" />
+          </svg>
+        </KidButton>
+      </div>
 
-      {choiceProps.kind === "sub" && (
-        <>
-          {choiceProps.visual !== "numbers" && (
+      {/* Scrollport below the speaker — tall prompts scroll instead of covering the button */}
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <div className="flex min-h-full flex-col items-center justify-center gap-2 py-1">
+        {choiceProps.kind === "math" && (
+          <>
+            {choiceProps.visual !== "numbers" && (
+              <div
+                id="shapesRow"
+                className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
+              >
+                {choiceProps.visual === "countOn" ? (
+                  <>
+                    <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                      {choiceProps.a}
+                    </span>
+                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                      +
+                    </span>
+                    <EmojiGroup emoji={em} count={choiceProps.b!} />
+                  </>
+                ) : (
+                  <>
+                    <EmojiGroup emoji={em} count={choiceProps.a!} />
+                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                      +
+                    </span>
+                    <EmojiGroup emoji={em} count={choiceProps.b!} />
+                  </>
+                )}
+              </div>
+            )}
             <div
-              id="shapesRow"
-              className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
+              id="digitsRow"
+              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
             >
-              {choiceProps.visual === "countOn" ? (
-                <>
-                  <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
-                    {choiceProps.a}
-                  </span>
-                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
-                    −
-                  </span>
-                  <EmojiGroup emoji={em} count={choiceProps.b!} />
-                </>
-              ) : (
-                <EmojiGroup emoji={em} count={choiceProps.a!} crossed={choiceProps.b} />
-              )}
+              <b className="text-heading">{choiceProps.a}</b> +{" "}
+              <b className="text-heading">{choiceProps.b}</b> = ?
             </div>
-          )}
-          <div
-            id="digitsRow"
-            className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
-          >
-            <b className="text-heading">{choiceProps.a}</b> −{" "}
-            <b className="text-heading">{choiceProps.b}</b> = ?
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {choiceProps.kind === "wordPrompt" && (
-        <>
-          <div id="shapesRow" className="flex flex-wrap items-center justify-center gap-2.5">
-            <div className="engword text-[clamp(48px,12vw,100px)] font-extrabold tracking-wide text-heading [direction:ltr]">
-              {choiceProps.word}
+        {choiceProps.kind === "sub" && (
+          <>
+            {choiceProps.visual !== "numbers" && (
+              <div
+                id="shapesRow"
+                className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
+              >
+                {choiceProps.visual === "countOn" ? (
+                  <>
+                    <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                      {choiceProps.a}
+                    </span>
+                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                      −
+                    </span>
+                    <EmojiGroup emoji={em} count={choiceProps.b!} />
+                  </>
+                ) : (
+                  <EmojiGroup emoji={em} count={choiceProps.a!} crossed={choiceProps.b} />
+                )}
+              </div>
+            )}
+            <div
+              id="digitsRow"
+              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
+            >
+              <b className="text-heading">{choiceProps.a}</b> −{" "}
+              <b className="text-heading">{choiceProps.b}</b> = ?
             </div>
-          </div>
-          <div id="digitsRow" className="enghint text-[clamp(18px,3.4vw,26px)] font-bold text-heading">
-            {choiceProps.hint}
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {(choiceProps.kind === "find" || choiceProps.kind === "findGroup") && (
-        <>
-          <div className="findprompt text-center text-[clamp(30px,7vw,56px)] font-extrabold text-heading">
-            {"prompt" in choiceProps ? choiceProps.prompt : ""}
-          </div>
-          {"hint" in choiceProps && choiceProps.hint && (
-            <div className="enghint text-[clamp(18px,3.4vw,26px)] font-bold text-heading">
+        {choiceProps.kind === "wordPrompt" && (
+          <>
+            <div id="shapesRow" className="flex flex-wrap items-center justify-center gap-2.5">
+              <div className="engword text-[clamp(48px,12vw,100px)] font-extrabold tracking-wide text-heading [direction:ltr]">
+                {choiceProps.word}
+              </div>
+            </div>
+            <div id="digitsRow" className="enghint text-[clamp(18px,3.4vw,26px)] font-bold text-heading">
               {choiceProps.hint}
             </div>
-          )}
-        </>
-      )}
+          </>
+        )}
 
-      <div id="answers" className="flex flex-wrap justify-center gap-[clamp(12px,3vw,26px)]">
-        {"options" in choiceProps &&
-          (choiceProps.kind === "findGroup"
-            ? (choiceProps.options as { value: string; label: string }[]).map((o) => (
-                <KidButton
-                  key={o.value}
-                  variant="answerGroup"
-                  off={disabledAnswers.includes(o.value)}
-                  wobble={wobbleAnswer === o.value}
-                  onClick={() => onAnswer(o.value)}
-                >
-                  {o.label}
-                </KidButton>
-              ))
-            : choiceProps.kind === "wordPrompt"
-              ? (choiceProps.options as AnswerChoice[]).map((o) => (
+        {(choiceProps.kind === "find" || choiceProps.kind === "findGroup") && (
+          <>
+            <div className="findprompt text-center text-[clamp(30px,7vw,56px)] font-extrabold text-heading">
+              {"prompt" in choiceProps ? choiceProps.prompt : ""}
+            </div>
+            {"hint" in choiceProps && choiceProps.hint && (
+              <div className="enghint text-[clamp(18px,3.4vw,26px)] font-bold text-heading">
+                {choiceProps.hint}
+              </div>
+            )}
+          </>
+        )}
+
+        <div id="answers" className="flex flex-wrap justify-center gap-[clamp(12px,3vw,26px)]">
+          {"options" in choiceProps &&
+            (choiceProps.kind === "findGroup"
+              ? (choiceProps.options as { value: string; label: string }[]).map((o) => (
                   <KidButton
                     key={o.value}
-                    variant={choiceProps.variant}
+                    variant="answerGroup"
                     off={disabledAnswers.includes(o.value)}
                     wobble={wobbleAnswer === o.value}
                     onClick={() => onAnswer(o.value)}
                   >
-                    <AnswerGlyphView glyph={o.glyph} />
+                    {o.label}
                   </KidButton>
                 ))
-              : (choiceProps.options as string[]).map((o) => (
-                  <KidButton
-                    key={o}
-                    variant={choiceProps.variant}
-                    off={disabledAnswers.includes(o)}
-                    wobble={wobbleAnswer === o}
-                    onClick={() => onAnswer(o)}
-                  >
-                    {o}
-                  </KidButton>
-                )))}
+              : choiceProps.kind === "wordPrompt"
+                ? (choiceProps.options as AnswerChoice[]).map((o) => (
+                    <KidButton
+                      key={o.value}
+                      variant={choiceProps.variant}
+                      off={disabledAnswers.includes(o.value)}
+                      wobble={wobbleAnswer === o.value}
+                      onClick={() => onAnswer(o.value)}
+                    >
+                      <AnswerGlyphView glyph={o.glyph} />
+                    </KidButton>
+                  ))
+                : (choiceProps.options as string[]).map((o) => (
+                    <KidButton
+                      key={o}
+                      variant={choiceProps.variant}
+                      off={disabledAnswers.includes(o)}
+                      wobble={wobbleAnswer === o}
+                      onClick={() => onAnswer(o)}
+                    >
+                      {o}
+                    </KidButton>
+                  )))}
+        </div>
+        </div>
       </div>
     </div>
   );

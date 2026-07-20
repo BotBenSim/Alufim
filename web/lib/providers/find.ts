@@ -9,7 +9,7 @@ import {
   letterByGlyph,
   findCatLabel,
 } from "@/data/find";
-import { rnd, shuffle, pickDistinct, pickDistinctBy } from "@/lib/random";
+import { rnd, shuffle, pickDistinct, pickDistinctBy, numberOptions } from "@/lib/random";
 import type { Provider, ProviderContext } from "@/lib/types";
 
 type FindParams = {
@@ -34,7 +34,14 @@ function findGenNum(ctx: ProviderContext, p: FindParams): FindQuestion {
     if (!ctx.usedKeys.includes(`find:num:${n}`)) pool.push(n);
   }
   if (!pool.length) for (let m = 1; m <= maxNum; m++) pool.push(m);
-  return { op: "find", kind: "num", answer: pool[rnd(pool.length)], maxNum };
+  const answer = pool[rnd(pool.length)];
+  return {
+    op: "find",
+    kind: "num",
+    answer,
+    maxNum,
+    options: numberOptions(answer, maxNum),
+  };
 }
 
 function findGenCat(ctx: ProviderContext, _p: FindParams): FindQuestion {

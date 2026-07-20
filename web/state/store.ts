@@ -48,6 +48,14 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 let pendingEvolveNext: (() => void) | null = null;
+let lastEvolveTapAt = 0;
+
+/** Big milestone — paced so kids feel the build-up, not a one-second flash. */
+const EVOLVE_TAPS_NEEDED = 12;
+const EVOLVE_TAP_MIN_MS = 150;
+const EVOLVE_FILMSTRIP_HOLD_MS = 950;
+const EVOLVE_FILMSTRIP_STEP_MS = 900;
+const EVOLVE_DONE_HOLD_MS = 5000;
 
 const PRAISE = [
   "כל הכבוד!",
@@ -107,7 +115,7 @@ type Store = UiState & {
   selectProfile: (id: string) => void;
   selectCharacter: (id: string) => void;
   selectGame: (id: GameId) => void;
-  startGame: () => void;
+  startGame: (gameId?: GameId) => void;
   goHome: () => void;
   openProfileEditor: (id: string | null) => void;
   updateEditorDraft: (patch: Partial<NonNullable<UiState["editorDraft"]>>) => void;
@@ -204,15 +212,12 @@ export const useStore = create<Store>()(
       setScreen: (screen) => set({ screen }),
 
       selectProfile: (id) => {
-        set((state) => {
-          const p = findProfile(state.app, id);
-          return {
-            app: { ...state.app, lastProfileId: id },
-            selectedGameId: null,
-            homeCharSection: true,
-            // Keep games visible when this profile already has a chosen animal
-            homeGameSection: profileHasActiveAnimal(p),
-          };
+        set({
+          app: { ...get().app, lastProfileId: id },
+          selectedGameId: null,
+          homeCharSection: true,
+          // Always land on animal pick next — games open only after choosing an animal.
+          homeGameSection: false,
         });
       },
 
@@ -234,8 +239,9 @@ export const useStore = create<Store>()(
 
       selectGame: (id) => set({ selectedGameId: id }),
 
-      startGame: () => {
-        const { app, selectedGameId } = get();
+      startGame: (gameId) => {
+        const { app } = get();
+        const selectedGameId = gameId ?? get().selectedGameId;
         const p = findProfile(app, app.lastProfileId);
         const char = p?.activeCharacterId ? characterById(p.activeCharacterId) : null;
         if (!p || !char || !selectedGameId) return;
@@ -270,6 +276,7 @@ export const useStore = create<Store>()(
         };
 
         set({
+          selectedGameId,
           run: readyRun,
           screen: "game",
           feedback: "",
@@ -460,9 +467,10 @@ export const useStore = create<Store>()(
             evolveOverlay: {
               formIdx,
               taps: 0,
-              needed: 6,
+              needed: EVOLVE_TAPS_NEEDED,
               phase: "tap",
-              filmstripForm: 0,
+              // Start on the form they're growing from — morph into the new one.
+              filmstripForm: Math.max(0, formIdx - 1),
               animToken: Date.now(),
             },
           });
@@ -475,6 +483,9 @@ export const useStore = create<Store>()(
         const { evolveOverlay, run } = get();
         if (!run || !evolveOverlay || evolveOverlay.phase !== "tap") return;
         if (evolveOverlay.taps >= evolveOverlay.needed) return;
+        const now = Date.now();
+        if (now - lastEvolveTapAt < EVOLVE_TAP_MIN_MS) return;
+        lastEvolveTapAt = now;
         const taps = evolveOverlay.taps + 1;
         if (taps >= evolveOverlay.needed) {
           set({
@@ -482,7 +493,7 @@ export const useStore = create<Store>()(
               ...evolveOverlay,
               taps,
               phase: "filmstrip",
-              filmstripForm: 0,
+              filmstripForm: Math.max(0, evolveOverlay.formIdx - 1),
             },
           });
         } else {
@@ -498,10 +509,10 @@ export const useStore = create<Store>()(
           set({
             evolveOverlay: { ...evolveOverlay, phase: "done", filmstripForm: evolveOverlay.formIdx },
           });
-          window.setTimeout(() => get().finishEvolve(), 2600);
+          window.setTimeout(() => get().finishEvolve(), EVOLVE_DONE_HOLD_MS);
         } else {
           set({ evolveOverlay: { ...evolveOverlay, filmstripForm: nextForm } });
-          window.setTimeout(() => get().evolveFilmstripTick(), 340);
+          window.setTimeout(() => get().evolveFilmstripTick(), EVOLVE_FILMSTRIP_STEP_MS);
         }
       },
 
@@ -606,35 +617,41 @@ export const useStore = create<Store>()(
           window.setTimeout(() => {
             const beat = buildBeat(run.preset, run.step);
             if (beat === "mission") {
-              const r = get().run!;
-              const prog = get().profile()?.characters[r.character.id];
-              const art = currentFormArt(r.character, prog?.totalXp ?? 0);
-              const m = nextMission(r.character, art);
-              set({
-                run: { ...get().run!, locked: true, phase: "mission", mission: m },
-                showMission: true,
+              // Grow before mission so art matches the celebrated form.
+              get()._withEvolution(() => {
+                const r = get().run!;
+                const prog = get().profile()?.characters[r.character.id];
+                const art = currentFormArt(r.character, prog?.totalXp ?? 0);
+                const m = nextMission(r.character, art);
+                set({
+                  run: { ...get().run!, locked: true, phase: "mission", mission: m },
+                  showMission: true,
+                });
+                window.setTimeout(() => set({ run: { ...get().run!, locked: false } }), 100);
               });
-              window.setTimeout(() => set({ run: { ...get().run!, locked: false } }), 100);
             } else if (beat === "play") {
-              const r = get().run!;
-              const prof = get().profile();
-              const enabled = enabledMinigameIds(
-                prof?.minigames as Record<MinigameEngineId, { enabled: boolean }> | undefined
-              );
-              const skin = pickMinigameSkin(r.character.id, null, enabled);
-              const engine = getMinigameEngine(skin.engineId);
-              const session = engine.start({
-                characterId: r.character.id,
-                character: r.character,
-                skin,
-              });
-              set({
-                run: { ...r, locked: true, phase: "play" },
-                minigameOverlay: {
-                  engineId: skin.engineId,
-                  session,
-                  done: false,
-                },
+              // Grow before play — otherwise the minigame already shows the new form.
+              get()._withEvolution(() => {
+                const r = get().run!;
+                const prof = get().profile();
+                const enabled = enabledMinigameIds(
+                  prof?.minigames as Record<MinigameEngineId, { enabled: boolean }> | undefined
+                );
+                const skin = pickMinigameSkin(r.character.id, null, enabled);
+                const engine = getMinigameEngine(skin.engineId);
+                const session = engine.start({
+                  characterId: r.character.id,
+                  character: r.character,
+                  skin,
+                });
+                set({
+                  run: { ...r, locked: true, phase: "play" },
+                  minigameOverlay: {
+                    engineId: skin.engineId,
+                    session,
+                    done: false,
+                  },
+                });
               });
             } else {
               get()._gotoNextStep();
@@ -764,7 +781,7 @@ useStore.subscribe((state, prev) => {
     ev.animToken !== lastFilmstripToken
   ) {
     lastFilmstripToken = ev.animToken;
-    window.setTimeout(() => useStore.getState().evolveFilmstripTick(), 340);
+    window.setTimeout(() => useStore.getState().evolveFilmstripTick(), EVOLVE_FILMSTRIP_HOLD_MS);
   }
 });
 

@@ -2,16 +2,19 @@ import { MINIGAME_SKINS } from "@/data/minigames";
 import { rnd } from "@/lib/random";
 import { ACTIVE_ENGINES, type MinigameEngineId, type MinigameSkin } from "./types";
 
-const recentSkinIds: string[] = [];
-const RECENT_LIMIT = 4;
+const recentEngineIds: MinigameEngineId[] = [];
+const RECENT_ENGINE_LIMIT = 2;
 
 export function resetMinigameRecent(): void {
-  recentSkinIds.length = 0;
+  recentEngineIds.length = 0;
 }
 
 /**
- * Prefer skins tagged for the character; avoid the last few skin ids.
- * `enabledEngines` comes from the profile settings (falls back to ACTIVE_ENGINES).
+ * Pick uniformly among enabled engines (avoiding recent ones), then a skin for
+ * that engine. Prefer character-tagged skins; fall back to any skin for the engine.
+ *
+ * Important: do NOT pick among character-tagged skins first — animals with fewer
+ * skins (e.g. dragon) would otherwise over-play slingShot.
  */
 export function pickMinigameSkin(
   characterId: string,
@@ -19,29 +22,31 @@ export function pickMinigameSkin(
   enabledEngines?: readonly MinigameEngineId[] | null
 ): MinigameSkin {
   const allow =
-    enabledEngines && enabledEngines.length
-      ? new Set(enabledEngines)
-      : new Set(ACTIVE_ENGINES);
+    enabledEngines && enabledEngines.length ? [...enabledEngines] : [...ACTIVE_ENGINES];
 
-  let pool = MINIGAME_SKINS.filter((s) => {
-    if (engineFilter) return s.engineId === engineFilter;
-    return allow.has(s.engineId);
-  });
-  if (!pool.length && engineFilter) {
-    pool = MINIGAME_SKINS.filter((s) => s.engineId === engineFilter);
+  // Keep only engines that actually have skins in the catalog.
+  const withSkins = allow.filter((id) =>
+    MINIGAME_SKINS.some((s) => s.engineId === id)
+  );
+  const enginePool = withSkins.length ? withSkins : [...ACTIVE_ENGINES];
+
+  let engineId: MinigameEngineId;
+  if (engineFilter) {
+    engineId = engineFilter;
+  } else {
+    const fresh = enginePool.filter((id) => !recentEngineIds.includes(id));
+    const pickFrom = fresh.length ? fresh : enginePool;
+    engineId = pickFrom[rnd(pickFrom.length)] ?? enginePool[0];
   }
-  if (!pool.length) {
-    pool = MINIGAME_SKINS.filter((s) => ACTIVE_ENGINES.includes(s.engineId));
+
+  const forEngine = MINIGAME_SKINS.filter((s) => s.engineId === engineId);
+  const tagged = forEngine.filter((s) => s.characterTags.includes(characterId));
+  const candidates = tagged.length ? tagged : forEngine;
+  const skin = candidates[rnd(candidates.length)] ?? forEngine[0] ?? MINIGAME_SKINS[0];
+
+  if (!engineFilter) {
+    recentEngineIds.push(skin.engineId);
+    while (recentEngineIds.length > RECENT_ENGINE_LIMIT) recentEngineIds.shift();
   }
-
-  const tagged = pool.filter((s) => s.characterTags.includes(characterId));
-  let candidates = tagged.length ? tagged : pool;
-
-  const fresh = candidates.filter((s) => !recentSkinIds.includes(s.id));
-  if (fresh.length) candidates = fresh;
-
-  const skin = candidates[rnd(candidates.length)] ?? pool[0];
-  recentSkinIds.push(skin.id);
-  while (recentSkinIds.length > RECENT_LIMIT) recentSkinIds.shift();
   return skin;
 }

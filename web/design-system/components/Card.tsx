@@ -28,14 +28,6 @@ const cardVariants = cva("", {
       false: "",
     },
   },
-  compoundVariants: [
-    {
-      variant: "character",
-      selected: true,
-      class:
-        "after:absolute after:left-1 after:top-1 after:flex after:h-[18px] after:w-[18px] after:items-center after:justify-center after:rounded-full after:bg-[#2E9E5B] after:text-[11px] after:font-black after:text-white after:content-['✓'] after:shadow-md",
-    },
-  ],
   defaultVariants: {
     variant: "profile",
     selected: false,

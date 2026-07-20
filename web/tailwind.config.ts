@@ -73,8 +73,9 @@ const config: Config = {
           "50%": { transform: "scale(1.06)" },
         },
         evoPop: {
-          "0%": { transform: "scale(.5)", opacity: "0" },
-          "70%": { transform: "scale(1.08)", opacity: "1" },
+          "0%": { transform: "scale(.42)", opacity: "0" },
+          "55%": { transform: "scale(1.14)", opacity: "1" },
+          "78%": { transform: "scale(0.96)" },
           "100%": { transform: "scale(1)" },
         },
         xpFloatUp: {
@@ -90,7 +91,7 @@ const config: Config = {
       animation: {
         skyDrift: "skyDrift 46s linear infinite",
         sunPulse: "sunPulse 5s ease-in-out infinite",
-        evoPop: "evoPop .42s cubic-bezier(.34,1.56,.64,1)",
+        evoPop: "evoPop .85s cubic-bezier(.34,1.45,.64,1)",
         xpFloatUp: "xpFloatUp 1.4s ease-out forwards",
         confettiFall: "confettiFall 2.8s linear forwards",
       },

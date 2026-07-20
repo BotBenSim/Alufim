@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { CharacterArt } from "@/components/art/CharacterArt";
+import { evolveCelebrateLine } from "@/data/characters";
 import { useAudio } from "@/hooks/useAudio";
 import { useConfetti } from "@/hooks/useConfetti";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -17,7 +18,7 @@ export function EvolvePreview() {
 
   useEffect(() => {
     if (overlay?.phase === "tap" && overlay.taps === 0) {
-      speak("לחצו כדי להתפתח!");
+      speak("לחצו שוב ושוב — החבר הולך לגדול!");
     }
   }, [overlay?.phase, overlay?.taps, speak]);
 
@@ -30,72 +31,104 @@ export function EvolvePreview() {
     overlay.phase === "filmstrip" || overlay.phase === "done"
       ? c.forms[overlay.filmstripForm]
       : fromArt;
+  const revealing =
+    overlay.phase === "filmstrip" && overlay.filmstripForm === overlay.formIdx;
+  const celebrate = evolveCelebrateLine(c, overlay.formIdx);
+  const progress = overlay.taps / Math.max(1, overlay.needed);
+  const tapScale = 1 + progress * 0.28;
 
   return (
     <div
       id="ovEvolve"
-      className="overlay show absolute inset-0 z-[11] flex items-center justify-center bg-[rgba(20,40,70,.45)] backdrop-blur-[3px]"
+      className="overlay show absolute inset-0 z-[11] flex items-center justify-center bg-[rgba(12,28,55,.55)] backdrop-blur-[4px]"
     >
       <div
         id="evolveScene"
-        className="flex h-[84vh] w-[min(96vw,520px)] flex-col items-center justify-center gap-5"
+        className="flex h-[88vh] w-[min(96vw,560px)] flex-col items-center justify-center gap-4 px-3"
       >
-        {overlay.phase === "done" && (
-          <div id="evolveTitle" className="text-center text-[clamp(26px,7vw,48px)] font-black text-white drop-shadow-lg">
-            התפתח! ✨
-          </div>
-        )}
-
         {overlay.phase === "tap" && (
           <>
-            <div id="evolveHint" className="min-h-[1.2em] text-center text-[clamp(18px,5vw,30px)] font-extrabold text-white drop-shadow-md">
+            <div className="text-center text-[clamp(22px,5.5vw,36px)] font-black text-white drop-shadow-lg">
+              {c.he} מתחזק!
+            </div>
+            <div
+              id="evolveHint"
+              className="min-h-[1.2em] text-center text-[clamp(18px,5vw,28px)] font-extrabold text-[#FFE9A8] drop-shadow-md"
+            >
               לחצו שוב ושוב! 👆
             </div>
             <div
               id="evolveMeterWrap"
-              className="h-[30px] w-[min(74vw,420px)] overflow-hidden rounded-[18px] bg-white/35 shadow-[inset_0_2px_6px_rgba(0,0,0,.25)]"
+              className="h-[34px] w-[min(78vw,440px)] overflow-hidden rounded-[20px] bg-white/30 shadow-[inset_0_2px_8px_rgba(0,0,0,.28)]"
             >
               <div
                 id="evolveMeter"
-                className="h-full rounded-[18px] bg-gradient-to-r from-[#FFD93D] to-[#FF8A3D] transition-[width] duration-200"
-                style={{
-                  width: `${Math.round((overlay.taps / Math.max(1, overlay.needed)) * 100)}%`,
-                }}
+                className="h-full rounded-[20px] bg-gradient-to-r from-[#FFD93D] via-[#FFB347] to-[#FF8A3D] transition-[width] duration-200"
+                style={{ width: `${Math.round(progress * 100)}%` }}
               />
             </div>
             <button
               type="button"
               id="evolveCreature"
-              className="relative mx-auto aspect-square w-[min(72vw,300px)] origin-center border-none bg-transparent p-0 transition-transform"
+              className="relative mx-auto aspect-square w-[min(78vw,340px)] origin-center border-none bg-transparent p-0"
               style={{
-                transform: `scale(${1 + overlay.taps * 0.05})`,
-                filter: `drop-shadow(0 0 ${8 + overlay.taps * 4}px #FFE9A8) brightness(${1 + overlay.taps * 0.06})`,
+                transform: `scale(${tapScale})`,
+                filter: `drop-shadow(0 0 ${12 + overlay.taps * 5}px #FFE9A8) brightness(${1 + progress * 0.35})`,
+                transition: "transform 120ms ease-out, filter 120ms ease-out",
               }}
               onClick={() => {
+                const before = useStore.getState().evolveOverlay?.taps ?? 0;
                 evolveTap();
                 const st = useStore.getState().evolveOverlay;
-                if (st?.phase === "tap") {
-                  playXpGain(Math.min(7, 2 + st.taps));
-                  burst(8);
+                if (!st || st.taps === before) return;
+                if (st.phase === "tap") {
+                  playXpGain(Math.min(8, 2 + st.taps));
+                  burst(10 + Math.floor(st.taps * 1.5));
                 }
-                if (st?.phase === "filmstrip") {
+                if (st.phase === "filmstrip") {
                   playFanfare();
-                  burst(60);
+                  burst(80);
                 }
               }}
             >
-              {/* fill — never a fixed px larger than the box (overflow skews left in RTL) */}
-              <CharacterArt art={fromArt} fill className="pointer-events-none" />
+              <span
+                className="pointer-events-none absolute inset-[-8%] rounded-full bg-[radial-gradient(circle,rgba(255,233,168,.45)_0%,transparent_68%)]"
+                style={{ opacity: 0.35 + progress * 0.55 }}
+                aria-hidden
+              />
+              <CharacterArt art={fromArt} fill className="pointer-events-none relative" />
             </button>
           </>
         )}
 
         {(overlay.phase === "filmstrip" || overlay.phase === "done") && (
-          <div id="evolveStrip" className="flex w-full items-center justify-center">
-            <div className="evoCell solo popIn relative mx-auto aspect-square w-[min(80vw,62vh,440px)] animate-evoPop">
-              <CharacterArt art={showArt} fill />
+          <>
+            <div
+              id="evolveTitle"
+              className="text-center text-[clamp(28px,7vw,52px)] font-black text-white drop-shadow-lg"
+            >
+              {overlay.phase === "done" || revealing ? "התפתח! ✨" : "גדל…"}
             </div>
-          </div>
+            {(overlay.phase === "done" || revealing) && (
+              <div className="max-w-[22ch] text-center text-[clamp(18px,4.5vw,28px)] font-extrabold leading-snug text-[#FFE9A8] drop-shadow-md">
+                {celebrate}
+              </div>
+            )}
+            <div id="evolveStrip" className="flex w-full items-center justify-center">
+              <div
+                key={`${overlay.phase}-${overlay.filmstripForm}`}
+                className="evoCell solo popIn relative mx-auto aspect-square w-[min(84vw,64vh,460px)] animate-evoPop"
+                style={{
+                  filter:
+                    overlay.phase === "done" || revealing
+                      ? "drop-shadow(0 0 28px #FFE9A8) brightness(1.15)"
+                      : undefined,
+                }}
+              >
+                <CharacterArt art={showArt} fill />
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

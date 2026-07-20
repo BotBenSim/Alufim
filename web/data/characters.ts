@@ -1,5 +1,5 @@
 import { assetPath } from "@/lib/utils";
-import type { ArtDescriptor } from "@/lib/types";
+import type { ArtDescriptor, CharacterDef } from "@/lib/types";
 
 export function charArt(id: string, stage: number, fallback: string): ArtDescriptor {
   return {
@@ -76,7 +76,7 @@ export const CHARACTERS = [
     counts: "🐠",
     food: "🦐",
     reward: { title: "תפסו דגים", emoji: "🐠" },
-    cheer: "שְפְּלַאש! התחזקת!",
+    cheer: "גל ענק!",
     starter: true,
   },
   {
@@ -91,10 +91,21 @@ export const CHARACTERS = [
     counts: "🐢",
     food: "🌿",
     reward: { title: "תפסו טיפות", emoji: "💧" },
-    cheer: "צמחת חזק!",
+    cheer: "שריון חזק!",
     starter: true,
   },
 ] as const;
+
+/** Spoken + on-screen line when a form unlocks — e.g. "שאגה ענקית, עכשיו יש לך אריה גיבור!" */
+export function evolveCelebrateLine(
+  character: Pick<CharacterDef, "he" | "cheer" | "forms">,
+  formIdx: number
+): string {
+  const opener = character.cheer.replace(/[!]+$/u, "").trim();
+  // Mid form = בוגר, final form = גיבור (starter baby has no evolve line).
+  const stage = formIdx >= character.forms.length - 1 ? "גיבור" : "בוגר";
+  return `${opener}, עכשיו יש לך ${character.he} ${stage}!`;
+}
 
 export type CharacterId = (typeof CHARACTERS)[number]["id"];
 

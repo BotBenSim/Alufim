@@ -20,8 +20,8 @@ describe("pickMinigameSkin", () => {
     }
   });
 
-  it("prefers skins tagged for the character", () => {
-    const skin = pickMinigameSkin("lion");
+  it("prefers skins tagged for the character when the engine has one", () => {
+    const skin = pickMinigameSkin("lion", "sliceSwipe");
     expect(skin.characterTags.includes("lion")).toBe(true);
   });
 
@@ -31,16 +31,27 @@ describe("pickMinigameSkin", () => {
     expect(MINIGAME_SKINS.some((s) => s.id === skin.id)).toBe(true);
   });
 
-  it("avoids immediate skin repeats when alternatives exist", () => {
-    const first = pickMinigameSkin("lion", "sliceSwipe");
-    const second = pickMinigameSkin("lion", "sliceSwipe");
-    const lionSlice = MINIGAME_SKINS.filter(
-      (s) => s.engineId === "sliceSwipe" && s.characterTags.includes("lion")
-    );
-    if (lionSlice.length > 1) {
-      expect(second.id).not.toBe(first.id);
-    } else {
-      expect(second.id).toBe(first.id);
+  it("spreads engines evenly for dragon (not stuck on slingShot)", () => {
+    const enabled = ["pathDash", "timingBounce", "sliceSwipe", "slingShot"] as const;
+    const counts: Record<string, number> = {};
+    for (let i = 0; i < 80; i++) {
+      const skin = pickMinigameSkin("dragon", null, enabled);
+      counts[skin.engineId] = (counts[skin.engineId] || 0) + 1;
     }
+    // Every enabled engine should appear; none should dominate (~>50%).
+    for (const id of enabled) {
+      expect(counts[id] ?? 0).toBeGreaterThan(5);
+      expect(counts[id] ?? 0).toBeLessThan(40);
+    }
+  });
+
+  it("avoids repeating the same engine when alternatives exist", () => {
+    const enabled = ["pathDash", "timingBounce", "sliceSwipe", "slingShot"] as const;
+    const first = pickMinigameSkin("dragon", null, enabled);
+    const second = pickMinigameSkin("dragon", null, enabled);
+    const third = pickMinigameSkin("dragon", null, enabled);
+    // With 4 engines and recent-limit 2, three in a row should not all match.
+    const ids = [first.engineId, second.engineId, third.engineId];
+    expect(new Set(ids).size).toBeGreaterThan(1);
   });
 });
