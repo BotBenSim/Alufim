@@ -2,7 +2,7 @@ import { HEB_NUM } from "@/data/hebrew";
 import { findCatLabel, LETTER_NAME } from "@/data/find";
 import { addSpeakPrompt, type AddQuestion } from "@/lib/providers/add";
 import { subSpeakPrompt, type SubQuestion } from "@/lib/providers/sub";
-import type { EngQuestion } from "@/lib/providers/eng";
+import type { EngQuestion, EngWord } from "@/lib/providers/eng";
 import type { Question } from "@/lib/types";
 
 type FindQ = Question & {
@@ -13,11 +13,9 @@ type FindQ = Question & {
   answer?: unknown;
 };
 
-export function speakQuestion(
-  q: Question,
-  speak: (text: string, queue?: boolean) => void,
-  speakEn: (text: string, queue?: boolean) => void
-) {
+type SpeakFn = (text: string, queue?: boolean) => void;
+
+export function speakQuestion(q: Question, speak: SpeakFn, speakEn: SpeakFn) {
   switch (q.op) {
     case "add":
       speak(addSpeakPrompt(q as unknown as AddQuestion, HEB_NUM), true);
@@ -47,3 +45,29 @@ export function speakQuestion(
     }
   }
 }
+
+/** Correct pick: pair Hebrew ↔ English, confirm right, then caller advances. */
+export function speakEngCorrect(word: EngWord, speak: SpeakFn, speakEn: SpeakFn) {
+  speak(`${word.he}!`);
+  speakEn(word.en, true);
+  speak(`זה ${word.he}! יופי!`, true);
+}
+
+/**
+ * Wrong pick: name what they tapped (he + en), try again, then re-prompt the
+ * target English word.
+ */
+export function speakEngWrong(
+  target: EngWord,
+  picked: EngWord,
+  speak: SpeakFn,
+  speakEn: SpeakFn
+) {
+  speak(`${picked.he} אומרים`);
+  speakEn(picked.en, true);
+  speak("נסו שוב!", true);
+  speakEn(target.en, true);
+}
+
+/** Rough ms to wait before advancing after eng correct feedback. */
+export const ENG_CORRECT_ADVANCE_MS = 3400;

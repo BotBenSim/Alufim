@@ -4,9 +4,11 @@ import { useMemo } from "react";
 import { KidButton } from "@/design-system";
 import { HEB_NUM } from "@/data/hebrew";
 import { findCatLabel } from "@/data/find";
+import { AnswerGlyphView } from "@/components/game/AnswerGlyphView";
 import { addRenderMeta, type AddQuestion } from "@/lib/providers/add";
 import { subRenderMeta, type SubQuestion } from "@/lib/providers/sub";
-import type { EngQuestion } from "@/lib/providers/eng";
+import { engRenderMeta, type EngQuestion } from "@/lib/providers/eng";
+import type { AnswerChoice } from "@/lib/answerChoice";
 import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
 import type { RunState } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -99,11 +101,12 @@ export function QuestionView({
 
     if (q.op === "eng") {
       const eq = q as unknown as EngQuestion;
+      const meta = engRenderMeta(eq);
       return {
-        kind: "eng" as const,
-        word: eq.word.en,
-        hint: "איזה אחד זה?",
-        options: eq.options.map((o) => o.emoji),
+        kind: "wordPrompt" as const,
+        word: meta.word,
+        hint: meta.hint,
+        options: meta.options,
         variant: "answerEng" as const,
       };
     }
@@ -284,7 +287,7 @@ export function QuestionView({
         </>
       )}
 
-      {choiceProps.kind === "eng" && (
+      {choiceProps.kind === "wordPrompt" && (
         <>
           <div id="shapesRow" className="flex flex-wrap items-center justify-center gap-2.5">
             <div className="engword text-[clamp(48px,12vw,100px)] font-extrabold tracking-wide text-heading [direction:ltr]">
@@ -324,17 +327,29 @@ export function QuestionView({
                   {o.label}
                 </KidButton>
               ))
-            : (choiceProps.options as string[]).map((o) => (
-                <KidButton
-                  key={o}
-                  variant={choiceProps.variant}
-                  off={disabledAnswers.includes(o)}
-                  wobble={wobbleAnswer === o}
-                  onClick={() => onAnswer(o)}
-                >
-                  {o}
-                </KidButton>
-              )))}
+            : choiceProps.kind === "wordPrompt"
+              ? (choiceProps.options as AnswerChoice[]).map((o) => (
+                  <KidButton
+                    key={o.value}
+                    variant={choiceProps.variant}
+                    off={disabledAnswers.includes(o.value)}
+                    wobble={wobbleAnswer === o.value}
+                    onClick={() => onAnswer(o.value)}
+                  >
+                    <AnswerGlyphView glyph={o.glyph} />
+                  </KidButton>
+                ))
+              : (choiceProps.options as string[]).map((o) => (
+                  <KidButton
+                    key={o}
+                    variant={choiceProps.variant}
+                    off={disabledAnswers.includes(o)}
+                    wobble={wobbleAnswer === o}
+                    onClick={() => onAnswer(o)}
+                  >
+                    {o}
+                  </KidButton>
+                )))}
       </div>
     </div>
   );

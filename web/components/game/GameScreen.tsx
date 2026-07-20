@@ -9,7 +9,12 @@ import { MinigameHost } from "@/components/game/MinigameHost";
 import { Badge, KidButton } from "@/design-system";
 import { characterById } from "@/data/characters";
 import { currentFormArt } from "@/lib/missions";
-import { speakQuestion } from "@/lib/speakPrompt";
+import {
+  speakEngCorrect,
+  speakEngWrong,
+  speakQuestion,
+} from "@/lib/speakPrompt";
+import { engAnswerKey, type EngQuestion } from "@/lib/providers/eng";
 import { xpBarState } from "@/lib/xp";
 import { useStore } from "@/state/store";
 import { useAudio } from "@/hooks/useAudio";
@@ -131,16 +136,25 @@ export function GameScreen() {
       playCorrect();
       burst(8);
       const fb = useStore.getState().feedback;
-      if (run.gameId === "eng" && run.current && "word" in run.current) {
-        const w = (run.current as unknown as { word: { en: string; he: string } }).word;
-        speakEn(w.en);
-        speak(`${w.he}! ${fb.replace("🎉 ", "")}`, true);
+      if (run.gameId === "eng" && run.current?.op === "eng") {
+        speakEngCorrect((run.current as EngQuestion).word, speak, speakEn);
       } else {
         speak(fb.replace("🎉 ", ""));
       }
     } else if (!prevFlash) {
       playWrong();
-      speak("כמעט! נסו שוב");
+      if (run.gameId === "eng" && run.current?.op === "eng") {
+        const eq = run.current as EngQuestion;
+        const picked = eq.options.find((o) => engAnswerKey(o) === value);
+        if (picked && engAnswerKey(picked) !== engAnswerKey(eq.word)) {
+          speakEngWrong(eq.word, picked, speak, speakEn);
+        } else {
+          speak("נסו שוב!");
+          speakEn(eq.word.en, true);
+        }
+      } else {
+        speak("כמעט! נסו שוב");
+      }
     }
   };
 

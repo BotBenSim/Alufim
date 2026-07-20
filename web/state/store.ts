@@ -36,6 +36,7 @@ import type {
   ScreenId,
 } from "@/lib/types";
 import { GAME_ORDER } from "@/data/games";
+import { ENG_CORRECT_ADVANCE_MS } from "@/lib/speakPrompt";
 import { xpForCorrect, formForXp, XP_BEAT } from "@/lib/xp";
 import {
   getMinigameEngine,
@@ -600,6 +601,8 @@ export const useStore = create<Store>()(
             feedback,
           });
           get()._awardXp(gain);
+          // Eng teach-back speech needs longer before the next prompt.
+          const advanceMs = run.gameId === "eng" ? ENG_CORRECT_ADVANCE_MS : 900;
           window.setTimeout(() => {
             const beat = buildBeat(run.preset, run.step);
             if (beat === "mission") {
@@ -636,7 +639,7 @@ export const useStore = create<Store>()(
             } else {
               get()._gotoNextStep();
             }
-          }, 900);
+          }, advanceMs);
         } else {
           const mistakes = run.mistakes + 1;
           const disabled = [...get().disabledAnswers, value];
