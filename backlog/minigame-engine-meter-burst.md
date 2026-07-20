@@ -1,7 +1,7 @@
 ---
 id: minigame-engine-meter-burst
 title: Mini-game engine — meter-burst (roar / splash / cheer)
-status: accepted
+status: superseded
 date: 2026-07-20
 tags: [backlog, educational, engagement, minigame]
 theory: Attention span + novelty / curiosity (no-fail interlude)

@@ -70,7 +70,8 @@
 }
 
 /* Background scene — decorative, always LTR regardless of page direction */
-#bgScene {
+#bgScene,
+.bgScene {
   direction: ltr;
 }
 

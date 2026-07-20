@@ -26,7 +26,7 @@ The core patterns that keep the app extensible — start here to understand the 
 | ID | Title | Status |
 | --- | --- | --- |
 | [game-provider-pattern](game-provider-pattern.md) | Games are pluggable providers (how to add a game) | accepted |
-| [minigame-provider-pattern](minigame-provider-pattern.md) | Play-beat minigames are pluggable engines | accepted |
+| [minigame-provider-pattern](minigame-provider-pattern.md) | Play-beat minigames: engines + UI strategies | accepted |
 | [data-driven-content](data-driven-content.md) | Content + tuning live in `data/`, not code | accepted |
 | [question-dispatch-by-op](question-dispatch-by-op.md) | Dispatch render/speech by `Question.op` | accepted |
 | [pure-logic-in-lib](pure-logic-in-lib.md) | Pure, testable logic in `lib/`, split from React | accepted |

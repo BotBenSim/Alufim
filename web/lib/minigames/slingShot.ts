@@ -1,55 +1,57 @@
-import { resolveJumpConfig, type JumpPlayConfig } from "./jumpConfig";
 import type { MinigameEngine, MinigameSession } from "./types";
 
-export type TimingBounceState = {
+export type SlingShotState = {
   score: number;
   needed: number;
-  /** Obstacle emoji kids jump over */
-  obstacleEmoji: string;
+  pool: string[];
   lastQuality: "good" | "miss" | null;
-  /** Resolved jump feel (engine defaults + skin overrides) */
-  jump: JumpPlayConfig;
+  lastHitEmoji: string | null;
 };
 
-function asState(session: MinigameSession): TimingBounceState {
-  return session.state as TimingBounceState;
+function asState(session: MinigameSession): SlingShotState {
+  return session.state as SlingShotState;
 }
 
-export const timingBounceEngine: MinigameEngine = {
-  id: "timingBounce",
+export const slingShotEngine: MinigameEngine = {
+  id: "slingShot",
   start(ctx) {
     const needed = ctx.skin.targetCount ?? 4;
-    const obstacleEmoji = ctx.skin.items[1] ?? ctx.skin.items[0] ?? "🪨";
+    const pool = ctx.skin.items.length ? ctx.skin.items : ["🍎"];
     return {
-      engineId: "timingBounce",
+      engineId: "slingShot",
       skinId: ctx.skin.id,
       promptHe: ctx.skin.promptHe,
       state: {
         score: 0,
         needed,
-        obstacleEmoji,
+        pool,
         lastQuality: null,
-        jump: resolveJumpConfig("timingBounce", ctx.skin),
-      } satisfies TimingBounceState,
+        lastHitEmoji: null,
+      } satisfies SlingShotState,
       progress: 0,
       complete: false,
     };
   },
   applyInput(session, input) {
     if (session.complete) return session;
-    if (input.type !== "action" || input.action !== "hop") return session;
+    if (input.type !== "action" || input.action !== "launch") return session;
     const st = asState(session);
     if (input.quality === "miss") {
       return {
         ...session,
-        state: { ...st, lastQuality: "miss" },
+        state: { ...st, lastQuality: "miss", lastHitEmoji: null },
       };
     }
     const score = st.score + 1;
     const complete = score >= st.needed;
     return {
       ...session,
-      state: { ...st, score, lastQuality: "good" },
+      state: {
+        ...st,
+        score,
+        lastQuality: "good",
+        lastHitEmoji: input.targetId ?? st.pool[0] ?? "🍎",
+      },
       progress: Math.min(1, score / st.needed),
       complete,
     };

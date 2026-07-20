@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { MinigameHost } from "@/components/game/MinigameHost";
+import { BackgroundScene } from "@/components/scene/BackgroundScene";
 import { Brand, KidButton, Screen, SegmentedControl, Toggle } from "@/design-system";
 import { CHARACTERS, characterById } from "@/data/characters";
 import { GAMES, GAME_ORDER } from "@/data/games";
@@ -246,7 +247,10 @@ export function ProfileEditor() {
         previewCharacter &&
         previewFormArt &&
         createPortal(
-          <>
+          <div className="fixed inset-0 z-[19]">
+            {/* Same sky/clouds/ground as the app — covers the settings form underneath */}
+            <div className="absolute inset-0 bg-gradient-to-b from-sky via-sky-mid to-sky-light" />
+            <BackgroundScene mode="fill" />
             <MinigameHost
               overlay={minigameOverlay}
               character={previewCharacter}
@@ -260,7 +264,7 @@ export function ProfileEditor() {
             >
               ✕ סגרו
             </button>
-          </>,
+          </div>,
           document.body
         )}
     </Screen>

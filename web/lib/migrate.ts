@@ -36,13 +36,16 @@ export function migrateProfile(p: Profile): Profile {
     if (!p.games[g]) p.games[g] = { enabled: g !== "eng", level: "easy" };
     if (!p.games[g].level) p.games[g].level = "easy";
   });
+  // Rebuild from known engines only — drops removed stub ids (tapCollect/catch/meterBurst)
   const defaults = defaultMinigameConfig();
-  if (!p.minigames) p.minigames = { ...defaults };
-  else {
-    MINIGAME_ORDER.forEach((id) => {
-      if (!p.minigames[id]) p.minigames[id] = { ...defaults[id] };
-    });
+  const prev = p.minigames;
+  const next = { ...defaults };
+  if (prev) {
+    for (const id of MINIGAME_ORDER) {
+      if (prev[id]) next[id] = { ...prev[id] };
+    }
   }
+  p.minigames = next;
   if (!p.characters) p.characters = {};
   CHARACTERS.forEach((c) => {
     if (c.starter && !p.characters[c.id]) {

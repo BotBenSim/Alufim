@@ -6,5 +6,7 @@ export { SegmentedControl } from "./components/SegmentedControl";
 export { Toggle } from "./components/Toggle";
 export { XpBar } from "./components/XpBar";
 export { Modal } from "./components/Modal";
+export { MinigameShell } from "./components/MinigameShell";
+export type { MinigameFlash, MinigameShellProps } from "./components/MinigameShell";
 export { tokens, characterThemeVars } from "./tokens";
 export type { CharacterTheme } from "./tokens";

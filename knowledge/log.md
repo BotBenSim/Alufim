@@ -10,6 +10,12 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-07-20 — cut-rope play-beat: swipe ropes so a snack falls into the character (no-fail) — see [minigame-cut-rope](educational/minigame-cut-rope.md).
+- 2026-07-20 — removed stub minigames `tapCollect` / `catch` / `meterBurst` (superseded OKFs); catalog is the skill engines only.
+- 2026-07-20 — character maze: reach the exit (pads + swipe); slingshot arc retuned to hit the animal — see [minigame-char-maze](educational/minigame-char-maze.md).
+- 2026-07-20 — sling-shot play-beat: fling snacks to feed the character (no-fail aim) — see [minigame-sling-shot](educational/minigame-sling-shot.md).
+- 2026-07-20 — jump minigames: per-engine/skin `JumpPlayConfig` (double-jump, pace, gaps) — see [minigame-provider-pattern](technical/minigame-provider-pattern.md).
+- 2026-07-20 — minigame UI strategies: shared `MinigameShell`, registry (`MINIGAME_UI`), mechanic SFX — see [minigame-provider-pattern](technical/minigame-provider-pattern.md).
 - 2026-07-20 — play-beat heroes rebuilt with real skill moments (path-dash jump window, timing-bounce sweet zone, slice-swipe hit-test); stubs out of picker — see [play-beat-minigame-variety](educational/play-beat-minigame-variety.md).
 - 2026-07-20 — play-beat minigames: [minigame-provider-pattern](technical/minigame-provider-pattern.md), [play-beat-minigame-variety](educational/play-beat-minigame-variety.md), six engine educational decisions; [start-from-first-form](educational/start-from-first-form.md) + [product/start-from-first-form](product/start-from-first-form.md).
 - 2026-07-20 — technical: added design-pattern ADRs (game-provider-pattern, data-driven-content, question-dispatch-by-op, pure-logic-in-lib); folded public-repo into [static-export-pages](technical/static-export-pages.md) and parity-testing into [pure-logic-in-lib](technical/pure-logic-in-lib.md).

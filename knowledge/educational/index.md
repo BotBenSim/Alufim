@@ -43,9 +43,12 @@ numbers or studies.
 | [game-variety](game-variety.md) | Four varied games over one drill | Retrieval practice + interleaving |
 | [start-from-first-form](start-from-first-form.md) | Start as living baby, not egg | Self-Determination Theory (relatedness) |
 | [play-beat-minigame-variety](play-beat-minigame-variety.md) | Varied no-fail micro-games on the play beat | Attention span + novelty |
-| [minigame-tap-collect](minigame-tap-collect.md) | Tap-collect engine stays no-fail | Attention span + novelty |
-| [minigame-catch](minigame-catch.md) | Catch engine — misses never fail | Attention span + novelty |
 | [minigame-path-dash](minigame-path-dash.md) | Path-dash short no-fail dash | Attention span + novelty |
 | [minigame-timing-bounce](minigame-timing-bounce.md) | Timing-bounce generous hops | Attention span + novelty |
-| [minigame-meter-burst](minigame-meter-burst.md) | Meter-burst roar/splash/cheer | Attention span + novelty |
 | [minigame-slice-swipe](minigame-slice-swipe.md) | Slice-swipe with no bomb fail | Attention span + novelty |
+| [minigame-sling-shot](minigame-sling-shot.md) | Sling-shot fling food to the character | Attention span + novelty + motor planning |
+| [minigame-char-maze](minigame-char-maze.md) | Character maze — guide animal to the exit | Attention span + novelty + spatial reasoning |
+| [minigame-cut-rope](minigame-cut-rope.md) | Cut-rope — swipe ropes so snack falls to friend | Attention span + novelty + cause-and-effect |
+
+Superseded stubs (removed from product): [minigame-tap-collect](minigame-tap-collect.md),
+[minigame-catch](minigame-catch.md), [minigame-meter-burst](minigame-meter-burst.md).

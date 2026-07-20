@@ -1,18 +1,22 @@
 import type { CharacterDef } from "@/lib/types";
+import type { JumpPlayConfig } from "./jumpConfig";
 
 export type MinigameEngineId =
-  | "tapCollect"
-  | "catch"
   | "pathDash"
   | "timingBounce"
-  | "meterBurst"
-  | "sliceSwipe";
+  | "sliceSwipe"
+  | "slingShot"
+  | "charMaze"
+  | "cutRope";
 
-/** Engines currently offered on the play beat (others stay registered but not picked). */
+/** Engines currently offered on the play beat. */
 export const ACTIVE_ENGINES: readonly MinigameEngineId[] = [
   "pathDash",
   "timingBounce",
   "sliceSwipe",
+  "slingShot",
+  "charMaze",
+  "cutRope",
 ] as const;
 
 export type MinigameSkin = {
@@ -23,6 +27,11 @@ export type MinigameSkin = {
   items: string[];
   /** collects / good hits needed to complete */
   targetCount?: number;
+  /**
+   * Optional per-skin jump feel overrides (double jump, pace, gaps…).
+   * Merged onto `JUMP_CONFIG_BY_ENGINE[engineId]`.
+   */
+  jump?: Partial<JumpPlayConfig>;
 };
 
 export type MinigameContext = {
@@ -38,7 +47,7 @@ export type MinigameInput =
   | { type: "tick"; t: number }
   | {
       type: "action";
-      action: "jump" | "hop" | "slice";
+      action: "jump" | "hop" | "slice" | "launch" | "step" | "cut";
       targetId?: string;
       quality: "good" | "miss";
     };

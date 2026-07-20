@@ -2,97 +2,6 @@ import type { MinigameSkin } from "@/lib/minigames/types";
 
 /** Data-driven skins — add rows without touching engine code. */
 export const MINIGAME_SKINS: MinigameSkin[] = [
-  // meterBurst
-  {
-    id: "lion-roar",
-    engineId: "meterBurst",
-    characterTags: ["lion"],
-    promptHe: "שאגו עם האריה!",
-    items: ["🦁"],
-    targetCount: 3,
-  },
-  {
-    id: "shark-splash",
-    engineId: "meterBurst",
-    characterTags: ["shark"],
-    promptHe: "שִפְלוּש עם הכריש!",
-    items: ["🌊"],
-    targetCount: 3,
-  },
-  {
-    id: "dragon-cheer",
-    engineId: "meterBurst",
-    characterTags: ["dragon"],
-    promptHe: "עודדו את הדרקון!",
-    items: ["🔥"],
-    targetCount: 3,
-  },
-  {
-    id: "rabbit-cheer",
-    engineId: "meterBurst",
-    characterTags: ["rabbit"],
-    promptHe: "קִפְצו עם הארנב!",
-    items: ["💖"],
-    targetCount: 3,
-  },
-  {
-    id: "turtle-cheer",
-    engineId: "meterBurst",
-    characterTags: ["turtle"],
-    promptHe: "עודדו את הצב!",
-    items: ["🍃"],
-    targetCount: 3,
-  },
-  // tapCollect
-  {
-    id: "lion-sparkles",
-    engineId: "tapCollect",
-    characterTags: ["lion"],
-    promptHe: "אספו ניצוצות בסביבה!",
-    items: ["✨", "⭐", "🟡"],
-    targetCount: 4,
-  },
-  {
-    id: "shark-gems",
-    engineId: "tapCollect",
-    characterTags: ["shark"],
-    promptHe: "אספו אבני חן בים!",
-    items: ["💎", "🔵", "🫧"],
-    targetCount: 4,
-  },
-  {
-    id: "rabbit-stars",
-    engineId: "tapCollect",
-    characterTags: ["rabbit"],
-    promptHe: "אספו כוכבים!",
-    items: ["⭐", "💖", "🌸"],
-    targetCount: 4,
-  },
-  // catch
-  {
-    id: "lion-treats",
-    engineId: "catch",
-    characterTags: ["lion"],
-    promptHe: "תפסו את הממתקים!",
-    items: ["🍖", "🍗"],
-    targetCount: 4,
-  },
-  {
-    id: "shark-shrimp",
-    engineId: "catch",
-    characterTags: ["shark"],
-    promptHe: "תפסו שרימפס!",
-    items: ["🦐", "🐠"],
-    targetCount: 4,
-  },
-  {
-    id: "rabbit-carrots",
-    engineId: "catch",
-    characterTags: ["rabbit"],
-    promptHe: "תפסו גזרים!",
-    items: ["🥕", "🥬"],
-    targetCount: 4,
-  },
   // pathDash — city rooftop jumper; items[1]=coin pop on landing
   {
     id: "lion-savanna-dash",
@@ -109,6 +18,7 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "קִפְצו בין גגות העיר!",
     items: ["🦈", "💎"],
     targetCount: 5,
+    jump: { speedMin: 0.36, speedMax: 0.62 },
   },
   {
     id: "turtle-leaf-trail",
@@ -117,6 +27,8 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "קִפְצו בין גגות העיר!",
     items: ["🐢", "🪙"],
     targetCount: 5,
+    // Slower, single-jump friendly for turtle
+    jump: { maxJumps: 1, speedMax: 0.45, hardChance: 0.1 },
   },
   // timingBounce — Chrome-dino style jump over obstacles
   {
@@ -134,6 +46,8 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "קִפְצו מעל הקקטוסים!",
     items: ["🐰", "🌵"],
     targetCount: 5,
+    // Springier rabbit — slightly more double-jumps / harder clears
+    jump: { hardChance: 0.45, doubleJumpVelocity: -760 },
   },
   {
     id: "dragon-ember-hops",
@@ -142,6 +56,7 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "קִפְצו מעל הקקטוסים!",
     items: ["🐉", "🌵"],
     targetCount: 5,
+    jump: { speedMax: 0.85, hardChance: 0.4 },
   },
   // sliceSwipe
   {
@@ -167,6 +82,129 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "החליקו וחתכו חטיפי ים!",
     items: ["🦐", "🐠", "🍉"],
     targetCount: 5,
+  },
+  // slingShot — fling snacks to feed the character
+  {
+    id: "lion-sling",
+    engineId: "slingShot",
+    characterTags: ["lion"],
+    promptHe: "שלחו חטיף לאריה!",
+    items: ["🍖", "🍎", "🥩"],
+    targetCount: 4,
+  },
+  {
+    id: "rabbit-sling",
+    engineId: "slingShot",
+    characterTags: ["rabbit"],
+    promptHe: "שלחו חטיף לארנב!",
+    items: ["🥕", "🍎", "🥬"],
+    targetCount: 4,
+  },
+  {
+    id: "dragon-sling",
+    engineId: "slingShot",
+    characterTags: ["dragon"],
+    promptHe: "שלחו חטיף לדרקון!",
+    items: ["🔥", "🍎", "🍖"],
+    targetCount: 4,
+  },
+  {
+    id: "shark-sling",
+    engineId: "slingShot",
+    characterTags: ["shark"],
+    promptHe: "שלחו חטיף לכריש!",
+    items: ["🦐", "🐠", "🍉"],
+    targetCount: 4,
+  },
+  {
+    id: "turtle-sling",
+    engineId: "slingShot",
+    characterTags: ["turtle"],
+    promptHe: "שלחו חטיף לצב!",
+    items: ["🍃", "🍎", "🥬"],
+    targetCount: 4,
+  },
+  // charMaze — guide the character to the exit
+  {
+    id: "lion-maze",
+    engineId: "charMaze",
+    characterTags: ["lion"],
+    promptHe: "הוליכו את האריה אל היציאה!",
+    items: ["⭐"],
+    targetCount: 3,
+  },
+  {
+    id: "rabbit-maze",
+    engineId: "charMaze",
+    characterTags: ["rabbit"],
+    promptHe: "הוליכו את הארנב אל היציאה!",
+    items: ["⭐"],
+    targetCount: 3,
+  },
+  {
+    id: "dragon-maze",
+    engineId: "charMaze",
+    characterTags: ["dragon"],
+    promptHe: "הוליכו את הדרקון אל היציאה!",
+    items: ["⭐"],
+    targetCount: 3,
+  },
+  {
+    id: "shark-maze",
+    engineId: "charMaze",
+    characterTags: ["shark"],
+    promptHe: "הוליכו את הכריש אל היציאה!",
+    items: ["💎"],
+    targetCount: 3,
+  },
+  {
+    id: "turtle-maze",
+    engineId: "charMaze",
+    characterTags: ["turtle"],
+    promptHe: "הוליכו את הצב אל היציאה!",
+    items: ["🍃"],
+    targetCount: 3,
+  },
+  // cutRope — Cutting the Rope style: swipe ropes, snack falls to character
+  {
+    id: "lion-cut-rope",
+    engineId: "cutRope",
+    characterTags: ["lion"],
+    promptHe: "חתכו את החבל לאריה!",
+    items: ["🍬", "🍖", "🍎"],
+    targetCount: 4,
+  },
+  {
+    id: "rabbit-cut-rope",
+    engineId: "cutRope",
+    characterTags: ["rabbit"],
+    promptHe: "חתכו את החבל לארנב!",
+    items: ["🍬", "🥕", "🍎"],
+    targetCount: 4,
+  },
+  {
+    id: "dragon-cut-rope",
+    engineId: "cutRope",
+    characterTags: ["dragon"],
+    promptHe: "חתכו את החבל לדרקון!",
+    items: ["🍬", "🔥", "🍎"],
+    targetCount: 4,
+  },
+  {
+    id: "shark-cut-rope",
+    engineId: "cutRope",
+    characterTags: ["shark"],
+    promptHe: "חתכו את החבל לכריש!",
+    items: ["🍬", "🦐", "🐠"],
+    targetCount: 4,
+  },
+  {
+    id: "turtle-cut-rope",
+    engineId: "cutRope",
+    characterTags: ["turtle"],
+    promptHe: "חתכו את החבל לצב!",
+    items: ["🍬", "🍃", "🍎"],
+    targetCount: 4,
   },
 ];
 

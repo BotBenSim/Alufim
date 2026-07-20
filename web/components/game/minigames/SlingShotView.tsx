@@ -1,0 +1,421 @@
+"use client";
+
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { CharacterArt } from "@/components/art/CharacterArt";
+import { MinigameShell } from "@/design-system";
+import { rnd } from "@/lib/random";
+import type { SlingShotState } from "@/lib/minigames/slingShot";
+import type { MinigameViewProps } from "./types";
+
+type Vec = { x: number; y: number };
+
+type Burst = {
+  id: string;
+  emoji: string;
+  x: number;
+  y: number;
+};
+
+/** Tuned so a normal pull’s arc lands in the catch zone. */
+const ANCHOR: Vec = { x: 0.22, y: 0.7 };
+const CATCH: Vec = { x: 0.72, y: 0.62 };
+const CATCH_R = 0.2;
+const MAX_PULL = 0.22;
+const POWER = 5.4;
+const GRAVITY = 0.75;
+const ART = 100;
+const FOOD = 52;
+const GROUND_Y = 0.9;
+
+function clampPull(from: Vec, to: Vec, max: number): Vec {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  if (len <= max) return to;
+  return { x: from.x + (dx / len) * max, y: from.y + (dy / len) * max };
+}
+
+function pickFood(pool: string[]): string {
+  return pool[rnd(pool.length)] ?? "🍎";
+}
+
+function hitsCatch(p: Vec): boolean {
+  return Math.hypot(p.x - CATCH.x, p.y - CATCH.y) <= CATCH_R;
+}
+
+/** Segment vs circle so fast frames can’t tunnel past the animal. */
+function segmentHitsCatch(a: Vec, b: Vec): boolean {
+  if (hitsCatch(a) || hitsCatch(b)) return true;
+  const abx = b.x - a.x;
+  const aby = b.y - a.y;
+  const acx = CATCH.x - a.x;
+  const acy = CATCH.y - a.y;
+  const ab2 = abx * abx + aby * aby || 1;
+  const t = Math.max(0, Math.min(1, (acx * abx + acy * aby) / ab2));
+  const px = a.x + abx * t;
+  const py = a.y + aby * t;
+  return Math.hypot(px - CATCH.x, py - CATCH.y) <= CATCH_R;
+}
+
+function predictPath(pull: Vec, steps = 18): Vec[] {
+  const dx = ANCHOR.x - pull.x;
+  const dy = ANCHOR.y - pull.y;
+  let x = ANCHOR.x;
+  let y = ANCHOR.y;
+  let vx = dx * POWER;
+  let vy = dy * POWER;
+  const pts: Vec[] = [];
+  const dt = 0.04;
+  for (let i = 0; i < steps; i++) {
+    vy += GRAVITY * dt;
+    x += vx * dt;
+    y += vy * dt;
+    if (y > GROUND_Y || x > 1.2 || x < -0.15) break;
+    pts.push({ x, y });
+  }
+  return pts;
+}
+
+export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameViewProps) {
+  const st = session.state as SlingShotState;
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [phase, setPhase] = useState<"ready" | "aim" | "fly" | "reset">("ready");
+  const [pos, setPos] = useState<Vec>(ANCHOR);
+  const [pathDots, setPathDots] = useState<Vec[]>([]);
+  const [food, setFood] = useState(() => pickFood(st.pool));
+  const [bursts, setBursts] = useState<Burst[]>([]);
+  const [flash, setFlash] = useState<"good" | "miss" | null>(null);
+  const [tilt, setTilt] = useState(0);
+  const [chomp, setChomp] = useState(false);
+
+  const phaseRef = useRef(phase);
+  const posRef = useRef(pos);
+  posRef.current = pos;
+  const pullRef = useRef<Vec>(ANCHOR);
+  const foodRef = useRef(food);
+  foodRef.current = food;
+  const velRef = useRef<Vec>({ x: 0, y: 0 });
+  const hitThisFlightRef = useRef(false);
+  const completeRef = useRef(session.complete);
+  completeRef.current = session.complete;
+  const poolRef = useRef(st.pool);
+  poolRef.current = st.pool;
+  const onInputRef = useRef(onInput);
+  onInputRef.current = onInput;
+  const playSfxRef = useRef(playSfx);
+  playSfxRef.current = playSfx;
+
+  const setPhaseSync = (p: typeof phase) => {
+    phaseRef.current = p;
+    setPhase(p);
+  };
+
+  const toNorm = (clientX: number, clientY: number): Vec | null => {
+    const el = stageRef.current;
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return null;
+    return {
+      x: (clientX - r.left) / r.width,
+      y: (clientY - r.top) / r.height,
+    };
+  };
+
+  const loadNextFood = () => {
+    const next = pickFood(poolRef.current);
+    foodRef.current = next;
+    setFood(next);
+  };
+
+  const resetToSling = () => {
+    velRef.current = { x: 0, y: 0 };
+    hitThisFlightRef.current = false;
+    posRef.current = ANCHOR;
+    pullRef.current = ANCHOR;
+    setPos(ANCHOR);
+    setPathDots([]);
+    setTilt(0);
+    setPhaseSync("ready");
+  };
+
+  useEffect(() => {
+    if (session.complete) return;
+    let raf = 0;
+    let last = performance.now();
+
+    const tick = (now: number) => {
+      const dt = Math.min(0.033, (now - last) / 1000);
+      last = now;
+
+      if (phaseRef.current === "fly") {
+        const v = velRef.current;
+        const prev = posRef.current;
+        // Sub-steps so we don’t skip over the catch circle
+        const steps = Math.max(1, Math.ceil(dt / 0.008));
+        const h = dt / steps;
+        let p = prev;
+        let caught = false;
+        for (let i = 0; i < steps; i++) {
+          v.y += GRAVITY * h;
+          const next = { x: p.x + v.x * h, y: p.y + v.y * h };
+          if (!hitThisFlightRef.current && segmentHitsCatch(p, next)) {
+            p = next;
+            caught = true;
+            break;
+          }
+          p = next;
+        }
+        posRef.current = p;
+        setPos(p);
+        setTilt((Math.atan2(v.y, v.x) * 180) / Math.PI);
+
+        if (caught) {
+          hitThisFlightRef.current = true;
+          setPhaseSync("reset");
+          const emoji = foodRef.current;
+          const burstId = `b${now}`;
+          setBursts((b) => [...b, { id: burstId, emoji, x: CATCH.x, y: CATCH.y }]);
+          window.setTimeout(() => {
+            setBursts((b) => b.filter((x) => x.id !== burstId));
+          }, 500);
+          setChomp(true);
+          window.setTimeout(() => setChomp(false), 420);
+          setFlash("good");
+          window.setTimeout(() => setFlash(null), 400);
+          onInputRef.current(
+            { type: "action", action: "launch", quality: "good", targetId: emoji },
+            { good: true }
+          );
+          window.setTimeout(() => {
+            if (!completeRef.current) {
+              loadNextFood();
+              resetToSling();
+            }
+          }, 320);
+        } else if (
+          !hitThisFlightRef.current &&
+          (p.x > 1.15 || p.x < -0.15 || p.y > GROUND_Y)
+        ) {
+          setPhaseSync("reset");
+          setFlash("miss");
+          window.setTimeout(() => setFlash(null), 350);
+          onInputRef.current(
+            { type: "action", action: "launch", quality: "miss" },
+            { good: false }
+          );
+          window.setTimeout(() => {
+            if (!completeRef.current) {
+              loadNextFood();
+              resetToSling();
+            }
+          }, 280);
+        }
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [session.complete]);
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (completeRef.current || phaseRef.current !== "ready") return;
+    const n = toNorm(e.clientX, e.clientY);
+    if (!n) return;
+    // Generous grab area around the sling
+    if (Math.hypot(n.x - ANCHOR.x, n.y - ANCHOR.y) > 0.28) return;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    setPhaseSync("aim");
+    const pulled = clampPull(ANCHOR, n, MAX_PULL);
+    pullRef.current = pulled;
+    posRef.current = pulled;
+    setPos(pulled);
+    setPathDots(predictPath(pulled));
+  };
+
+  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (phaseRef.current !== "aim") return;
+    const n = toNorm(e.clientX, e.clientY);
+    if (!n) return;
+    const pulled = clampPull(ANCHOR, n, MAX_PULL);
+    pullRef.current = pulled;
+    posRef.current = pulled;
+    setPos(pulled);
+    setPathDots(predictPath(pulled));
+  };
+
+  const onPointerUp = () => {
+    if (phaseRef.current !== "aim") return;
+    const p = pullRef.current;
+    const dx = ANCHOR.x - p.x;
+    const dy = ANCHOR.y - p.y;
+    const strength = Math.hypot(dx, dy);
+    if (strength < 0.04) {
+      resetToSling();
+      return;
+    }
+    // Boost weak pulls so preschool aims still reach the friend
+    const boost = strength < 0.1 ? 1.35 : 1;
+    velRef.current = { x: dx * POWER * boost, y: dy * POWER * boost };
+    hitThisFlightRef.current = false;
+    posRef.current = ANCHOR;
+    setPos(ANCHOR);
+    setPathDots([]);
+    setPhaseSync("fly");
+    playSfxRef.current("jump");
+  };
+
+  const bandLeft = { x: ANCHOR.x - 0.035, y: ANCHOR.y - 0.08 };
+  const bandRight = { x: ANCHOR.x + 0.035, y: ANCHOR.y - 0.08 };
+  const showFoodOnSling = phase === "ready" || phase === "aim";
+  const showFoodFlying = phase === "fly";
+
+  return (
+    <MinigameShell
+      score={st.score}
+      needed={st.needed}
+      flash={flash}
+      flashGoodLabel="טעים!"
+      flashMissLabel="עוד פעם!"
+      stageClassName="border-none bg-transparent"
+    >
+      <div
+        className="pointer-events-none absolute inset-x-0 bg-[#6B8F3C]/90"
+        style={{ bottom: 0, height: "16%" }}
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 bg-[#8B5A2B]/85"
+        style={{ bottom: "14%", height: 6 }}
+      />
+
+      {/* Hungry character */}
+      <div
+        className="pointer-events-none absolute"
+        style={{
+          left: `${CATCH.x * 100}%`,
+          top: `${CATCH.y * 100}%`,
+          width: ART,
+          height: ART,
+          transform: `translate(-50%, -50%) scale(${chomp ? 1.12 : 1})`,
+          transition: "transform 180ms ease-out",
+        }}
+      >
+        <CharacterArt art={formArt} size={ART} className="drop-shadow-md" />
+      </div>
+
+      {phase === "aim" && (
+        <div
+          className="pointer-events-none absolute rounded-full border-2 border-dashed border-white/70 bg-white/10"
+          style={{
+            left: `${CATCH.x * 100}%`,
+            top: `${CATCH.y * 100}%`,
+            width: `${CATCH_R * 200}%`,
+            height: `${CATCH_R * 200}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+        />
+      )}
+
+      <div
+        className="pointer-events-none absolute"
+        style={{
+          left: `${ANCHOR.x * 100}%`,
+          top: `${(ANCHOR.y - 0.12) * 100}%`,
+          width: 28,
+          height: 70,
+          transform: "translate(-50%, 0)",
+        }}
+      >
+        <div className="absolute bottom-0 left-1/2 h-[42px] w-[10px] -translate-x-1/2 rounded-sm bg-[#6B3F1A]" />
+        <div className="absolute left-0 top-0 h-[38px] w-[10px] -rotate-[18deg] rounded-sm bg-[#8B5A2B]" />
+        <div className="absolute right-0 top-0 h-[38px] w-[10px] rotate-[18deg] rounded-sm bg-[#8B5A2B]" />
+      </div>
+
+      {showFoodOnSling && (
+        <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+          <line
+            x1={`${bandLeft.x * 100}%`}
+            y1={`${bandLeft.y * 100}%`}
+            x2={`${pos.x * 100}%`}
+            y2={`${pos.y * 100}%`}
+            stroke="#3d2a1a"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          <line
+            x1={`${bandRight.x * 100}%`}
+            y1={`${bandRight.y * 100}%`}
+            x2={`${pos.x * 100}%`}
+            y2={`${pos.y * 100}%`}
+            stroke="#3d2a1a"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+        </svg>
+      )}
+
+      {phase === "aim" &&
+        pathDots.map((d, i) => (
+          <div
+            key={`d${i}`}
+            className="pointer-events-none absolute rounded-full bg-white/75"
+            style={{
+              left: `${d.x * 100}%`,
+              top: `${d.y * 100}%`,
+              width: 6 + (i % 3),
+              height: 6 + (i % 3),
+              transform: "translate(-50%, -50%)",
+              opacity: 0.9 - i * 0.035,
+            }}
+          />
+        ))}
+
+      {(showFoodOnSling || showFoodFlying) && (
+        <div
+          className="pointer-events-none absolute flex items-center justify-center leading-none"
+          style={{
+            left: `${pos.x * 100}%`,
+            top: `${pos.y * 100}%`,
+            width: FOOD,
+            height: FOOD,
+            fontSize: FOOD,
+            transform: `translate(-50%, -50%) rotate(${showFoodFlying ? tilt : 0}deg)`,
+          }}
+        >
+          {food}
+        </div>
+      )}
+
+      {bursts.map((b) => (
+        <div
+          key={b.id}
+          className="pointer-events-none absolute animate-ping text-[clamp(28px,6vw,44px)]"
+          style={{
+            left: `${b.x * 100}%`,
+            top: `${b.y * 100}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          {b.emoji}
+        </div>
+      ))}
+
+      <div
+        ref={stageRef}
+        className="absolute inset-0 z-10 touch-none cursor-pointer"
+        role="button"
+        tabIndex={0}
+        aria-label="שיגור חטיף"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      />
+    </MinigameShell>
+  );
+}

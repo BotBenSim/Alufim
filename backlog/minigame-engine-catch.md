@@ -1,7 +1,7 @@
 ---
 id: minigame-engine-catch
 title: Mini-game engine — catch (falling treats / shrimp catch)
-status: accepted
+status: superseded
 date: 2026-07-20
 tags: [backlog, educational, engagement, minigame]
 theory: Attention span + novelty / curiosity (no-fail interlude)
