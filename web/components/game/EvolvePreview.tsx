@@ -36,7 +36,10 @@ export function EvolvePreview() {
       id="ovEvolve"
       className="overlay show absolute inset-0 z-[11] flex items-center justify-center bg-[rgba(20,40,70,.45)] backdrop-blur-[3px]"
     >
-      <div id="evolveScene" className="flex h-[84vh] w-[96vw] flex-col items-center justify-center gap-5">
+      <div
+        id="evolveScene"
+        className="flex h-[84vh] w-[min(96vw,520px)] flex-col items-center justify-center gap-5"
+      >
         {overlay.phase === "done" && (
           <div id="evolveTitle" className="text-center text-[clamp(26px,7vw,48px)] font-black text-white drop-shadow-lg">
             התפתח! ✨
@@ -48,17 +51,22 @@ export function EvolvePreview() {
             <div id="evolveHint" className="min-h-[1.2em] text-center text-[clamp(18px,5vw,30px)] font-extrabold text-white drop-shadow-md">
               לחצו שוב ושוב! 👆
             </div>
-            <div id="evolveMeterWrap" className="h-[30px] w-[min(74vw,420px)] overflow-hidden rounded-[18px] bg-white/35 shadow-[inset_0_2px_6px_rgba(0,0,0,.25)]">
+            <div
+              id="evolveMeterWrap"
+              className="h-[30px] w-[min(74vw,420px)] overflow-hidden rounded-[18px] bg-white/35 shadow-[inset_0_2px_6px_rgba(0,0,0,.25)]"
+            >
               <div
                 id="evolveMeter"
                 className="h-full rounded-[18px] bg-gradient-to-r from-[#FFD93D] to-[#FF8A3D] transition-[width] duration-200"
-                style={{ width: `${Math.round((overlay.taps / overlay.needed) * 100)}%` }}
+                style={{
+                  width: `${Math.round((overlay.taps / Math.max(1, overlay.needed)) * 100)}%`,
+                }}
               />
             </div>
             <button
               type="button"
               id="evolveCreature"
-              className="charArt h-[clamp(150px,44vw,300px)] w-[clamp(150px,44vw,300px)] border-none bg-transparent p-0 transition-transform"
+              className="relative mx-auto aspect-square w-[min(72vw,300px)] origin-center border-none bg-transparent p-0 transition-transform"
               style={{
                 transform: `scale(${1 + overlay.taps * 0.05})`,
                 filter: `drop-shadow(0 0 ${8 + overlay.taps * 4}px #FFE9A8) brightness(${1 + overlay.taps * 0.06})`,
@@ -76,15 +84,16 @@ export function EvolvePreview() {
                 }
               }}
             >
-              <CharacterArt art={fromArt} size={280} className="h-full w-full" />
+              {/* fill — never a fixed px larger than the box (overflow skews left in RTL) */}
+              <CharacterArt art={fromArt} fill className="pointer-events-none" />
             </button>
           </>
         )}
 
         {(overlay.phase === "filmstrip" || overlay.phase === "done") && (
           <div id="evolveStrip" className="flex w-full items-center justify-center">
-            <div className="evoCell solo popIn h-[min(80vw,62vh,440px)] w-[min(80vw,62vh,440px)] animate-evoPop">
-              <CharacterArt art={showArt} size={420} className="h-full w-full" />
+            <div className="evoCell solo popIn relative mx-auto aspect-square w-[min(80vw,62vh,440px)] animate-evoPop">
+              <CharacterArt art={showArt} fill />
             </div>
           </div>
         )}
