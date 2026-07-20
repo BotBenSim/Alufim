@@ -6,6 +6,8 @@
 // Usage:
 //   node scripts/gen-agents.mjs                       # all registered vendors
 //   node scripts/gen-agents.mjs --vendors="cursor"    # a subset (space/comma separated)
+//   node scripts/gen-agents.mjs --clean               # remove what it would generate
+//   node scripts/gen-agents.mjs --clean --vendors="cursor"
 //
 // Dependency-free (Node built-ins only).
 
@@ -144,17 +146,29 @@ function fail(msg) {
   process.exit(1);
 }
 
-// --- Main --------------------------------------------------------------------
+// Remove now-empty ancestor directories of a deleted file, stopping at ROOT.
+function pruneEmptyDirs(fileAbs) {
+  let dir = path.dirname(fileAbs);
+  while (dir.startsWith(ROOT) && dir !== ROOT) {
+    try {
+      if (fs.readdirSync(dir).length > 0) break;
+      fs.rmdirSync(dir);
+    } catch {
+      break;
+    }
+    dir = path.dirname(dir);
+  }
+}
 
-function main() {
-  const selectedVendors = parseVendorsArg();
-
+// Resolve the set of files gen-agents owns for the selected vendors. Both generating
+// and cleaning share this, so `clean` removes exactly what would be generated.
+function resolveTargets(selectedVendors) {
   if (!fs.existsSync(PLAYBOOKS_DIR)) fail(`No playbooks/ directory at ${PLAYBOOKS_DIR}.`);
   const files = fs.readdirSync(PLAYBOOKS_DIR).filter((f) => f.endsWith(".md"));
   if (!files.length) fail("No playbooks found in playbooks/.");
 
-  const writtenBy = new Map(); // absolute path -> source playbook file
-  const outputs = [];
+  const ownedBy = new Map(); // absolute path -> source playbook file
+  const targets = [];
 
   for (const file of files.sort()) {
     const raw = fs.readFileSync(path.join(PLAYBOOKS_DIR, file), "utf8");
@@ -185,26 +199,47 @@ function main() {
         const rel = cell.path(idName);
         const abs = path.join(ROOT, rel);
 
-        if (writtenBy.has(abs)) {
+        if (ownedBy.has(abs)) {
           fail(
-            `Output collision on '${rel}': both playbooks/${writtenBy.get(abs)} and ` +
+            `Output collision on '${rel}': both playbooks/${ownedBy.get(abs)} and ` +
               `playbooks/${file} target it (e.g. two kind:rule playbooks map to a single CLAUDE.md).`
           );
         }
-        writtenBy.set(abs, file);
-
-        const content = cell.render({ name, description, command, body, file });
-        fs.mkdirSync(path.dirname(abs), { recursive: true });
-        fs.writeFileSync(abs, content);
-        outputs.push(rel);
+        ownedBy.set(abs, file);
+        targets.push({ rel, abs, render: () => cell.render({ name, description, command, body, file }) });
       }
     }
   }
 
+  return targets;
+}
+
+// --- Main --------------------------------------------------------------------
+
+function main() {
+  const selectedVendors = parseVendorsArg();
+  const clean = process.argv.includes("--clean");
+  const targets = resolveTargets(selectedVendors);
+  const touched = [];
+
+  for (const t of targets) {
+    if (clean) {
+      if (!fs.existsSync(t.abs)) continue;
+      fs.rmSync(t.abs);
+      pruneEmptyDirs(t.abs);
+      touched.push(t.rel);
+    } else {
+      fs.mkdirSync(path.dirname(t.abs), { recursive: true });
+      fs.writeFileSync(t.abs, t.render());
+      touched.push(t.rel);
+    }
+  }
+
+  const verb = clean ? "removed" : "wrote";
   console.log(
-    `gen-agents: wrote ${outputs.length} file(s) for vendor(s) [${selectedVendors.join(", ")}]:`
+    `gen-agents: ${verb} ${touched.length} file(s) for vendor(s) [${selectedVendors.join(", ")}]:`
   );
-  for (const o of outputs.sort()) console.log(`  ${o}`);
+  for (const o of touched.sort()) console.log(`  ${o}`);
 }
 
 main();

@@ -1,4 +1,4 @@
-.PHONY: dev build test install agents
+.PHONY: dev build test install agents clean-agents
 
 install:
 	cd web && npm install
@@ -18,3 +18,9 @@ test:
 #   make agents VENDORS=cursor     # a subset (space/comma separated)
 agents:
 	node scripts/gen-agents.mjs --vendors="$(VENDORS)"
+
+# Remove exactly the files `make agents` generates (rebuildable via `make agents`).
+#   make clean-agents                 # all vendors
+#   make clean-agents VENDORS=cursor  # a subset
+clean-agents:
+	node scripts/gen-agents.mjs --clean --vendors="$(VENDORS)"
