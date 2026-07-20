@@ -16,15 +16,13 @@ type Burst = {
   y: number;
 };
 
-/** Fork crotch / launch origin — kept left so the throw feels like a real reach. */
-const ANCHOR: Vec = { x: 0.14, y: 0.7 };
+/** Fork crotch — inset so pull-back stays inside the stage. */
+const ANCHOR: Vec = { x: 0.26, y: 0.7 };
 /**
  * Rest pouch — snack sits a bit behind the bow so the ready state is obvious
  * (Angry Birds–style: bird loaded left of the Y-fork).
  */
-const REST: Vec = { x: 0.07, y: 0.76 };
-/** Hungry friend — farther right for a clearer gap from the sling. */
-const CATCH: Vec = { x: 0.86, y: 0.6 };
+const REST: Vec = { x: 0.18, y: 0.76 };
 const CATCH_R = 0.22;
 const MAX_PULL = 0.24;
 const POWER = 6.1;
@@ -32,6 +30,32 @@ const GRAVITY = 0.75;
 const ART = 100;
 const FOOD = 52;
 const GROUND_Y = 0.9;
+
+/**
+ * Distinct seats across the stage (top, corners, mid-right) — never a tiny
+ * nudge of the same spot. Kept clear of the sling on the left.
+ */
+const CATCH_SEATS: Vec[] = [
+  { x: 0.88, y: 0.16 }, // top-right
+  { x: 0.58, y: 0.14 }, // top-center
+  { x: 0.74, y: 0.18 }, // top
+  { x: 0.50, y: 0.28 }, // upper mid (left of right half)
+  { x: 0.92, y: 0.40 }, // right mid / corner
+  { x: 0.82, y: 0.55 }, // classic mid-right
+  { x: 0.66, y: 0.36 }, // center-right high
+];
+
+function pickCatch(prev: Vec | null = null): Vec {
+  const far = prev
+    ? CATCH_SEATS.filter((s) => Math.hypot(s.x - prev.x, s.y - prev.y) > 0.28)
+    : CATCH_SEATS;
+  const pool = far.length > 0 ? far : CATCH_SEATS;
+  const base = pool[rnd(pool.length)]!;
+  return {
+    x: Math.min(0.94, Math.max(0.46, base.x + (rnd(5) - 2) / 100)),
+    y: Math.min(0.58, Math.max(0.12, base.y + (rnd(5) - 2) / 100)),
+  };
+}
 
 function clampPull(from: Vec, to: Vec, max: number): Vec {
   const dx = to.x - from.x;
@@ -45,22 +69,22 @@ function pickFood(pool: string[]): string {
   return pool[rnd(pool.length)] ?? "🍎";
 }
 
-function hitsCatch(p: Vec): boolean {
-  return Math.hypot(p.x - CATCH.x, p.y - CATCH.y) <= CATCH_R;
+function hitsCatch(p: Vec, catchAt: Vec): boolean {
+  return Math.hypot(p.x - catchAt.x, p.y - catchAt.y) <= CATCH_R;
 }
 
 /** Segment vs circle so fast frames can’t tunnel past the animal. */
-function segmentHitsCatch(a: Vec, b: Vec): boolean {
-  if (hitsCatch(a) || hitsCatch(b)) return true;
+function segmentHitsCatch(a: Vec, b: Vec, catchAt: Vec): boolean {
+  if (hitsCatch(a, catchAt) || hitsCatch(b, catchAt)) return true;
   const abx = b.x - a.x;
   const aby = b.y - a.y;
-  const acx = CATCH.x - a.x;
-  const acy = CATCH.y - a.y;
+  const acx = catchAt.x - a.x;
+  const acy = catchAt.y - a.y;
   const ab2 = abx * abx + aby * aby || 1;
   const t = Math.max(0, Math.min(1, (acx * abx + acy * aby) / ab2));
   const px = a.x + abx * t;
   const py = a.y + aby * t;
-  return Math.hypot(px - CATCH.x, py - CATCH.y) <= CATCH_R;
+  return Math.hypot(px - catchAt.x, py - catchAt.y) <= CATCH_R;
 }
 
 function predictPath(pull: Vec, steps = 18): Vec[] {
@@ -87,6 +111,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
   const stageRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<"ready" | "aim" | "fly" | "reset">("ready");
   const [pos, setPos] = useState<Vec>(REST);
+  const [catchAt, setCatchAt] = useState<Vec>(pickCatch);
   const [pathDots, setPathDots] = useState<Vec[]>([]);
   const [food, setFood] = useState(() => pickFood(st.pool));
   const [bursts, setBursts] = useState<Burst[]>([]);
@@ -98,6 +123,8 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
   const posRef = useRef(pos);
   posRef.current = pos;
   const pullRef = useRef<Vec>(REST);
+  const catchRef = useRef(catchAt);
+  catchRef.current = catchAt;
   const foodRef = useRef(food);
   foodRef.current = food;
   const velRef = useRef<Vec>({ x: 0, y: 0 });
@@ -133,11 +160,16 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
     setFood(next);
   };
 
-  const resetToSling = () => {
+  const resetToSling = (reseatCatch = false) => {
     velRef.current = { x: 0, y: 0 };
     hitThisFlightRef.current = false;
     posRef.current = REST;
     pullRef.current = REST;
+    if (reseatCatch) {
+      const nextCatch = pickCatch(catchRef.current);
+      catchRef.current = nextCatch;
+      setCatchAt(nextCatch);
+    }
     setPos(REST);
     setPathDots([]);
     setTilt(0);
@@ -164,7 +196,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
         for (let i = 0; i < steps; i++) {
           v.y += GRAVITY * h;
           const next = { x: p.x + v.x * h, y: p.y + v.y * h };
-          if (!hitThisFlightRef.current && segmentHitsCatch(p, next)) {
+          if (!hitThisFlightRef.current && segmentHitsCatch(p, next, catchRef.current)) {
             p = next;
             caught = true;
             break;
@@ -180,7 +212,8 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
           setPhaseSync("reset");
           const emoji = foodRef.current;
           const burstId = `b${now}`;
-          setBursts((b) => [...b, { id: burstId, emoji, x: CATCH.x, y: CATCH.y }]);
+          const c = catchRef.current;
+          setBursts((b) => [...b, { id: burstId, emoji, x: c.x, y: c.y }]);
           window.setTimeout(() => {
             setBursts((b) => b.filter((x) => x.id !== burstId));
           }, 500);
@@ -197,7 +230,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
           window.setTimeout(() => {
             if (!completeRef.current) {
               loadNextFood();
-              resetToSling();
+              resetToSling(true);
             }
           }, 320);
         } else if (
@@ -211,7 +244,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
           window.setTimeout(() => {
             if (!completeRef.current) {
               loadNextFood();
-              resetToSling();
+              resetToSling(true);
             }
           }, 280);
         }
@@ -306,12 +339,12 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
       <div
         className="pointer-events-none absolute"
         style={{
-          left: `${CATCH.x * 100}%`,
-          top: `${CATCH.y * 100}%`,
+          left: `${catchAt.x * 100}%`,
+          top: `${catchAt.y * 100}%`,
           width: ART,
           height: ART,
           transform: `translate(-50%, -50%) scale(${chomp ? 1.12 : 1})`,
-          transition: "transform 180ms ease-out",
+          transition: "left 280ms ease-out, top 280ms ease-out, transform 180ms ease-out",
         }}
       >
         <CharacterArt art={formArt} size={ART} className="drop-shadow-md" />
@@ -321,8 +354,8 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
         <div
           className="pointer-events-none absolute rounded-full border-[3px] border-dashed border-[#E8590C]"
           style={{
-            left: `${CATCH.x * 100}%`,
-            top: `${CATCH.y * 100}%`,
+            left: `${catchAt.x * 100}%`,
+            top: `${catchAt.y * 100}%`,
             width: `${CATCH_R * 200}%`,
             height: `${CATCH_R * 200}%`,
             transform: "translate(-50%, -50%)",

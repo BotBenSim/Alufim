@@ -155,7 +155,6 @@ export function GameScreen() {
   const handleHome = () => {
     cancel();
     lastSpokenKey.current = null;
-    introPendingKey.current = null;
     goHome();
   };
 
