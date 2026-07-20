@@ -30,6 +30,24 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     // Slower, single-jump friendly for turtle
     jump: { maxJumps: 1, speedMax: 0.45, hardChance: 0.1 },
   },
+  {
+    id: "dragon-rooftop-dash",
+    engineId: "pathDash",
+    characterTags: ["dragon"],
+    promptHe: "גַּג לְגַג — קִפְצו ותִפְסוּ!",
+    items: ["🐉", "🔥"],
+    targetCount: 5,
+    jump: { speedMax: 0.7, hardChance: 0.35 },
+  },
+  {
+    id: "rabbit-rooftop-dash",
+    engineId: "pathDash",
+    characterTags: ["rabbit"],
+    promptHe: "גַּג לְגַג — קִפְצו ותִפְסוּ!",
+    items: ["🐰", "⭐"],
+    targetCount: 5,
+    jump: { hardChance: 0.4, doubleJumpVelocity: -760 },
+  },
   // timingBounce — Chrome-dino style jump over obstacles
   {
     id: "lion-pounce",
@@ -58,6 +76,24 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     targetCount: 5,
     jump: { speedMax: 0.85, hardChance: 0.4 },
   },
+  {
+    id: "shark-reef-hops",
+    engineId: "timingBounce",
+    characterTags: ["shark"],
+    promptHe: "קִפְצו מֵעַל הַקַּקְטוּסִים!",
+    items: ["🦈", "🌵"],
+    targetCount: 5,
+    jump: { speedMin: 0.34, speedMax: 0.7 },
+  },
+  {
+    id: "turtle-shell-hops",
+    engineId: "timingBounce",
+    characterTags: ["turtle"],
+    promptHe: "קִפְצו מֵעַל הַקַּקְטוּסִים!",
+    items: ["🐢", "🌵"],
+    targetCount: 5,
+    jump: { maxJumps: 1, speedMax: 0.5, hardChance: 0.15 },
+  },
   // sliceSwipe
   {
     id: "lion-snack-slash",
@@ -81,6 +117,22 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     characterTags: ["shark"],
     promptHe: "תִפְסוּ אֶת חֲטִיפֵי הַיָּם!",
     items: ["🦐", "🐠", "🍉"],
+    targetCount: 5,
+  },
+  {
+    id: "dragon-ember-slash",
+    engineId: "sliceSwipe",
+    characterTags: ["dragon"],
+    promptHe: "תִפְסוּ אֶת הַלַּהֲבוֹת הָעָפוֹת!",
+    items: ["🔥", "🍎", "🍖"],
+    targetCount: 5,
+  },
+  {
+    id: "turtle-leaf-slash",
+    engineId: "sliceSwipe",
+    characterTags: ["turtle"],
+    promptHe: "תִפְסוּ אֶת הֶעָלִים הָעָפִים!",
+    items: ["🍃", "🍎", "🥬"],
     targetCount: 5,
   },
   // slingShot — fling snacks to feed the character

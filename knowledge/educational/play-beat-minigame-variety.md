@@ -24,8 +24,9 @@ return to learning longer — without timers, fails, or FOMO.
 
 ## How it works
 
-`pickMinigameSkin` prefers skins tagged for the active animal and avoids recent repeats. The
-host runs `start` / `applyInput` until `isComplete`, then awards play XP and returns to learn.
+`pickMinigameSkin` picks an enabled engine roughly evenly (avoiding the last few engines),
+then a skin tagged for the active animal. The host runs `start` / `applyInput` until
+`isComplete`, then awards play XP and returns to learn.
 
 ## Watch-outs
 
