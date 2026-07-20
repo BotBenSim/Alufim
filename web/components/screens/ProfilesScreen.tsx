@@ -11,6 +11,7 @@ import { GameCard } from "@/components/cards/GameCard";
 import { Brand, BrandTitle, KidButton, Screen } from "@/design-system";
 import { CHARACTERS } from "@/data/characters";
 import { GAME_ORDER, GAMES } from "@/data/games";
+import type { GameId } from "@/lib/types";
 import { useStore } from "@/state/store";
 import { useAudio } from "@/hooks/useAudio";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -54,7 +55,7 @@ export function ProfilesScreen() {
     setPreviewCharacterId(id);
   };
 
-  const handleSelectGame = (id: string) => {
+  const handleSelectGame = (id: GameId) => {
     ensure();
     selectGame(id);
     speak(GAMES[id].title);

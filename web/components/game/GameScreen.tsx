@@ -166,7 +166,7 @@ export function GameScreen() {
       burst(8);
       const fb = useStore.getState().feedback;
       if (run.gameId === "eng" && run.current && "word" in run.current) {
-        const w = (run.current as { word: { en: string; he: string } }).word;
+        const w = (run.current as unknown as { word: { en: string; he: string } }).word;
         speakEn(w.en);
         speak(`${w.he}! ${fb.replace("🎉 ", "")}`, true);
       } else {

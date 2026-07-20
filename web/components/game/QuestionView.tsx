@@ -4,8 +4,8 @@ import { useMemo } from "react";
 import { KidButton } from "@/design-system";
 import { HEB_NUM } from "@/data/hebrew";
 import { findCatLabel } from "@/data/find";
-import { addRenderMeta } from "@/lib/providers/add";
-import { subRenderMeta } from "@/lib/providers/sub";
+import { addRenderMeta, type AddQuestion } from "@/lib/providers/add";
+import { subRenderMeta, type SubQuestion } from "@/lib/providers/sub";
 import type { EngQuestion } from "@/lib/providers/eng";
 import type { RunState } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -68,7 +68,7 @@ export function QuestionView({
     if (!q) return null;
 
     if (q.op === "add") {
-      const aq = q as { a: number; b: number; answer: number };
+      const aq = q as unknown as AddQuestion;
       const meta = addRenderMeta(aq, run.step, em);
       return {
         kind: "math" as const,
@@ -83,7 +83,7 @@ export function QuestionView({
     }
 
     if (q.op === "sub") {
-      const sq = q as { a: number; b: number; answer: number };
+      const sq = q as unknown as SubQuestion;
       const meta = subRenderMeta(sq);
       return {
         kind: "sub" as const,
@@ -96,7 +96,7 @@ export function QuestionView({
     }
 
     if (q.op === "eng") {
-      const eq = q as EngQuestion;
+      const eq = q as unknown as EngQuestion;
       return {
         kind: "eng" as const,
         word: eq.word.en,
@@ -107,7 +107,7 @@ export function QuestionView({
     }
 
     if (q.op === "find") {
-      const fq = q as Record<string, unknown> & { kind: string; answer: unknown };
+      const fq = q as unknown as Record<string, unknown> & { kind: string; answer: unknown };
       const pointer = "👆";
 
       if (fq.kind === "num") {

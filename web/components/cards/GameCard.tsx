@@ -1,7 +1,8 @@
 "use client";
 
 import { Card, CardBig } from "@/design-system";
-import { GAMES, type GameId } from "@/data/games";
+import { GAMES } from "@/data/games";
+import type { GameId } from "@/lib/types";
 
 type GameCardProps = {
   gameId: GameId;

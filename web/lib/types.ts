@@ -11,7 +11,7 @@ export type CharacterDef = {
   id: string;
   he: string;
   en: string;
-  forms: ArtDescriptor[];
+  forms: readonly ArtDescriptor[];
   sky: string;
   ground: string;
   accent: string;

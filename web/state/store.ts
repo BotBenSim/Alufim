@@ -531,7 +531,7 @@ export const useStore = create<Store>()(
           const praise = pickNoRepeat(PRAISE, "praise");
           let feedback = `🎉 ${praise}`;
           if (run.gameId === "eng" && run.current && "word" in run.current) {
-            const w = (run.current as { word: { en: string; he: string } }).word;
+            const w = (run.current as unknown as { word: { en: string; he: string } }).word;
             feedback = `🎉 ${w.en} = ${w.he}!`;
           }
           set({

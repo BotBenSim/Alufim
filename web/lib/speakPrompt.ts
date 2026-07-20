@@ -1,7 +1,7 @@
 import { HEB_NUM } from "@/data/hebrew";
 import { findCatLabel, LETTER_NAME } from "@/data/find";
-import { addSpeakPrompt } from "@/lib/providers/add";
-import { subSpeakPrompt } from "@/lib/providers/sub";
+import { addSpeakPrompt, type AddQuestion } from "@/lib/providers/add";
+import { subSpeakPrompt, type SubQuestion } from "@/lib/providers/sub";
 import type { EngQuestion } from "@/lib/providers/eng";
 import type { Question } from "@/lib/types";
 
@@ -20,13 +20,13 @@ export function speakQuestion(
 ) {
   switch (q.op) {
     case "add":
-      speak(addSpeakPrompt(q as { a: number; b: number }, HEB_NUM), true);
+      speak(addSpeakPrompt(q as unknown as AddQuestion, HEB_NUM), true);
       break;
     case "sub":
-      speak(subSpeakPrompt(q as { a: number; b: number }, HEB_NUM), true);
+      speak(subSpeakPrompt(q as unknown as SubQuestion, HEB_NUM), true);
       break;
     case "eng": {
-      const w = (q as EngQuestion).word;
+      const w = (q as unknown as EngQuestion).word;
       speakEn(w.en, true);
       break;
     }
