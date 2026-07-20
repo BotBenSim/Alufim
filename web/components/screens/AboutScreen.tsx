@@ -1,98 +1,82 @@
 "use client";
 
 import { KidButton, Panel, Screen } from "@/design-system";
-import { CHARACTERS, artText } from "@/data/characters";
-import {
-  FORM_XP_STEP,
-  XP_BATCH_SIZE,
-  XP_BEAT,
-  formThresholds,
-  xpForCorrect,
-} from "@/lib/xp";
 import { useStore } from "@/state/store";
 
 export function AboutScreen() {
   const setScreen = useStore((s) => s.setScreen);
-  const th = formThresholds(4);
 
   return (
-    <Screen id="scrAbout" scroll className="z-[11]" contentClassName="gap-6 max-w-[720px]">
-      <Panel id="aboutContent" variant="surface">
-        <h2 className="text-[clamp(24px,5vw,34px)] text-heading">🐣 אלופים — מאחורי הקלעים</h2>
-        <p>
-          משחק חינוכי לילדים: מגדלים חיות, מרוויחים XP, ומתפתחים דרך חיבור, חיסור, אנגלית
-          ו&quot;מצא את...&quot;. הכל נשמר מקומית במכשיר.
+    <Screen id="scrAbout" scroll className="z-[11]" contentClassName="gap-6 max-w-[640px]">
+      <Panel id="aboutContent" variant="surface" className="leading-[1.65]">
+        <h2 className="mb-1 text-[clamp(26px,5.5vw,36px)] font-black text-heading">
+          אלופים
+        </h2>
+        <p className="text-[clamp(16px,3.4vw,19px)] font-bold text-[#2F6B9E]">
+          ללמוד דרך טיפוח — בלי לחץ, בלי עונש, עם חיה שאוהבים
         </p>
 
-        <h3 className="mt-4 text-[clamp(19px,4vw,24px)] text-[#2F6B9E]">המודל המנטלי</h3>
-        <p>
-          מגדלים <b>חיות</b>. XP, הפס וצורות ההתפתחות נשמרים לכל חיה. משחק הוא מקור XP —
-          אפשר להחליף משחק באמצע וה-XP נשאר.
+        <p className="mt-4">
+          אלופים הוא משחק לימודי לילדים: בוחרים חיה, מגדלים אותה, ומתקדמים יחד דרך
+          תרגילים קצרים בחיבור, חיסור, אנגלית ו&quot;מצא את…&quot;. כל תשובה מזינה את
+          החיה — והיא מתפתחת וגדלה ככל שמשחקים.
         </p>
 
-        <h3 className="mt-4 text-[clamp(19px,4vw,24px)] text-[#2F6B9E]">איך מרוויחים XP</h3>
-        <ul className="list-disc pr-5">
-          <li>רמה: קל / בינוני / קשה</li>
-          <li>שלב: 3 מקטעים של {XP_BATCH_SIZE} שלבים — כל מקטע שווה יותר</li>
-          <li>דיוק: בלי טעות = מלא, אחרי טעות = פחות, אף פעם לא פחות מ-1</li>
+        <h3 className="mt-6 text-[clamp(19px,4vw,24px)] font-extrabold text-[#2F6B9E]">
+          הרעיון
+        </h3>
+        <p>
+          הילד לא &quot;עושה שיעורים&quot; מול מסך יבש. הוא מטפח חבר: בוחר מי לגדל,
+          שומע את השאלות בקול, עונה בקצב שלו, ורואה את החיה מתחזקת. ההתקדמות שייכת
+          לחיה — אפשר להחליף משחק והקשר נשאר.
+        </p>
+
+        <h3 className="mt-6 text-[clamp(19px,4vw,24px)] font-extrabold text-[#2F6B9E]">
+          למה זה עוזר ללמוד
+        </h3>
+        <ul className="mt-2 flex list-none flex-col gap-3 p-0">
+          <li>
+            <b className="text-heading">תמיד מתקדמים.</b> כל תשובה נותנת התקדמות.
+            טעות לא מוחקת — רק מזמינה לנסות שוב. כך נבנה ביטחון במקום חרדה ממתמטיקה.
+          </li>
+          <li>
+            <b className="text-heading">בלי שעון ובלי &quot;חיים&quot;.</b> אין טיימר,
+            אין רצף שנשבר, ואין עונש על הפסקה. הילד יכול לעצור ולחזור מתי שנוח.
+          </li>
+          <li>
+            <b className="text-heading">רמה שמתאימה לילד.</b> אפשר לבחור קל / בינוני /
+            קשה, ולהתאים את טווחי השאלות — כדי להישאר באזור שבו יש אתגר אבל גם הצלחה.
+          </li>
+          <li>
+            <b className="text-heading">מהמוחשי אל המספר.</b> בחשבון מתחילים לפעמים
+            עם אימוג׳ים שאפשר לספור, ואט־אט עוברים למספרים — כמו למידה מהקונקרטי
+            למופשט.
+          </li>
+          <li>
+            <b className="text-heading">שומעים לפני שקוראים.</b> השאלות נאמרות בקול,
+            ואפשר לשמוע שוב — חשוב לילדים שעדיין לומדים לקרוא.
+          </li>
+          <li>
+            <b className="text-heading">הפסקות משחק קצרות.</b> כל כמה שלבים יש משחקון
+            קטן עם החיה — בלי להפסיד — כדי לרענן קשב ולחזור ללמידה בכיף.
+          </li>
+          <li>
+            <b className="text-heading">מגוון משחקים.</b> חיבור, חיסור, אנגלית
+            ו&quot;מצא את…&quot; — תרגול מגוון במקום תרגיל אחד חוזר על עצמו.
+          </li>
         </ul>
-        <table className="my-2 w-full border-collapse text-[clamp(14px,2.8vw,17px)]">
-          <thead>
-            <tr className="bg-[#D6E8FB]">
-              <th className="border border-[#C5D8EC] p-2">דוגמה</th>
-              <th className="border border-[#C5D8EC] p-2">XP</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border border-[#C5D8EC] p-2">קל, שלב 1, מושלם</td>
-              <td className="border border-[#C5D8EC] p-2 text-center">{xpForCorrect("easy", 1, 0)}</td>
-            </tr>
-            <tr>
-              <td className="border border-[#C5D8EC] p-2">קשה, שלב 20, מושלם</td>
-              <td className="border border-[#C5D8EC] p-2 text-center">{xpForCorrect("hard", 20, 0)}</td>
-            </tr>
-          </tbody>
-        </table>
+
+        <h3 className="mt-6 text-[clamp(19px,4vw,24px)] font-extrabold text-[#2F6B9E]">
+          להורים
+        </h3>
         <p>
-          משימות קצב: משימת ביטחון +{XP_BEAT.mission}, משחקון עם החיה +{XP_BEAT.play}.
+          אפשר לכוון אילו משחקים פעילים, את רמת הקושי, ואת קצב ההתקדמות — בלי לאפס
+          את מה שהילד כבר בנה. הכל נשמר על המכשיר; אין חשבון בענן ואין מעקב.
         </p>
 
-        <h3 className="mt-4 text-[clamp(19px,4vw,24px)] text-[#2F6B9E]">צורות ו-XP</h3>
-        <p>
-          4 צורות לכל חיה. ספים מצטברים (FORM_XP_STEP={FORM_XP_STEP}):{" "}
-          <b>{th.join(", ")}</b>. הפס מציג XP מצטבר / הסף הבא.
+        <p className="mt-5 text-[15px] font-bold text-[#5a7a94]">
+          אלופים — לגדל חיה, ולגדול איתה.
         </p>
-
-        <h3 className="mt-4 text-[clamp(19px,4vw,24px)] text-[#2F6B9E]">החיות</h3>
-        <table className="my-2 w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-[#D6E8FB]">
-              <th className="border border-[#C5D8EC] p-2">#</th>
-              <th className="border border-[#C5D8EC] p-2">חיה</th>
-              <th className="border border-[#C5D8EC] p-2">צורות</th>
-            </tr>
-          </thead>
-          <tbody>
-            {CHARACTERS.map((c, i) => (
-              <tr key={c.id}>
-                <td className="border border-[#C5D8EC] p-2 text-center">{i + 1}</td>
-                <td className="border border-[#C5D8EC] p-2 text-center">{c.he}</td>
-                <td className="border border-[#C5D8EC] p-2 text-center">
-                  {c.forms.map(artText).join(" → ")}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <h3 className="mt-4 text-[clamp(19px,4vw,24px)] text-[#2F6B9E]">עקרונות</h3>
-        <ul className="list-disc pr-5">
-          <li>ניצחונות תכופים — חגיגה בהתפתחות</li>
-          <li>טיפוח ואוטונומיה — החיה שבחרתם</li>
-          <li>בלי עונש, טיימר או חיים</li>
-          <li>שינוי הגדרות לא מאפס התקדמות</li>
-        </ul>
       </Panel>
 
       <KidButton variant="continue" onClick={() => setScreen("profiles")}>
