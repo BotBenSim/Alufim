@@ -28,12 +28,14 @@ export function CharacterCard({
 
   return (
     <Card variant="character" selected={picked} locked={!owned} onClick={onClick}>
-      <CharacterArt
-        art={art}
-        size={88}
-        className={cn("cArt", !owned && "blur-[1px]")}
-      />
-      <span className="cName text-[clamp(15px,3vw,19px)] font-extrabold text-heading">
+      <span className="flex min-h-0 w-[71%] flex-1 items-center justify-center">
+        <CharacterArt
+          art={art}
+          size={82}
+          className={cn("cArt", !owned && "blur-[1px]")}
+        />
+      </span>
+      <span className="cName shrink-0 text-[clamp(12px,2.4vw,15px)] font-extrabold text-heading">
         {character.he}
       </span>
     </Card>

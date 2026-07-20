@@ -24,7 +24,11 @@ type Burst = {
   drops: { id: string; dx: string; dy: string; color: string }[];
 };
 
-const PAD = 36;
+/** Near-miss padding around each snack — enough for little fingers, not the whole stage. */
+const PAD = 44;
+const SLICE_SAMPLES = 12;
+/** Minimum pointer travel before a drag counts as a slice (px). */
+const SLICE_MOVE = 4;
 
 const JUICE: Record<string, string[]> = {
   "🍎": ["#FF6B6B", "#FF922B", "#FFD43B"],
@@ -67,8 +71,8 @@ function segmentHitsRect(
     top: r.top - PAD,
     bottom: r.bottom + PAD,
   };
-  for (let i = 0; i <= 8; i++) {
-    const t = i / 8;
+  for (let i = 0; i <= SLICE_SAMPLES; i++) {
+    const t = i / SLICE_SAMPLES;
     const x = x0 + (x1 - x0) * t;
     const y = y0 + (y1 - y0) * t;
     if (
@@ -199,7 +203,7 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
           if (!pointer.current) return;
           const prev = pointer.current;
           pointer.current = { x: e.clientX, y: e.clientY };
-          if (Math.hypot(e.clientX - prev.x, e.clientY - prev.y) > 6) {
+          if (Math.hypot(e.clientX - prev.x, e.clientY - prev.y) > SLICE_MOVE) {
             trySlice(prev.x, prev.y, e.clientX, e.clientY);
           }
         },
@@ -218,7 +222,7 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
           ref={(el) => {
             elRefs.current[f.id] = el;
           }}
-          className="absolute z-[1] border-none p-0 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
+          className="absolute z-[1] border-none px-2 py-2 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
           style={{
             left: `${f.x * 100}%`,
             top: `${f.y * 100}%`,

@@ -19,13 +19,19 @@ styling became a risk.
 ## Decision
 
 Build a small design system under [`web/design-system/`](../../web/design-system): shared
-tokens plus reusable primitives (e.g. `Card`, `KidButton`, `XpBar`, `PillControl`,
+tokens plus reusable primitives (e.g. `Card`, `Panel`, `KidButton`, `XpBar`, `PillControl`,
 `SettingsNumberField`), styled with Tailwind CSS. Screens compose these primitives instead
 of ad-hoc markup.
-`PillControl` is the equal-width segmented pill; `LevelControl` wraps it for easy/medium/hard.
-`SettingsNumberField` is the compact labeled number input for settings forms.
-`SettingsButton` is the fixed-height settings action control; siblings in a `.btnRow` share
-equal width — never hug-content side-by-side action buttons.
+
+Layout chrome:
+- `Screen` — full-viewport scroll host; padding lives on an inner column (never `vw` widths).
+- `Panel` — shared elevated white surface. `surface` for content (About); `shell` for
+  multi-pane frames (settings). Always `width: 100%` of the Screen column.
+
+Controls:
+- `PillControl` / `LevelControl` — equal-width segmented pills.
+- `SettingsNumberField` / `SettingsButton` — settings form controls; `.btnRow` siblings
+  share equal width when stretched, or stay compact when not.
 
 ## Why
 

@@ -7,7 +7,7 @@ const kidButtonVariants = cva(
   {
     variants: {
       variant: {
-        play: "rounded-[20px] text-[27px] px-11 py-4 text-white bg-gradient-to-br from-[#FFB23E] to-[#F77F1B] shadow-[0_6px_0_#C75E07,0_10px_22px_rgba(0,0,0,.22),0_0_0_5px_rgba(255,255,255,.75)] active:shadow-[0_3px_0_#C75E07,0_6px_14px_rgba(0,0,0,.22),0_0_0_5px_rgba(255,255,255,.75)]",
+        play: "inline-flex items-center justify-center rounded-full text-[17px] font-extrabold tracking-wide px-7 py-3 text-white bg-[#2F7BD0] shadow-[0_6px_18px_rgba(47,123,208,.28)] hover:bg-[#2568b3] active:scale-[0.98] active:shadow-[0_3px_12px_rgba(47,123,208,.22)] disabled:shadow-none",
         text: "rounded-[18px] text-[clamp(15px,3vw,19px)] px-5 py-2.5 bg-white/90 text-heading shadow-[0_4px_10px_rgba(0,0,0,.14)]",
         continue:
           "rounded-[18px] text-[clamp(16px,3.2vw,20px)] px-5 py-2.5 text-white bg-gradient-to-br from-[#58C26E] to-[#2E9E5B] shadow-[0_5px_0_#1F7A42] active:shadow-[0_2px_0_#1F7A42] mt-3",

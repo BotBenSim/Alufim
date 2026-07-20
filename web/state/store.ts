@@ -134,6 +134,10 @@ function findProfile(app: AppState, id: string | null) {
   return app.profiles.find((p) => p.id === id) ?? null;
 }
 
+function profileHasActiveAnimal(p: Profile | null | undefined): boolean {
+  return !!p?.activeCharacterId && !!p.characters[p.activeCharacterId];
+}
+
 function buildContext(run: RunState) {
   return {
     gameId: run.gameId,
@@ -199,12 +203,16 @@ export const useStore = create<Store>()(
       setScreen: (screen) => set({ screen }),
 
       selectProfile: (id) => {
-        set((state) => ({
-          app: { ...state.app, lastProfileId: id },
-          selectedGameId: null,
-          homeCharSection: true,
-          homeGameSection: false,
-        }));
+        set((state) => {
+          const p = findProfile(state.app, id);
+          return {
+            app: { ...state.app, lastProfileId: id },
+            selectedGameId: null,
+            homeCharSection: true,
+            // Keep games visible when this profile already has a chosen animal
+            homeGameSection: profileHasActiveAnimal(p),
+          };
+        });
       },
 
       selectCharacter: (id) => {
@@ -273,8 +281,6 @@ export const useStore = create<Store>()(
 
       goHome: () => {
         const p = findProfile(get().app, get().app.lastProfileId);
-        const keepAnimal =
-          !!p?.activeCharacterId && !!p.characters[p.activeCharacterId];
         set({
           screen: "profiles",
           run: null,
@@ -284,7 +290,7 @@ export const useStore = create<Store>()(
           minigameOverlay: null,
           evolveOverlay: null,
           homeCharSection: true,
-          homeGameSection: keepAnimal,
+          homeGameSection: profileHasActiveAnimal(p),
         });
       },
 
@@ -351,11 +357,14 @@ export const useStore = create<Store>()(
             });
             return next;
           });
+          const saved = profiles.find((p) => p.id === editingProfileId) ?? null;
           set({
             app: { ...app, profiles },
             screen: "profiles",
             editingProfileId: null,
             editorDraft: null,
+            homeCharSection: true,
+            homeGameSection: profileHasActiveAnimal(saved),
           });
         } else {
           const np = newProfile(trimmed, editorDraft.avatar);
@@ -367,6 +376,8 @@ export const useStore = create<Store>()(
             screen: "profiles",
             editingProfileId: null,
             editorDraft: null,
+            homeCharSection: true,
+            homeGameSection: false,
           });
         }
       },
@@ -726,14 +737,13 @@ export const useStore = create<Store>()(
         const p = persisted as { app?: AppState } | undefined;
         if (!p?.app) return current;
         const app = { ...p.app, profiles: p.app.profiles.map(migrateProfile) };
-        const hasProfile = !!(
-          app.lastProfileId && findProfile(app, app.lastProfileId)
-        );
+        const last = findProfile(app, app.lastProfileId);
+        const hasProfile = !!last;
         return {
           ...current,
           app,
           homeCharSection: hasProfile,
-          homeGameSection: false,
+          homeGameSection: profileHasActiveAnimal(last),
         };
       },
     }

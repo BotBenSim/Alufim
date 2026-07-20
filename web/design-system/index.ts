@@ -1,4 +1,5 @@
 export { Card, CardBig, CardSub } from "./components/Card";
+export { Panel } from "./components/Panel";
 export { KidButton } from "./components/KidButton";
 export { Badge } from "./components/Badge";
 export { Screen, Brand, BrandTitle } from "./components/Screen";

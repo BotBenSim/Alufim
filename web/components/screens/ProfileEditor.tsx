@@ -8,6 +8,7 @@ import { BackgroundScene } from "@/components/scene/BackgroundScene";
 import {
   Brand,
   LevelControl,
+  Panel,
   PillControl,
   Screen,
   SettingsButton,
@@ -202,10 +203,14 @@ export function ProfileEditor() {
   const navItems = SECTIONS.filter((s) => !s.existingOnly || !!existing);
 
   return (
-    <Screen id="scrProfileEdit" scroll>
+    <Screen
+      id="scrProfileEdit"
+      scroll
+      contentClassName="gap-4 w-full max-w-[960px] px-4"
+    >
       <Brand className="text-[clamp(28px,5vw,44px)] text-heading">Alufim</Brand>
 
-      <div className="settingsShell">
+      <Panel variant="shell">
         <aside className="settingsSidebar">
           <div className="settingsAvatarWrap">
             <div className="settingsAvatar">
@@ -567,7 +572,7 @@ export function ProfileEditor() {
                         </div>
                         <div className="settingsRowControls">
                           <SettingsButton onClick={() => previewMinigame(m.id)}>
-                            נסו ▶
+                            נסו
                           </SettingsButton>
                           <Toggle
                             className="settingsToggle"
@@ -661,7 +666,7 @@ export function ProfileEditor() {
             )}
           </div>
         </div>
-      </div>
+      </Panel>
 
       {typeof document !== "undefined" &&
         minigameOverlay?.preview &&

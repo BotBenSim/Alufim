@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CharacterArt } from "@/components/art/CharacterArt";
 import { characterById } from "@/data/characters";
 import { useAudio } from "@/hooks/useAudio";
@@ -11,15 +12,38 @@ type CharacterPreviewOverlayProps = {
   onClose: () => void;
 };
 
-/** Home-screen lifecycle preview — sweeps through every form with a pop (vanilla previewLifecycle) */
+/** Side inset so the preview never clips against the viewport edge. */
+const PREVIEW_INSET = 20;
+
+/** Home-screen lifecycle preview — sweeps through every form with a pop. */
 export function CharacterPreviewOverlay({ characterId, onClose }: CharacterPreviewOverlayProps) {
   const [formIdx, setFormIdx] = useState(0);
   const [swept, setSwept] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [box, setBox] = useState(280);
   const tokenRef = useRef(0);
   const { playFanfare, playXpGain } = useAudio();
   const { burst } = useConfetti();
 
   const character = characterId ? characterById(characterId) : null;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const measure = () => {
+      const side = Math.min(
+        window.innerWidth - PREVIEW_INSET * 2,
+        window.innerHeight * 0.62,
+        440
+      );
+      setBox(Math.max(160, Math.floor(side)));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
 
   useEffect(() => {
     if (!character) return;
@@ -57,20 +81,23 @@ export function CharacterPreviewOverlay({ characterId, onClose }: CharacterPrevi
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onClose identity is stable enough; characterId drives replay
   }, [character, characterId, burst, playFanfare, playXpGain]);
 
-  if (!character) return null;
+  if (!character || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[12] flex items-center justify-center bg-[rgba(20,40,70,.45)] backdrop-blur-[3px]"
+      style={{ padding: PREVIEW_INSET }}
       onClick={() => swept && onClose()}
       role="presentation"
     >
       <div
         key={formIdx}
-        className="evoCell solo h-[min(80vw,62vh,440px)] w-[min(80vw,62vh,440px)] animate-evoPop"
+        className="evoCell solo flex shrink-0 items-center justify-center animate-evoPop"
+        style={{ width: box, height: box }}
       >
-        <CharacterArt art={character.forms[formIdx]} size={420} className="h-full w-full" />
+        <CharacterArt art={character.forms[formIdx]} size={box} />
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -49,9 +49,10 @@ export function ProfilesScreen() {
   };
 
   const handleSelectCharacter = (id: string, he: string) => {
-    if (previewCharacterId === id) return;
+    // Always ensure games section opens for the active animal (even if already picked).
     ensure();
     selectCharacter(id);
+    if (previewCharacterId === id) return;
     speak(he);
     setPreviewCharacterId(id);
   };
@@ -63,7 +64,7 @@ export function ProfilesScreen() {
   };
 
   return (
-    <Screen id="scrProfiles" scroll className="gap-10 pb-8">
+    <Screen id="scrProfiles" scroll contentClassName="gap-7 pb-8">
       <button
         type="button"
         id="aboutBtn"
@@ -77,8 +78,8 @@ export function ProfilesScreen() {
         <Brand>Alufim</Brand>
       </BrandTitle>
 
-      <section className="w-full">
-        <div id="profileCards" className="cards mx-auto grid w-[min(94vw,620px)] grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-3.5">
+      <section className="flex w-full flex-col items-center">
+        <div id="profileCards" className="cards grid w-full max-w-[540px] grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5">
           {app.profiles.map((p) => (
             <ProfileCard
               key={p.id}
@@ -93,13 +94,13 @@ export function ProfilesScreen() {
       </section>
 
       {homeCharSection && profile && (
-        <section id="charSection" className="show flex w-full flex-col items-center gap-10">
-          <h2 className="text-center text-[clamp(24px,5vw,36px)] font-extrabold text-heading">
+        <section id="charSection" className="show flex w-full flex-col items-center gap-6">
+          <h2 className="text-center text-[clamp(20px,4.2vw,28px)] font-extrabold text-heading">
             בחרו חיה
           </h2>
           <div
             id="charGrid"
-            className="charGrid grid w-[min(94vw,620px)] grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-3.5"
+            className="charGrid grid w-full max-w-[540px] grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5"
           >
             {CHARACTERS.map((c) => {
               const owned = !!profile.characters[c.id];
@@ -120,13 +121,13 @@ export function ProfilesScreen() {
       )}
 
       {homeGameSection && profile && (
-        <section id="gameSection" className="show flex w-full flex-col items-center gap-10">
-          <h2 className="text-center text-[clamp(24px,5vw,36px)] font-extrabold text-heading">
+        <section id="gameSection" className="show flex w-full flex-col items-center gap-6">
+          <h2 className="text-center text-[clamp(20px,4.2vw,28px)] font-extrabold text-heading">
             בחרו משחק
           </h2>
           <div
             id="gameCardsHome"
-            className="grid w-[min(94vw,620px)] grid-cols-[repeat(auto-fill,minmax(132px,1fr))] gap-3.5"
+            className="grid w-full max-w-[540px] grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5"
           >
             {enabledGames.map((gid) => (
               <GameCard
@@ -146,7 +147,7 @@ export function ProfilesScreen() {
               startGame();
             }}
           >
-            ▶️ שחקו!
+            שחקו
           </KidButton>
         </section>
       )}
