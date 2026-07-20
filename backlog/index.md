@@ -51,3 +51,4 @@ Off-ramps: `rejected`, `superseded`.
 | [visible-collection-board](visible-collection-board.md) | Collection gallery + near "next friend" goal | proposed | Curiosity gap + goal-gradient + SDT |
 | [positive-bond-affection](positive-bond-affection.md) | Growing mood/affection feedback (positive-only, no decay) | proposed | SDT relatedness + positive reinforcement |
 | [session-quest-surprise-chest](session-quest-surprise-chest.md) | Tiny per-run quest ending in a surprise chest | proposed | Goal-gradient + variable always-positive reward |
+| [audit-medium-hard-levels](audit-medium-hard-levels.md) | Playtest + fix medium/hard across all learning games | proposed | ZPD + flow (right-sized difficulty) |

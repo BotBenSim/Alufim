@@ -52,3 +52,7 @@ switch (q.op) {
   the concrete type after checking `op` (e.g. `q as unknown as AddQuestion`).
 - Adding a game means adding a `case` in each dispatch site; a missing case silently does
   nothing, so keep the sites together and covered.
+- Per-game presentation details belong in that game’s `*RenderMeta` (e.g. `engRenderMeta`),
+  mapped to shared shapes like [`AnswerChoice`](../../web/lib/answerChoice.ts). The view
+  renders glyphs (`emoji` / `swatch` / `text`) — it must not special-case a game id for
+  option chrome.

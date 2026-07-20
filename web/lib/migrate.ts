@@ -12,7 +12,7 @@ export function defaultGames(): Profile["games"] {
     find: { enabled: true, level: "easy", curriculum: defaultCurriculum("find") },
     add: { enabled: true, level: "easy", curriculum: defaultCurriculum("add") },
     sub: { enabled: true, level: "easy", curriculum: defaultCurriculum("sub") },
-    eng: { enabled: false, level: "easy", curriculum: defaultCurriculum("eng") },
+    eng: { enabled: true, level: "easy", curriculum: defaultCurriculum("eng") },
   };
 }
 
@@ -38,7 +38,7 @@ export function migrateProfile(p: Profile): Profile {
   GAME_ORDER.forEach((g: GameId) => {
     if (!p.games[g]) {
       p.games[g] = {
-        enabled: g !== "eng",
+        enabled: true,
         level: "easy",
         curriculum: defaultCurriculum(g),
       };
@@ -71,15 +71,13 @@ export function migrateProfile(p: Profile): Profile {
 
 export function seedPresetProfiles(state: AppState, photos: Record<string, string>): AppState {
   const presets = [
-    { name: "אלי", avatar: photos.ellie, eng: false },
-    { name: "איתן", avatar: photos.ethan, eng: true },
-    { name: "נובה", avatar: photos.nova, eng: true },
-    { name: "יוני", avatar: photos.uni, eng: false },
+    { name: "אלי", avatar: photos.ellie },
+    { name: "איתן", avatar: photos.ethan },
+    { name: "נובה", avatar: photos.nova },
+    { name: "יוני", avatar: photos.uni },
   ];
   presets.forEach((pr) => {
-    const p = newProfile(pr.name, pr.avatar);
-    p.games.eng.enabled = pr.eng;
-    state.profiles.push(p);
+    state.profiles.push(newProfile(pr.name, pr.avatar));
   });
   return state;
 }

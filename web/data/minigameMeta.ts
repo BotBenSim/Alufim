@@ -45,14 +45,14 @@ export const MINIGAME_META: MinigameMeta[] = [
     title: "מבוך",
     icon: "🧩",
     blurb: "הובילו את החבר עד היציאה",
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
   {
     id: "cutRope",
     title: "חטיף על חבל",
     icon: "🍬",
     blurb: "חתכו את החבל — החטיף נופל לפה",
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
 ];
 
