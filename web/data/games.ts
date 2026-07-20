@@ -32,4 +32,4 @@ export const GAMES = {
   },
 } as const;
 
-export const GAME_ORDER: GameId[] = ["add", "find", "eng", "sub"];
+export const GAME_ORDER: GameId[] = ["add", "sub", "find", "eng"];

@@ -16,17 +16,18 @@ type Burst = {
   y: number;
 };
 
-/** Fork crotch / launch origin. */
-const ANCHOR: Vec = { x: 0.24, y: 0.68 };
+/** Fork crotch / launch origin — kept left so the throw feels like a real reach. */
+const ANCHOR: Vec = { x: 0.14, y: 0.7 };
 /**
  * Rest pouch — snack sits a bit behind the bow so the ready state is obvious
  * (Angry Birds–style: bird loaded left of the Y-fork).
  */
-const REST: Vec = { x: 0.155, y: 0.74 };
-const CATCH: Vec = { x: 0.72, y: 0.62 };
-const CATCH_R = 0.2;
-const MAX_PULL = 0.22;
-const POWER = 5.4;
+const REST: Vec = { x: 0.07, y: 0.76 };
+/** Hungry friend — farther right for a clearer gap from the sling. */
+const CATCH: Vec = { x: 0.86, y: 0.6 };
+const CATCH_R = 0.22;
+const MAX_PULL = 0.24;
+const POWER = 6.1;
 const GRAVITY = 0.75;
 const ART = 100;
 const FOOD = 52;
@@ -263,8 +264,8 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
       resetToSling();
       return;
     }
-    // Boost weak pulls so preschool aims still reach the friend
-    const boost = strength < 0.1 ? 1.35 : 1;
+    // Boost weak pulls so preschool aims still reach across the wider gap
+    const boost = strength < 0.12 ? 1.45 : 1;
     velRef.current = { x: dx * POWER * boost, y: dy * POWER * boost };
     hitThisFlightRef.current = false;
     posRef.current = ANCHOR;
@@ -421,7 +422,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
         className="absolute inset-0 z-10 touch-none cursor-pointer"
         role="button"
         tabIndex={0}
-        aria-label="שיגור חטיף"
+        aria-label="שליחת חטיף לחבר"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

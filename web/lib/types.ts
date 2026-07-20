@@ -24,7 +24,31 @@ export type CharacterDef = {
 
 export type CharProgress = { form: number; totalXp: number };
 
-export type GameConfig = { enabled: boolean; level: DifficultyLevel };
+/**
+ * How add/sub show quantities in a band:
+ * - fullCount — emoji + emoji (count both sides)
+ * - countOn — written first number + emoji second
+ * - numbers — digits only (no emoji counts)
+ */
+export type MathVisual = "fullCount" | "countOn" | "numbers";
+
+/** Per-band params for one difficulty level (shape depends on game). */
+export type DifficultyBand = Record<string, unknown> & {
+  visual?: MathVisual;
+};
+
+/** Per-game curriculum stored on the profile (copied from factory at create/migrate). */
+export type GameCurriculum = {
+  stepsPerBlock: number;
+  bands: Record<DifficultyLevel, DifficultyBand[]>;
+};
+
+export type GameConfig = {
+  enabled: boolean;
+  level: DifficultyLevel;
+  /** Owned copy of difficulty bands; always present after create/migrate. */
+  curriculum: GameCurriculum;
+};
 
 /** Play-beat mini-game toggles (additive on saves; migrated if missing). */
 export type MinigameConfig = { enabled: boolean };
@@ -36,6 +60,8 @@ export type Profile = {
   games: Record<GameId, GameConfig>;
   /** Which play-beat engines may appear; defaults applied in migrateProfile */
   minigames: Record<string, MinigameConfig>;
+  /** Minigame every N learning steps (copied from factory default on create/migrate). */
+  playEverySteps: number;
   characters: Record<string, CharProgress>;
   activeCharacterId: string | null;
 };
@@ -70,6 +96,8 @@ export type ProviderContext = {
   usedKeys: string[];
   recent: { key: string; correct: boolean; hadWrongAttempt: boolean }[];
   countEmoji: string;
+  /** Profile-owned curriculum for this game (snapshot for the run). */
+  curriculum: GameCurriculum;
 };
 
 export type Provider = {
@@ -81,6 +109,8 @@ export type RunState = {
   character: CharacterDef;
   gameId: GameId;
   level: DifficultyLevel;
+  /** Snapshot of profile curriculum for this run. */
+  curriculum: GameCurriculum;
   preset: RhythmPreset;
   step: number;
   usedKeys: string[];

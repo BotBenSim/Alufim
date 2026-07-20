@@ -90,7 +90,6 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
             <div className="animate-[caughtBounce_1.4s_ease-in-out_infinite] text-[clamp(72px,18vw,140px)] drop-shadow-lg">
               <CharacterArt art={formArt} size={120} />
             </div>
-            <div className="text-[clamp(32px,7vw,52px)]">✨</div>
             <div className="text-center text-[clamp(20px,4.5vw,34px)] font-extrabold text-heading [text-shadow:0_1px_0_#fff]">
               ה{character.he} שיחק והתחזק!
             </div>

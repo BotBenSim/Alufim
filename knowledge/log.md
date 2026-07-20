@@ -10,6 +10,11 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-07-20 — `SettingsButton` + `.btnRow` for equal-size settings actions — see [design-system](technical/design-system.md).
+- 2026-07-20 — settings form primitives: equal-width `PillControl` + compact `SettingsNumberField` — see [design-system](technical/design-system.md).
+- 2026-07-20 — add/sub band `visual` modes (fullCount / countOn / numbers) — see [math-visual-scaffold](educational/math-visual-scaffold.md).
+- 2026-07-20 — per-profile `playEverySteps` (numeric minigame cadence) in משחקונים settings — see [per-profile-curriculum](technical/per-profile-curriculum.md).
+- 2026-07-20 — per-profile difficulty curriculum (copy-on-create) + settings sidebar UI — see [per-profile-curriculum](technical/per-profile-curriculum.md), [parent-tuned-difficulty-bands](educational/parent-tuned-difficulty-bands.md), [settings-sidebar](product/settings-sidebar.md).
 - 2026-07-20 — cut-rope play-beat: swipe ropes so a snack falls into the character (no-fail) — see [minigame-cut-rope](educational/minigame-cut-rope.md).
 - 2026-07-20 — removed stub minigames `tapCollect` / `catch` / `meterBurst` (superseded OKFs); catalog is the skill engines only.
 - 2026-07-20 — character maze: reach the exit (pads + swipe); slingshot arc retuned to hit the animal — see [minigame-char-maze](educational/minigame-char-maze.md).

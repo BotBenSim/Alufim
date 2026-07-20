@@ -19,8 +19,13 @@ styling became a risk.
 ## Decision
 
 Build a small design system under [`web/design-system/`](../../web/design-system): shared
-tokens plus reusable primitives (e.g. `Card`, `KidButton`, `XpBar`), styled with Tailwind
-CSS. Screens compose these primitives instead of ad-hoc markup.
+tokens plus reusable primitives (e.g. `Card`, `KidButton`, `XpBar`, `PillControl`,
+`SettingsNumberField`), styled with Tailwind CSS. Screens compose these primitives instead
+of ad-hoc markup.
+`PillControl` is the equal-width segmented pill; `LevelControl` wraps it for easy/medium/hard.
+`SettingsNumberField` is the compact labeled number input for settings forms.
+`SettingsButton` is the fixed-height settings action control; siblings in a `.btnRow` share
+equal width — never hug-content side-by-side action buttons.
 
 ## Why
 

@@ -1,6 +1,12 @@
-import { diffParams } from "@/lib/difficulty";
+import { diffParams, normalizeMathVisual } from "@/lib/difficulty";
 import { rnd, numberOptions } from "@/lib/random";
-import type { Provider, ProviderContext } from "@/lib/types";
+import type {
+  DifficultyLevel,
+  GameCurriculum,
+  MathVisual,
+  Provider,
+  ProviderContext,
+} from "@/lib/types";
 
 export type SubQuestion = {
   op: "sub";
@@ -11,7 +17,11 @@ export type SubQuestion = {
 
 export const subProvider: Provider = {
   generate(ctx: ProviderContext): SubQuestion {
-    const p = diffParams<{ minTop: number; maxMin: number }>("sub", ctx.level, ctx.step);
+    const p = diffParams<{ minTop: number; maxMin: number }>(
+      ctx.curriculum,
+      ctx.level,
+      ctx.step
+    );
     const maxMin = p.maxMin || 10;
     const minTop = Math.min(p.minTop || 2, maxMin);
     let a = 2,
@@ -32,8 +42,16 @@ export const subProvider: Provider = {
   },
 };
 
-export function subRenderMeta(q: SubQuestion) {
+export function subRenderMeta(
+  q: SubQuestion,
+  step: number,
+  curriculum: GameCurriculum,
+  level: DifficultyLevel
+) {
+  const p = diffParams<{ visual?: MathVisual }>(curriculum, level, step);
+  const visual = normalizeMathVisual(p.visual);
   return {
+    visual,
     countEmoji: "⭐",
     options: numberOptions(q.answer, Math.max(10, q.a)),
     digits: `${q.a} − ${q.b} = ?`,

@@ -37,6 +37,8 @@ numbers or studies.
 | [play-beat-interludes](play-beat-interludes.md) | A no-fail play/feed break every few steps | Attention span + spaced practice |
 | [no-time-pressure-no-fomo](no-time-pressure-no-fomo.md) | No timer, lives, streaks, or FOMO | Math-anxiety + growth mindset |
 | [right-sized-difficulty](right-sized-difficulty.md) | Difficulty levels + rewards that rise with progress | Zone of Proximal Development + flow |
+| [parent-tuned-difficulty-bands](parent-tuned-difficulty-bands.md) | Parents can right-size bands per child | ZPD + scaffolding |
+| [math-visual-scaffold](math-visual-scaffold.md) | Add/sub bands: emoji → mixed → digits | CRA progression |
 | [celebrate-progress](celebrate-progress.md) | Frequent wins; celebrate evolution | Immediate feedback + goal-gradient |
 | [choose-and-nurture-animal](choose-and-nurture-animal.md) | Pick and raise your own animal | Self-Determination Theory |
 | [audio-first](audio-first.md) | Spoken prompts + free replay for pre-readers | Cognitive load + emergent literacy |

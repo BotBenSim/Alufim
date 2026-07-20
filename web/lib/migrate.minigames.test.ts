@@ -6,6 +6,7 @@ import type { Profile } from "./types";
 describe("profile minigames migration", () => {
   it("new profiles include default minigame toggles", () => {
     const p = newProfile("טסט", "🙂");
+    expect(p.playEverySteps).toBe(3);
     expect(p.minigames.pathDash.enabled).toBe(true);
     expect(p.minigames.timingBounce.enabled).toBe(true);
     expect(p.minigames.sliceSwipe.enabled).toBe(true);
@@ -73,6 +74,13 @@ describe("profile minigames migration", () => {
     const next = migrateProfile(legacy);
     expect(next.games.add.level).toBe("medium");
     expect(next.minigames).toEqual(defaultMinigameConfig());
+    expect(next.playEverySteps).toBe(3);
     expect(next.characters.lion.totalXp).toBe(10);
+  });
+
+  it("migrateProfile keeps customized playEverySteps", () => {
+    const p = newProfile("טסט", "🙂");
+    p.playEverySteps = 6;
+    expect(migrateProfile(p).playEverySteps).toBe(6);
   });
 });

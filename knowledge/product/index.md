@@ -25,3 +25,4 @@ sections: **Problem -> Decision -> User impact -> Trade-offs -> Signals to watch
 | ID | Decision | Status |
 | --- | --- | --- |
 | [start-from-first-form](start-from-first-form.md) | Show living baby, not egg, from the start | accepted |
+| [settings-sidebar](settings-sidebar.md) | Profile settings: sidebar + child avatar | accepted |

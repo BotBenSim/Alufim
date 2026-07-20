@@ -309,7 +309,566 @@
 #questionCard { position: relative; }
 #speakBtn { position: absolute; top: 12px; right: 12px; z-index: 1; }
 
-/* ---------- profile editor form ---------- */
+/* ---------- profile editor / settings ---------- */
+.settingsShell {
+  display: grid;
+  grid-template-columns: minmax(200px, 240px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+  width: min(96vw, 960px);
+  height: min(72vh, 640px);
+  max-height: calc(100dvh - 7.5rem);
+  min-height: 0;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 28px;
+  box-shadow: 0 14px 36px rgba(29, 78, 122, 0.18);
+  overflow: hidden;
+  direction: rtl;
+  align-self: stretch;
+  margin-inline: auto;
+  animation: settingsShellIn 0.35s ease-out;
+}
+@keyframes settingsShellIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.settingsSidebar {
+  background: linear-gradient(180deg, #e8f6ff 0%, #d9f1ff 45%, #cfe9fb 100%);
+  padding: 20px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-inline-start: 1px solid rgba(77, 163, 255, 0.22);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.settingsAvatarWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: settingsAvatarIn 0.45s ease-out;
+}
+@keyframes settingsAvatarIn {
+  from { opacity: 0; transform: scale(0.86); }
+  to { opacity: 1; transform: scale(1); }
+}
+.settingsAvatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 4px solid #ffd12e;
+  box-shadow: 0 8px 20px rgba(29, 78, 122, 0.16);
+}
+.settingsAvatarName {
+  font-size: 20px;
+  font-weight: 900;
+  color: #1d4e7a;
+  text-align: center;
+  line-height: 1.2;
+}
+.settingsAvatarHint {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5a7a94;
+}
+.settingsNav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.settingsNavItem {
+  appearance: none;
+  border: none;
+  background: transparent;
+  text-align: right;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  color: #2f6b9e;
+  padding: 10px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.settingsNavItem:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+.settingsNavItem.is-active {
+  background: #fff;
+  color: #1d4e7a;
+  box-shadow: inset 3px 0 0 #ffd12e, 0 4px 12px rgba(29, 78, 122, 0.1);
+}
+.settingsMain {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.98);
+}
+.settingsPane {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 20px 22px 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  animation: settingsPaneIn 0.28s ease-out;
+}
+.settingsPane .finput {
+  user-select: text;
+  -webkit-user-select: text;
+}
+@keyframes settingsPaneIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.settingsPaneTitle {
+  margin: 0 0 4px;
+  font-size: clamp(22px, 3.5vw, 28px);
+  font-weight: 900;
+  color: #1d4e7a;
+}
+.settingsPaneBlurb {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5a7a94;
+  line-height: 1.35;
+}
+.profileNameLabel {
+  margin-top: 14px;
+  margin-bottom: 10px;
+  display: block;
+}
+.profileNameInput {
+  margin-bottom: 6px;
+}
+.gameSettingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+.gameSettingsCard {
+  border: 2px solid #d7e7f5;
+  border-radius: 18px;
+  background: #f8fcff;
+  overflow: hidden;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.gameSettingsCard.is-open {
+  border-color: #4da3ff;
+  box-shadow: 0 6px 18px rgba(47, 123, 208, 0.12);
+  background: #fff;
+}
+.gameSettingsCard.is-off {
+  opacity: 0.72;
+}
+.gameSettingsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 14px 16px;
+}
+.gameSettingsHit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  flex: 1 1 160px;
+  min-width: 0;
+  text-align: right;
+}
+.gameSettingsTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: #1d4e7a;
+  line-height: 1.2;
+}
+.gameSettingsDesc {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5a7a94;
+  line-height: 1.3;
+}
+/* Shared compact controls in settings rows (games + minigames) */
+.settingsRowControls {
+  --ctrl-h: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.gameSettingsControls {
+  flex: 1 1 220px;
+}
+/* Same height + type for פעיל / נסו / level / התאמה */
+.settingsRowControls .settingsToggle,
+.settingsRowControls .gameCustomizeBtn,
+.settingsRowControls .settingsBtn,
+.settingsRowControls .settingsBtnCompact {
+  box-sizing: border-box;
+  height: var(--ctrl-h);
+  min-height: var(--ctrl-h);
+  min-width: 3.75rem;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  border-radius: 999px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.settingsRowControls .settingsToggle {
+  /* Match sibling border so height/weight align */
+  border: 1.5px solid transparent !important;
+}
+.settingsRowControls .settingsToggle[aria-pressed="true"] {
+  border-color: transparent !important;
+}
+.settingsRowControls .pillControl {
+  box-sizing: border-box;
+  height: var(--ctrl-h);
+  padding: 2px;
+}
+.settingsRowControls .pillControlSeg {
+  padding: 0 8px;
+  font-size: 12px;
+  min-width: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Shared equal-width pill control (level, visual mode, …) */
+.pillControl {
+  display: inline-flex;
+  align-items: stretch;
+  padding: 3px;
+  border-radius: 999px;
+  background: #e8f1f8;
+  gap: 2px;
+}
+.pillControl.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.pillControl--equal .pillControlSeg {
+  flex: 1 1 0;
+  min-width: 3.5rem;
+  text-align: center;
+}
+.pillControlSeg {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #3d6f96;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.pillControlSeg.is-selected {
+  background: #fff;
+  color: #1d4e7a;
+  box-shadow: 0 1px 4px rgba(29, 78, 122, 0.14);
+}
+.pillControl--md .pillControlSeg {
+  font-size: 15px;
+  padding: 9px 16px;
+}
+.settingsNumField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 800;
+  color: #2f6b9e;
+}
+.settingsNumField--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.settingsNumLabel {
+  line-height: 1.2;
+}
+.settingsNumField--inline .settingsNumLabel {
+  flex: 0 0 auto;
+}
+.settingsNumInput {
+  width: 4.5rem;
+  box-sizing: border-box;
+  text-align: center;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1d4e7a;
+  padding: 8px 10px;
+  border: 2px solid #c5d8ec;
+  border-radius: 12px;
+  background: #fff;
+  outline: none;
+}
+.settingsNumInput:focus {
+  border-color: #4da3ff;
+  box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.18);
+}
+.gameCustomizeBtn {
+  appearance: none;
+  border: 1.5px solid #c5d8ec;
+  background: #fff;
+  color: #2f6b9e;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.gameCustomizeBtn:hover:not(:disabled) {
+  border-color: #4da3ff;
+  color: #1d4e7a;
+  background: #f3f9ff;
+}
+.gameCustomizeBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.gameCurriculumPanel {
+  padding: 8px 14px 16px;
+  border-top: 1px solid #e2ecf5;
+  background: linear-gradient(180deg, #f3f9ff 0%, #fff 28%);
+  animation: settingsPaneIn 0.24s ease-out;
+}
+/* Equal-width action rows (settings footer, band actions, …) */
+.btnRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
+}
+.btnRow > .settingsBtn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.settingsFooter.btnRow {
+  flex: 0 0 auto;
+  justify-content: flex-end; /* physical left in RTL */
+  flex-wrap: wrap;
+  padding: 12px 16px 14px;
+  border-top: 1px solid #e2ecf5;
+  background: #f7fbff;
+}
+.settingsFooter .settingsBtn {
+  flex: 0 0 auto;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 999px;
+}
+.settingsBtn {
+  appearance: none;
+  box-sizing: border-box;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.settingsBtnCompact {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.settingsBtnPrimary {
+  background: #2f7bd0;
+  color: #fff;
+}
+.settingsBtnPrimary:hover {
+  background: #2568b3;
+}
+.settingsBtnGhost {
+  background: #fff;
+  color: #2f6b9e;
+  border-color: #d0e0ef;
+}
+.settingsBtnGhost:hover {
+  border-color: #4da3ff;
+  background: #f3f9ff;
+}
+.settingsBtnDanger {
+  background: #fff;
+  color: #b03a31;
+  border-color: #f0c8c4;
+}
+.settingsBtnDanger:hover {
+  background: #fff5f4;
+  border-color: #e2574c;
+}
+.curriculumIntro {
+  margin: 4px 0 12px;
+  color: #3d6f96;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+.gameCurriculumPanel .settingsNumField {
+  margin-bottom: 10px;
+}
+.bandList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+.bandCard {
+  border: 2px solid #d7e7f5;
+  border-radius: 16px;
+  padding: 12px;
+  background: #f8fcff;
+}
+.bandCardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #2f6b9e;
+  margin-bottom: 8px;
+}
+.bandRemove {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #c0392b;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.bandFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.visualLegend {
+  margin: 14px 0 4px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f3f9ff;
+  border: 1.5px solid #d7e7f5;
+}
+.visualLegendTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #1d4e7a;
+  margin-bottom: 8px;
+}
+.visualLegendRows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.visualLegendRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.visualLegendName {
+  color: #2f6b9e;
+  min-width: 3.5rem;
+}
+.visualLegendEx {
+  color: #1d4e7a;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.bandVisualControl.pillControl {
+  display: flex;
+  width: 100%;
+  margin-top: 10px;
+}
+.bandActions.btnRow {
+  margin-top: 12px;
+  justify-content: flex-end; /* physical left in RTL */
+  flex-wrap: wrap;
+}
+.bandActions .settingsBtn {
+  flex: 0 0 auto;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 999px;
+}
+@media (max-width: 720px) {
+  .settingsShell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: min(78dvh, 720px);
+    max-height: calc(100dvh - 6.5rem);
+  }
+  .settingsSidebar {
+    border-inline-start: none;
+    border-bottom: 1px solid rgba(77, 163, 255, 0.22);
+    padding-bottom: 12px;
+    overflow: visible;
+  }
+  .settingsNav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .settingsNavItem {
+    flex: 1 1 auto;
+    text-align: center;
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+  .settingsNavItem.is-active {
+    box-shadow: inset 0 -3px 0 #ffd12e, 0 4px 12px rgba(29, 78, 122, 0.1);
+  }
+  .settingsAvatar {
+    width: 72px;
+    height: 72px;
+  }
+}
 .formCard {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 24px;
@@ -359,9 +918,85 @@
   color: #1d4e7a;
   flex: 1;
 }
-.advForm {
-  font-size: 14px;
+.minigameSettingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.minigameSettingsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 12px 0;
+  border-top: 1px solid #e2ecf5;
+}
+.minigameSettingsHit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  flex: 1 1 160px;
+  min-width: 0;
+  text-align: right;
+}
+.minigameSettingsTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: #1d4e7a;
+  line-height: 1.2;
+}
+.minigameSettingsDesc {
+  font-size: 13px;
   font-weight: 700;
-  color: #2f6b9e;
-  white-space: nowrap;
+  color: #5a7a94;
+  line-height: 1.3;
+}
+.advCharList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.advCharRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 12px 0;
+  border-top: 1px solid #e2ecf5;
+}
+.advCharHit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.advCharArt {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.advCharText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  text-align: right;
+}
+.advCharName {
+  font-size: 16px;
+  font-weight: 900;
+  color: #1d4e7a;
+  line-height: 1.2;
+}
+.advCharMeta {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5a7a94;
+  line-height: 1.3;
 }

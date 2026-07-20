@@ -14,7 +14,8 @@ export type EngQuestion = {
 
 export const engProvider: Provider = {
   generate(ctx: ProviderContext): EngQuestion {
-    const maxLen = diffParams<{ maxLen: number }>("eng", ctx.level, ctx.step).maxLen || 99;
+    const maxLen =
+      diffParams<{ maxLen: number }>(ctx.curriculum, ctx.level, ctx.step).maxLen || 99;
     let pool: EngWord[] = [];
     VOCAB_ORDER.forEach((theme) => {
       VOCAB[theme].words.forEach((w: EngWord) => {
