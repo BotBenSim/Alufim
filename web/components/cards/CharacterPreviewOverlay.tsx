@@ -31,36 +31,37 @@ export function CharacterPreviewOverlay({ characterId, onClose }: CharacterPrevi
 
     const maxIdx = character.forms.length - 1;
     let i = 0;
-    let stepT: number | undefined;
-    let closeT: number | undefined;
+    const timers: number[] = [];
 
     const showNext = () => {
       if (token !== tokenRef.current) return;
       if (i > maxIdx) {
         setSwept(true);
-        closeT = window.setTimeout(() => {
-          if (token === tokenRef.current) onClose();
-        }, 800);
+        timers.push(
+          window.setTimeout(() => {
+            if (token === tokenRef.current) onClose();
+          }, 800)
+        );
         return;
       }
       setFormIdx(i);
       playXpGain(Math.min(7, 3 + i));
       burst(10);
       i += 1;
-      stepT = window.setTimeout(showNext, 340);
+      timers.push(window.setTimeout(showNext, 340));
     };
 
-    // Let animal-name TTS finish before preview beeps/fanfare
-    const startT = window.setTimeout(() => {
-      if (token !== tokenRef.current) return;
-      playFanfare();
-      showNext();
-    }, 550);
+    // Delay SFX so animal-name TTS isn't drowned out
+    timers.push(
+      window.setTimeout(() => {
+        if (token !== tokenRef.current) return;
+        playFanfare();
+        showNext();
+      }, 550)
+    );
 
     return () => {
-      window.clearTimeout(startT);
-      if (stepT !== undefined) window.clearTimeout(stepT);
-      if (closeT !== undefined) window.clearTimeout(closeT);
+      timers.forEach((t) => window.clearTimeout(t));
       tokenRef.current += 1;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onClose identity is stable enough; characterId drives replay
