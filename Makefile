@@ -1,4 +1,4 @@
-.PHONY: dev build test install
+.PHONY: dev build test install agents clean-agents
 
 install:
 	cd web && npm install
@@ -11,3 +11,16 @@ build:
 
 test:
 	cd web && npm test
+
+# Generate per-vendor agent files (rules, commands, skills) from playbooks/.
+# Generated files are gitignored; edit the playbook, not the generated file.
+#   make agents                    # all vendors
+#   make agents VENDORS=cursor     # a subset (space/comma separated)
+agents:
+	node scripts/gen-agents.mjs --vendors="$(VENDORS)"
+
+# Remove exactly the files `make agents` generates (rebuildable via `make agents`).
+#   make clean-agents                 # all vendors
+#   make clean-agents VENDORS=cursor  # a subset
+clean-agents:
+	node scripts/gen-agents.mjs --clean --vendors="$(VENDORS)"

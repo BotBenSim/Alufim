@@ -1,7 +1,7 @@
 ---
 id: kebab-case-id
 title: One-line summary of the decision
-status: proposed        # proposed | accepted | superseded
+status: proposed        # proposed | approved | in-progress | accepted | rejected | superseded
 date: 2026-07-20
 tags: []
 supersedes: []          # ids of concepts this replaces

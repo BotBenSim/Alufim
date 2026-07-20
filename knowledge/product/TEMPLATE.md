@@ -1,7 +1,7 @@
 ---
 id: kebab-case-id
 title: One-line summary of the UX/product decision
-status: proposed        # proposed | accepted | superseded
+status: proposed        # proposed | approved | in-progress | accepted | rejected | superseded
 date: 2026-07-20
 tags: [product, ux]
 related: []             # ids of related technical/educational/product files
