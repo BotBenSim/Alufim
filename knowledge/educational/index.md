@@ -41,3 +41,11 @@ numbers or studies.
 | [choose-and-nurture-animal](choose-and-nurture-animal.md) | Pick and raise your own animal | Self-Determination Theory |
 | [audio-first](audio-first.md) | Spoken prompts + free replay for pre-readers | Cognitive load + emergent literacy |
 | [game-variety](game-variety.md) | Four varied games over one drill | Retrieval practice + interleaving |
+| [start-from-first-form](start-from-first-form.md) | Start as living baby, not egg | Self-Determination Theory (relatedness) |
+| [play-beat-minigame-variety](play-beat-minigame-variety.md) | Varied no-fail micro-games on the play beat | Attention span + novelty |
+| [minigame-tap-collect](minigame-tap-collect.md) | Tap-collect engine stays no-fail | Attention span + novelty |
+| [minigame-catch](minigame-catch.md) | Catch engine — misses never fail | Attention span + novelty |
+| [minigame-path-dash](minigame-path-dash.md) | Path-dash short no-fail dash | Attention span + novelty |
+| [minigame-timing-bounce](minigame-timing-bounce.md) | Timing-bounce generous hops | Attention span + novelty |
+| [minigame-meter-burst](minigame-meter-burst.md) | Meter-burst roar/splash/cheer | Attention span + novelty |
+| [minigame-slice-swipe](minigame-slice-swipe.md) | Slice-swipe with no bomb fail | Attention span + novelty |

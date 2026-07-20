@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formForXp, xpForCorrect } from "./xp";
+import { formForXp, formThresholds, xpForCorrect } from "./xp";
 
 describe("xpForCorrect", () => {
   it("returns max tier value with no mistakes on easy step 1", () => {
@@ -20,21 +20,20 @@ describe("xpForCorrect", () => {
   });
 });
 
-describe("formForXp", () => {
-  it("starts at form 0", () => {
-    expect(formForXp(0, 4)).toBe(0);
+describe("formForXp (3 living forms, no egg)", () => {
+  it("starts at form 0 (baby)", () => {
+    expect(formForXp(0, 3)).toBe(0);
   });
 
-  it("advances at cumulative thresholds (50, 150, 300)", () => {
-    expect(formForXp(49, 4)).toBe(0);
-    expect(formForXp(50, 4)).toBe(1);
-    expect(formForXp(149, 4)).toBe(1);
-    expect(formForXp(150, 4)).toBe(2);
-    expect(formForXp(299, 4)).toBe(2);
-    expect(formForXp(300, 4)).toBe(3);
+  it("advances at cumulative thresholds (50, 150)", () => {
+    expect(formThresholds(3)).toEqual([0, 50, 150]);
+    expect(formForXp(49, 3)).toBe(0);
+    expect(formForXp(50, 3)).toBe(1);
+    expect(formForXp(149, 3)).toBe(1);
+    expect(formForXp(150, 3)).toBe(2);
   });
 
   it("caps at last form index", () => {
-    expect(formForXp(9999, 4)).toBe(3);
+    expect(formForXp(9999, 3)).toBe(2);
   });
 });

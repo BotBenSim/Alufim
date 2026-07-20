@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
+import { MinigameHost } from "@/components/game/MinigameHost";
 import { Brand, KidButton, Screen, SegmentedControl, Toggle } from "@/design-system";
-import { CHARACTERS } from "@/data/characters";
+import { CHARACTERS, characterById } from "@/data/characters";
 import { GAMES, GAME_ORDER } from "@/data/games";
+import { MINIGAME_META } from "@/data/minigameMeta";
 import { PHOTOS } from "@/data/photos";
+import { currentFormArt } from "@/lib/missions";
 import { formForXp } from "@/lib/xp";
 import type { DifficultyLevel, GameId } from "@/lib/types";
+import type { MinigameEngineId } from "@/lib/minigames/types";
 import { useStore } from "@/state/store";
 import { cn } from "@/lib/utils";
 
@@ -22,13 +27,31 @@ export function ProfileEditor() {
   const editingProfileId = useStore((s) => s.editingProfileId);
   const editorDraft = useStore((s) => s.editorDraft);
   const app = useStore((s) => s.app);
+  const minigameOverlay = useStore((s) => s.minigameOverlay);
   const updateEditorDraft = useStore((s) => s.updateEditorDraft);
   const saveProfileEditor = useStore((s) => s.saveProfileEditor);
   const deleteProfileEditor = useStore((s) => s.deleteProfileEditor);
+  const previewMinigame = useStore((s) => s.previewMinigame);
+  const closeMinigamePreview = useStore((s) => s.closeMinigamePreview);
   const setScreen = useStore((s) => s.setScreen);
 
   const existing = app.profiles.find((p) => p.id === editingProfileId);
   const [name, setName] = useState(existing?.name ?? "");
+
+  const previewCharId = minigameOverlay?.previewCharacterId;
+  const previewCharacter =
+    (previewCharId ? characterById(previewCharId) : null) ??
+    (existing?.activeCharacterId
+      ? characterById(existing.activeCharacterId)
+      : null) ??
+    CHARACTERS[0];
+  const previewXp =
+    (previewCharacter && existing?.characters[previewCharacter.id]?.totalXp) ??
+    (previewCharacter && editorDraft?.charXp[previewCharacter.id]) ??
+    0;
+  const previewFormArt = previewCharacter
+    ? currentFormArt(previewCharacter, previewXp)
+    : null;
 
   if (!editorDraft) return null;
 
@@ -38,6 +61,16 @@ export function ProfileEditor() {
     const games = { ...editorDraft.games };
     games[gid] = { ...games[gid], enabled: !games[gid].enabled };
     updateEditorDraft({ games });
+  };
+
+  const toggleMinigame = (id: MinigameEngineId) => {
+    const minigames = { ...editorDraft.minigames };
+    const nextOn = !minigames[id]?.enabled;
+    // Keep at least one mini-game on so the play beat never soft-locks
+    const othersOn = MINIGAME_META.some((m) => m.id !== id && minigames[m.id]?.enabled);
+    if (!nextOn && !othersOn) return;
+    minigames[id] = { enabled: nextOn };
+    updateEditorDraft({ minigames });
   };
 
   const setLevel = (gid: GameId, level: DifficultyLevel) => {
@@ -86,9 +119,16 @@ export function ProfileEditor() {
               {e}
             </button>
           ))}
-          {[PHOTOS.ellie, PHOTOS.ethan, PHOTOS.nova, PHOTOS.uni].map((ph) => (
+          {(
+            [
+              ["ellie", PHOTOS.ellie],
+              ["ethan", PHOTOS.ethan],
+              ["nova", PHOTOS.nova],
+              ["uni", PHOTOS.uni],
+            ] as const
+          ).map(([id, ph]) => (
             <button
-              key={ph.slice(0, 32)}
+              key={id}
               type="button"
               className={cn(
                 "avatarOpt h-[54px] w-[54px] overflow-hidden rounded-full border-[3px] p-0",
@@ -102,7 +142,7 @@ export function ProfileEditor() {
           ))}
         </div>
 
-        <div className="flabel">משחקים</div>
+        <div className="flabel">משחקי למידה</div>
         <div id="gameRows">
           {GAME_ORDER.map((gid) => {
             const cfg = editorDraft.games[gid];
@@ -122,6 +162,37 @@ export function ProfileEditor() {
                   onChange={(level) => setLevel(gid, level as DifficultyLevel)}
                   disabled={!cfg.enabled}
                 />
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flabel mt-3">משחקונים בהפסקה</div>
+        <p className="mb-1 text-sm font-bold text-[#456]">
+          איזה משחקונים יופיעו כל כמה שאלות (לפחות אחד חייב להיות דלוק)
+        </p>
+        <div id="minigameRows">
+          {MINIGAME_META.map((m) => {
+            const on = !!editorDraft.minigames[m.id]?.enabled;
+            return (
+              <div
+                key={m.id}
+                className="gameRow flex flex-wrap items-center gap-2 border-t border-[#E2ECF5] py-2"
+              >
+                <div className="gName min-w-0 flex-1">
+                  <div className="text-base font-extrabold text-heading">
+                    {m.icon} {m.title}
+                  </div>
+                  <div className="text-sm font-bold text-[#5A7A94]">{m.blurb}</div>
+                </div>
+                <KidButton
+                  variant="text"
+                  className="shrink-0 px-2 text-[15px] font-extrabold"
+                  onClick={() => previewMinigame(m.id)}
+                >
+                  נסו ▶
+                </KidButton>
+                <Toggle on={on} onClick={() => toggleMinigame(m.id)} />
               </div>
             );
           })}
@@ -169,6 +240,29 @@ export function ProfileEditor() {
           )}
         </div>
       </div>
+
+      {typeof document !== "undefined" &&
+        minigameOverlay?.preview &&
+        previewCharacter &&
+        previewFormArt &&
+        createPortal(
+          <>
+            <MinigameHost
+              overlay={minigameOverlay}
+              character={previewCharacter}
+              formArt={previewFormArt}
+              totalXp={previewXp}
+            />
+            <button
+              type="button"
+              className="fixed left-3 top-3 z-[20] rounded-[18px] border-none bg-white/95 px-3.5 py-2 text-[17px] font-extrabold text-heading shadow-[0_4px_12px_rgba(0,0,0,.2)]"
+              onClick={closeMinigamePreview}
+            >
+              ✕ סגרו
+            </button>
+          </>,
+          document.body
+        )}
     </Screen>
   );
 }

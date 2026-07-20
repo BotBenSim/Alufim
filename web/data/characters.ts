@@ -9,9 +9,10 @@ export function charArt(id: string, stage: number, fallback: string): ArtDescrip
   };
 }
 
+/** Transitions between living forms (stages 2→3 and 3→4). Egg stage removed. */
 export function transitionArtFor(charId: string, fromFormIdx: number): ArtDescriptor | null {
-  const keys = ["t12", "t23", "t34"];
-  if (fromFormIdx < 0 || fromFormIdx > 2) return null;
+  const keys = ["t23", "t34"];
+  if (fromFormIdx < 0 || fromFormIdx >= keys.length) return null;
   return {
     type: "image",
     src: assetPath(`assets/characters/${charId}/${charId}-${keys[fromFormIdx]}.png`),
@@ -19,12 +20,13 @@ export function transitionArtFor(charId: string, fromFormIdx: number): ArtDescri
   };
 }
 
+/** Forms start at living baby (asset stage 2) — no egg. */
 export const CHARACTERS = [
   {
     id: "lion",
     he: "אריה",
     en: "Lion",
-    forms: [charArt("lion", 1, "🥚"), charArt("lion", 2, "🦁"), charArt("lion", 3, "🦁"), charArt("lion", 4, "🦁")],
+    forms: [charArt("lion", 2, "🦁"), charArt("lion", 3, "🦁"), charArt("lion", 4, "🦁")],
     sky: "#F6D58A",
     ground: "#C8923B",
     accent: "#E0892E",
@@ -38,7 +40,7 @@ export const CHARACTERS = [
     id: "dragon",
     he: "דרקון",
     en: "Dragon",
-    forms: [charArt("dragon", 1, "🥚"), charArt("dragon", 2, "🦎"), charArt("dragon", 3, "🐊"), charArt("dragon", 4, "🐉")],
+    forms: [charArt("dragon", 2, "🦎"), charArt("dragon", 3, "🐊"), charArt("dragon", 4, "🐉")],
     sky: "#3B1A1A",
     ground: "#5A2A1A",
     accent: "#FF6B3D",
@@ -52,7 +54,7 @@ export const CHARACTERS = [
     id: "rabbit",
     he: "ארנב",
     en: "Rabbit",
-    forms: [charArt("rabbit", 1, "🥚"), charArt("rabbit", 2, "🐰"), charArt("rabbit", 3, "🐰"), charArt("rabbit", 4, "🐰")],
+    forms: [charArt("rabbit", 2, "🐰"), charArt("rabbit", 3, "🐰"), charArt("rabbit", 4, "🐰")],
     sky: "#F9C8E8",
     ground: "#FFC8E6",
     accent: "#F783AC",
@@ -66,7 +68,7 @@ export const CHARACTERS = [
     id: "shark",
     he: "כריש",
     en: "Shark",
-    forms: [charArt("shark", 1, "🥚"), charArt("shark", 2, "🦈"), charArt("shark", 3, "🦈"), charArt("shark", 4, "🦈")],
+    forms: [charArt("shark", 2, "🦈"), charArt("shark", 3, "🦈"), charArt("shark", 4, "🦈")],
     sky: "#2E86C1",
     ground: "#1B4F72",
     accent: "#5DADE2",
@@ -80,7 +82,7 @@ export const CHARACTERS = [
     id: "turtle",
     he: "צב",
     en: "Turtle",
-    forms: [charArt("turtle", 1, "🥚"), charArt("turtle", 2, "🐢"), charArt("turtle", 3, "🐢"), charArt("turtle", 4, "🐢")],
+    forms: [charArt("turtle", 2, "🐢"), charArt("turtle", 3, "🐢"), charArt("turtle", 4, "🐢")],
     sky: "#BFE9FF",
     ground: "#8FBF6A",
     accent: "#4CAF50",

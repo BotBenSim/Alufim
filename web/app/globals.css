@@ -223,6 +223,69 @@
   50% { transform: translateY(-12px) scale(1.05); }
 }
 
+/* Path-dash idle run: little bob + lean while waiting to jump */
+@keyframes minigameRun {
+  0%, 100% { transform: translateY(0) rotate(-3deg) scale(1, 1); }
+  25% { transform: translateY(-7px) rotate(2deg) scale(1.02, 0.98); }
+  50% { transform: translateY(-2px) rotate(3deg) scale(1, 1); }
+  75% { transform: translateY(-9px) rotate(-2deg) scale(1.02, 0.98); }
+}
+
+@keyframes minigameLeap {
+  0% { transform: translateY(0) scale(1, 1); }
+  35% { transform: translateY(-52px) scale(1.08, 0.95); }
+  70% { transform: translateY(-44px) scale(1.05, 1.02); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* Chrome-dino style bump when you don't clear the cactus */
+@keyframes dinoCrash {
+  0% { transform: translate(-40%, 0) rotate(0deg); }
+  25% { transform: translate(-55%, -8px) rotate(-28deg); }
+  55% { transform: translate(-70%, 4px) rotate(-78deg); }
+  100% { transform: translate(-75%, 10px) rotate(-90deg); }
+}
+@keyframes dinoBonk {
+  0%, 100% { transform: translateX(-50%) rotate(0deg) scale(1); }
+  30% { transform: translateX(-50%) rotate(14deg) scale(1.08); }
+  60% { transform: translateX(-50%) rotate(-10deg) scale(1.04); }
+}
+@keyframes dinoStars {
+  0% { transform: translateX(-30%) scale(0.4); opacity: 0; }
+  30% { transform: translateX(-30%) scale(1.3); opacity: 1; }
+  100% { transform: translateX(-10%) translateY(-18px) scale(0.9); opacity: 0; }
+}
+
+/* Fruit-ninja style slice burst */
+@keyframes sliceHalfLeft {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(-120%, -20%) rotate(-55deg) scale(0.85); opacity: 0; }
+}
+@keyframes sliceHalfRight {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(20%, -10%) rotate(55deg) scale(0.85); opacity: 0; }
+}
+@keyframes sliceSlash {
+  0% { transform: translate(-50%, -50%) rotate(-35deg) scaleX(0.2); opacity: 1; }
+  40% { transform: translate(-50%, -50%) rotate(-35deg) scaleX(1.4); opacity: 1; }
+  100% { transform: translate(-50%, -50%) rotate(-35deg) scaleX(1.6); opacity: 0; }
+}
+@keyframes sliceDrop {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.4); opacity: 0; }
+}
+@keyframes slicePop {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  40% { transform: translate(-50%, -50%) scale(1.25); }
+  100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+}
+
+.slice-half-l { animation: sliceHalfLeft 0.55s ease-out forwards; }
+.slice-half-r { animation: sliceHalfRight 0.55s ease-out forwards; }
+.slice-slash { animation: sliceSlash 0.35s ease-out forwards; }
+.slice-drop { animation: sliceDrop 0.55s ease-out forwards; }
+.slice-pop { animation: slicePop 0.28s ease-out forwards; }
+
 .catchDone.show {
   display: flex;
   animation: pop 0.4s;

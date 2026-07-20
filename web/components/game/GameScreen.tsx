@@ -5,6 +5,7 @@ import { CharacterArt } from "@/components/art/CharacterArt";
 import { AvatarFace } from "@/components/cards/ProfileCard";
 import { EvolvePreview } from "@/components/game/EvolvePreview";
 import { GamePlayPanel } from "@/components/game/GamePlayPanel";
+import { MinigameHost } from "@/components/game/MinigameHost";
 import { Badge, KidButton } from "@/design-system";
 import { characterById } from "@/data/characters";
 import { currentFormArt } from "@/lib/missions";
@@ -23,12 +24,11 @@ export function GameScreen() {
   const wobbleAnswer = useStore((s) => s.wobbleAnswer);
   const xpGainFlash = useStore((s) => s.xpGainFlash);
   const showMission = useStore((s) => s.showMission);
-  const playOverlay = useStore((s) => s.playOverlay);
+  const minigameOverlay = useStore((s) => s.minigameOverlay);
   const collectionOverlay = useStore((s) => s.collectionOverlay);
   const evolveOverlay = useStore((s) => s.evolveOverlay);
   const goHome = useStore((s) => s.goHome);
   const submitAnswer = useStore((s) => s.submitAnswer);
-  const playFoodTap = useStore((s) => s.playFoodTap);
   const restartGame = useStore((s) => s.restartGame);
 
   const { ensure, playCorrect, playWrong, playFanfare, playXpGain } = useAudio();
@@ -48,16 +48,12 @@ export function GameScreen() {
   }, [showMission, run?.mission, speak]);
 
   useEffect(() => {
-    if (playOverlay && run && !playOverlay.done) speak(`האכילו את ה${run.character.he}!`);
-  }, [playOverlay, run, speak]);
-
-  useEffect(() => {
     if (collectionOverlay) speak("נפתחה חיה חדשה!");
   }, [collectionOverlay, speak]);
 
   useEffect(() => {
     if (!run?.current || !run.currentKey) return;
-    if (showMission || playOverlay || evolveOverlay) return;
+    if (showMission || minigameOverlay || evolveOverlay) return;
     if (run.phase !== "learn") return;
     if (lastSpokenKey.current === run.currentKey) return;
     if (introPendingKey.current === run.currentKey) return;
@@ -77,7 +73,7 @@ export function GameScreen() {
           r.current &&
           !r.locked &&
           !st.showMission &&
-          !st.playOverlay &&
+          !st.minigameOverlay &&
           !st.evolveOverlay
         ) {
           speakQuestion(r.current, speak, speakEn);
@@ -97,7 +93,7 @@ export function GameScreen() {
     run?.phase,
     run?.locked,
     showMission,
-    playOverlay,
+    minigameOverlay,
     evolveOverlay,
     ensure,
     speak,
@@ -193,24 +189,6 @@ export function GameScreen() {
     goHome();
   };
 
-  const handlePlayTap = () => {
-    ensure();
-    playCorrect();
-    burst(14);
-    playFoodTap();
-    if (playOverlay && playOverlay.tapsDone + 1 >= (run.preset.feedTaps || 3)) {
-      playFanfare();
-      burst(90);
-      speak(`ה${run.character.he} אכל והתחזק!`);
-    }
-  };
-
-  const playProgress = playOverlay
-    ? Array.from({ length: run.preset.feedTaps || 3 }, (_, i) =>
-        i < playOverlay.tapsDone ? "🟢" : "⚪"
-      ).join("")
-    : "";
-
   return (
     <>
       <div id="topbar" className="relative z-[3] flex items-center gap-2.5 px-3.5 py-2.5 [direction:rtl]">
@@ -275,47 +253,13 @@ export function GameScreen() {
         </div>
       )}
 
-      {playOverlay && (
-        <div
-          id="ovCatch"
-          className="overlay show absolute inset-0 z-[9] flex items-center justify-center backdrop-blur-[3px]"
-          style={{
-            background: `radial-gradient(circle at 50% 40%, ${run.character.sky}, ${run.character.accent})`,
-          }}
-        >
-          <div id="catchScene" className="relative h-[80vh] w-[96vw]">
-            {!playOverlay.done && (
-              <>
-                <div id="catchTitle" className="absolute top-[2%] w-full text-center text-[clamp(24px,6vw,44px)] font-extrabold text-heading">
-                  האכילו את ה{run.character.he}! {run.character.food}
-                </div>
-                <div id="catchHint" className="absolute top-[11%] w-full text-center text-[clamp(18px,4vw,30px)] tracking-[3px] [direction:ltr]">
-                  {playProgress}
-                </div>
-                <button
-                  type="button"
-                  id="catchCreature"
-                  className="absolute border-none bg-transparent p-0 text-[clamp(64px,16vw,120px)] leading-none transition-transform active:scale-90"
-                  style={{ left: playOverlay.foodLeft, top: playOverlay.foodTop }}
-                  onClick={handlePlayTap}
-                >
-                  {run.character.food}
-                </button>
-              </>
-            )}
-            {playOverlay.done && (
-              <div id="catchDone" className="catchDone show absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-                <div className="caughtCreature animate-[caughtBounce_1.4s_ease-in-out_infinite] text-[clamp(90px,22vw,170px)] drop-shadow-lg">
-                  <CharacterArt art={formArt} size={160} />
-                </div>
-                <div className="caughtCheck text-[clamp(40px,9vw,64px)]">✨</div>
-                <div className="caughtText text-[clamp(24px,6vw,42px)] font-extrabold text-heading">
-                  ה{run.character.he} אכל והתחזק!
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+      {minigameOverlay && (
+        <MinigameHost
+          overlay={minigameOverlay}
+          character={run.character}
+          formArt={formArt}
+          totalXp={prog.totalXp}
+        />
       )}
 
       {evolveOverlay && <EvolvePreview />}

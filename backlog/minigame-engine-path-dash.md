@@ -1,7 +1,7 @@
 ---
 id: minigame-engine-path-dash
 title: Mini-game engine — path-dash (savanna dash / reef swim)
-status: proposed
+status: accepted
 date: 2026-07-20
 tags: [backlog, educational, engagement, minigame]
 theory: Attention span + novelty / curiosity (no-fail interlude)

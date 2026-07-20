@@ -1,7 +1,7 @@
 ---
 id: minigame-engine-slice-swipe
 title: Mini-game engine — slice-swipe (fruit toss / snack slash)
-status: proposed
+status: accepted
 date: 2026-07-20
 tags: [backlog, educational, engagement, minigame]
 theory: Attention span + novelty / curiosity (no-fail interlude)

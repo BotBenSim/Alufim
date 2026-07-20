@@ -3,16 +3,18 @@
 import { characterById, CHARACTERS } from "@/data/characters";
 import { PHOTOS } from "@/data/photos";
 import { effectiveLevel } from "@/lib/difficulty";
+import { defaultMinigameConfig, enabledMinigameIds } from "@/data/minigameMeta";
 import {
   createDefaultState,
   defaultGames,
   migrateProfile,
   newProfile,
 } from "@/lib/migrate";
+import type { MinigameEngineId } from "@/lib/minigames/types";
 import { STATE_KEY, alufimStorage } from "@/state/storage";
 import { nextMission, currentFormArt } from "@/lib/missions";
 import { getProvider } from "@/lib/providers";
-import { pickNoRepeat, rnd } from "@/lib/random";
+import { pickNoRepeat } from "@/lib/random";
 import { buildBeat, resolveRhythm } from "@/lib/rhythm";
 import type {
   AppState,
@@ -25,6 +27,12 @@ import type {
   ScreenId,
 } from "@/lib/types";
 import { xpForCorrect, formForXp, XP_BEAT } from "@/lib/xp";
+import {
+  getMinigameEngine,
+  pickMinigameSkin,
+  type MinigameInput,
+  type MinigameOverlay,
+} from "@/lib/minigames";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -40,13 +48,6 @@ const PRAISE = [
   "אלוף/ה!",
   "מדהים!",
 ];
-
-type PlayOverlay = {
-  tapsDone: number;
-  foodLeft: string;
-  foodTop: string;
-  done: boolean;
-};
 
 type EvolveOverlay = {
   formIdx: number;
@@ -71,6 +72,7 @@ type UiState = {
   editorDraft: {
     avatar: string;
     games: Profile["games"];
+    minigames: Record<MinigameEngineId, { enabled: boolean }>;
     charXp: Record<string, number>;
   } | null;
   selectedGameId: GameId | null;
@@ -80,7 +82,7 @@ type UiState = {
   wobbleAnswer: string | null;
   xpGainFlash: number | null;
   showMission: boolean;
-  playOverlay: PlayOverlay | null;
+  minigameOverlay: MinigameOverlay | null;
   evolveOverlay: EvolveOverlay | null;
   collectionOverlay: CollectionOverlay | null;
 };
@@ -106,7 +108,9 @@ type Store = UiState & {
   evolveTap: () => void;
   evolveFilmstripTick: () => void;
   finishEvolve: () => void;
-  playFoodTap: () => void;
+  minigameInput: (input: MinigameInput) => void;
+  previewMinigame: (engineId: MinigameEngineId) => void;
+  closeMinigamePreview: () => void;
   dismissCollection: () => void;
   _awardXp: (amount: number) => void;
   _gotoNextStep: () => void;
@@ -150,7 +154,7 @@ export const useStore = create<Store>()(
       wobbleAnswer: null,
       xpGainFlash: null,
       showMission: false,
-      playOverlay: null,
+      minigameOverlay: null,
       evolveOverlay: null,
       collectionOverlay: null,
 
@@ -234,7 +238,7 @@ export const useStore = create<Store>()(
           feedback: "",
           disabledAnswers: [],
           showMission: false,
-          playOverlay: null,
+          minigameOverlay: null,
           evolveOverlay: null,
         });
       },
@@ -249,7 +253,7 @@ export const useStore = create<Store>()(
           feedback: "",
           disabledAnswers: [],
           showMission: false,
-          playOverlay: null,
+          minigameOverlay: null,
           evolveOverlay: null,
           homeCharSection: true,
           homeGameSection: keepAnimal,
@@ -258,15 +262,21 @@ export const useStore = create<Store>()(
 
       openProfileEditor: (id) => {
         const p = findProfile(get().app, id);
+        const migrated = p
+          ? migrateProfile(JSON.parse(JSON.stringify(p)) as Profile)
+          : null;
         set({
           screen: "profileEdit",
           editingProfileId: id,
           editorDraft: {
-            avatar: p?.avatar ?? "🙂",
-            games: p ? JSON.parse(JSON.stringify(p.games)) : defaultGames(),
-            charXp: p
+            avatar: migrated?.avatar ?? "🙂",
+            games: migrated ? migrated.games : defaultGames(),
+            minigames: migrated
+              ? { ...defaultMinigameConfig(), ...migrated.minigames }
+              : defaultMinigameConfig(),
+            charXp: migrated
               ? Object.fromEntries(
-                  Object.entries(p.characters).map(([cid, prog]) => [cid, prog.totalXp])
+                  Object.entries(migrated.characters).map(([cid, prog]) => [cid, prog.totalXp])
                 )
               : {},
           },
@@ -292,6 +302,7 @@ export const useStore = create<Store>()(
               name: trimmed,
               avatar: editorDraft.avatar,
               games: editorDraft.games,
+              minigames: editorDraft.minigames,
             });
             Object.entries(editorDraft.charXp).forEach(([cid, xp]) => {
               const c = characterById(cid);
@@ -312,6 +323,7 @@ export const useStore = create<Store>()(
         } else {
           const np = newProfile(trimmed, editorDraft.avatar);
           np.games = editorDraft.games;
+          np.minigames = editorDraft.minigames;
           set({
             app: { ...app, profiles: [...app.profiles, np] },
             screen: "profiles",
@@ -552,13 +564,23 @@ export const useStore = create<Store>()(
               });
               window.setTimeout(() => set({ run: { ...get().run!, locked: false } }), 100);
             } else if (beat === "play") {
-              const tapsNeeded = run.preset.feedTaps || 3;
+              const r = get().run!;
+              const prof = get().profile();
+              const enabled = enabledMinigameIds(
+                prof?.minigames as Record<MinigameEngineId, { enabled: boolean }> | undefined
+              );
+              const skin = pickMinigameSkin(r.character.id, null, enabled);
+              const engine = getMinigameEngine(skin.engineId);
+              const session = engine.start({
+                characterId: r.character.id,
+                character: r.character,
+                skin,
+              });
               set({
-                run: { ...get().run!, locked: true, phase: "play" },
-                playOverlay: {
-                  tapsDone: 0,
-                  foodLeft: `${8 + rnd(74)}%`,
-                  foodTop: `${22 + rnd(58)}%`,
+                run: { ...r, locked: true, phase: "play" },
+                minigameOverlay: {
+                  engineId: skin.engineId,
+                  session,
                   done: false,
                 },
               });
@@ -582,31 +604,65 @@ export const useStore = create<Store>()(
         }
       },
 
-      playFoodTap: () => {
-        const { run, playOverlay } = get();
-        if (!run || !playOverlay || playOverlay.done) return;
-        const tapsNeeded = run.preset.feedTaps || 3;
-        const tapsDone = playOverlay.tapsDone + 1;
-        if (tapsDone >= tapsNeeded) {
+      minigameInput: (input) => {
+        const { run, minigameOverlay } = get();
+        if (!minigameOverlay || minigameOverlay.done) return;
+        if (!run && !minigameOverlay.preview) return;
+        const engine = getMinigameEngine(minigameOverlay.engineId);
+        const session = engine.applyInput(minigameOverlay.session, input);
+        if (engine.isComplete(session)) {
+          if (minigameOverlay.preview) {
+            set({ minigameOverlay: { ...minigameOverlay, session, done: true } });
+            window.setTimeout(() => {
+              const st = get().minigameOverlay;
+              if (st?.preview) set({ minigameOverlay: null });
+            }, 1500);
+            return;
+          }
           get()._awardXp(XP_BEAT.play);
           set({
-            playOverlay: { ...playOverlay, tapsDone, done: true },
-            feedback: `ה${run.character.he} אכל והתחזק!`,
+            minigameOverlay: { ...minigameOverlay, session, done: true },
+            feedback: `ה${run!.character.he} שיחק והתחזק!`,
           });
           window.setTimeout(() => {
-            set({ playOverlay: null, run: { ...get().run!, phase: "learn" } });
+            set({ minigameOverlay: null, run: { ...get().run!, phase: "learn" } });
             get()._gotoNextStep();
           }, 1500);
         } else {
-          set({
-            playOverlay: {
-              tapsDone,
-              foodLeft: `${8 + rnd(74)}%`,
-              foodTop: `${22 + rnd(58)}%`,
-              done: false,
-            },
-          });
+          set({ minigameOverlay: { ...minigameOverlay, session, done: false } });
         }
+      },
+
+      previewMinigame: (engineId) => {
+        const p = findProfile(get().app, get().editingProfileId ?? get().app.lastProfileId);
+        const charId =
+          p?.activeCharacterId ||
+          (p && Object.keys(p.characters)[0]) ||
+          CHARACTERS[0]?.id ||
+          "lion";
+        const character = characterById(charId) ?? CHARACTERS[0];
+        if (!character) return;
+        const skin = pickMinigameSkin(character.id, engineId, [engineId]);
+        const engine = getMinigameEngine(engineId);
+        const session = engine.start({
+          characterId: character.id,
+          character,
+          skin,
+        });
+        set({
+          minigameOverlay: {
+            engineId,
+            session,
+            done: false,
+            preview: true,
+            previewCharacterId: character.id,
+          },
+        });
+      },
+
+      closeMinigamePreview: () => {
+        const ov = get().minigameOverlay;
+        if (ov?.preview) set({ minigameOverlay: null });
       },
 
       speakCurrent: () => {

@@ -1,7 +1,7 @@
 ---
 id: minigame-engine-timing-bounce
 title: Mini-game engine — timing-bounce (happy hops)
-status: proposed
+status: accepted
 date: 2026-07-20
 tags: [backlog, educational, engagement, minigame]
 theory: Attention span + novelty / curiosity (no-fail interlude)

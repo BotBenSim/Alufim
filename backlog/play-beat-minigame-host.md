@@ -1,7 +1,7 @@
 ---
 id: play-beat-minigame-host
 title: Play-beat MinigameHost — extendable engine registry
-status: proposed
+status: accepted
 date: 2026-07-20
 tags: [backlog, educational, engagement, pacing, architecture]
 theory: Attention span + spaced practice + novelty / curiosity

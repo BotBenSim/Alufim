@@ -1,7 +1,7 @@
 ---
 id: minigame-engine-tap-collect
 title: Mini-game engine — tap-collect (savanna sparkles / reef gems)
-status: proposed
+status: accepted
 date: 2026-07-20
 tags: [backlog, educational, engagement, minigame]
 theory: Attention span + novelty / curiosity (no-fail interlude)

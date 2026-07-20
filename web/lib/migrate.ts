@@ -1,6 +1,7 @@
 import { CHARACTERS } from "@/data/characters";
 import { GAME_ORDER } from "@/data/games";
-import type { AppState, GameId, Profile } from "./types";
+import { defaultMinigameConfig, MINIGAME_ORDER } from "@/data/minigameMeta";
+import type { AppState, Profile } from "./types";
 
 export const STATE_KEY = "alufim_state_v2";
 
@@ -23,6 +24,7 @@ export function newProfile(name: string, avatar: string): Profile {
     name: name || "ילד/ה",
     avatar: avatar || "🙂",
     games: defaultGames(),
+    minigames: defaultMinigameConfig(),
     characters: chars,
     activeCharacterId: null,
   };
@@ -34,6 +36,13 @@ export function migrateProfile(p: Profile): Profile {
     if (!p.games[g]) p.games[g] = { enabled: g !== "eng", level: "easy" };
     if (!p.games[g].level) p.games[g].level = "easy";
   });
+  const defaults = defaultMinigameConfig();
+  if (!p.minigames) p.minigames = { ...defaults };
+  else {
+    MINIGAME_ORDER.forEach((id) => {
+      if (!p.minigames[id]) p.minigames[id] = { ...defaults[id] };
+    });
+  }
   if (!p.characters) p.characters = {};
   CHARACTERS.forEach((c) => {
     if (c.starter && !p.characters[c.id]) {

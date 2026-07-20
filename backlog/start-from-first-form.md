@@ -1,7 +1,7 @@
 ---
 id: start-from-first-form
 title: Start animals at the first living form — not as an egg
-status: proposed
+status: accepted
 date: 2026-07-20
 tags: [backlog, educational, characters, nurture]
 theory: Self-Determination Theory (relatedness) — choose and nurture
