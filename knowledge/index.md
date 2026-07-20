@@ -34,6 +34,23 @@ Never break the persisted localStorage key `alufim_state_v2`. Existing players c
 save data in that exact JSON shape. See
 [technical/state-persistence.md](technical/state-persistence.md).
 
+## Shared status lifecycle
+
+Every OKF file — knowledge decisions and [`backlog/`](../backlog/index.md) proposals alike —
+uses one `status` vocabulary, because a proposal is the same object as a decision at an
+earlier point in its life:
+
+- `proposed` — drafted, awaiting review.
+- `approved` — greenlit for implementation (a backlog-stage state).
+- `in-progress` — implementation underway (a backlog-stage state).
+- `accepted` — shipped and in force. Knowledge decisions live here.
+- `rejected` — declined.
+- `superseded` — replaced by a later decision.
+
+A backlog proposal moves `proposed -> approved -> in-progress -> accepted`; on `accepted` it
+graduates into a `knowledge/educational/` decision. `status` is always frontmatter metadata;
+never use status-named folders.
+
 ## How to add a decision
 
 1. Pick the category and copy its `TEMPLATE.md` to `<category>/<kebab-id>.md`.
