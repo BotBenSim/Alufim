@@ -14,6 +14,9 @@ type CharacterPreviewOverlayProps = {
 
 /** Side inset so the preview never clips against the viewport edge. */
 const PREVIEW_INSET = 20;
+/** ~30% slower than the original 340 / 800 so mid + final forms are readable. */
+const FORM_STEP_MS = 440;
+const HOLD_BEFORE_CLOSE_MS = 1040;
 
 /** Home-screen lifecycle preview — sweeps through every form with a pop. */
 export function CharacterPreviewOverlay({ characterId, onClose }: CharacterPreviewOverlayProps) {
@@ -63,14 +66,14 @@ export function CharacterPreviewOverlay({ characterId, onClose }: CharacterPrevi
         setSwept(true);
         window.setTimeout(() => {
           if (token === tokenRef.current) onClose();
-        }, 800);
+        }, HOLD_BEFORE_CLOSE_MS);
         return;
       }
       setFormIdx(i);
       playXpGain(Math.min(7, 3 + i));
       burst(10);
       i += 1;
-      window.setTimeout(showNext, 340);
+      window.setTimeout(showNext, FORM_STEP_MS);
     };
 
     showNext();
