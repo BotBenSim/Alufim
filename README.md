@@ -30,6 +30,27 @@ Open http://localhost:3000/Alufim/ (the app is served under the `/Alufim/` base 
 
 Note: don't run `npm run build` while the dev server is running — it can corrupt `.next`.
 
+## Agent playbooks
+
+New educational features flow through a git-based **propose -> curate -> implement** loop:
+
+1. **Propose** — an agent reads the [`knowledge/`](knowledge/) brain and drafts theory-backed
+   educational ideas into [`backlog/`](backlog/) (`status: proposed`).
+2. **Curate** — you review, edit, add your own, and set `status: approved` (or `rejected`).
+3. **Implement** — an agent builds one approved proposal, then graduates it into a
+   `knowledge/educational/` decision (`status: accepted`).
+
+The prompts that drive this are tool-agnostic and live once in [`playbooks/`](playbooks/) (the
+single source of truth). Vendor-specific files (Cursor/Claude rules, slash commands, skills)
+are **generated** from them and are gitignored:
+
+```bash
+make agents                    # generate all vendors' files from playbooks/
+make agents VENDORS=cursor     # or a subset (space/comma separated)
+```
+
+Edit the playbook, never the generated file (`.cursor/`, `.claude/`, `CLAUDE.md`).
+
 ## How it works on the web
 
 - The app is a **static export** (`output: export` in [`web/next.config.mjs`](web/next.config.mjs)),

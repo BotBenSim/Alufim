@@ -38,6 +38,22 @@ players carry their save data there. See
 Rule: every learning-facing feature must be backed by a named educational theory in
 `knowledge/educational/`.
 
+## Backlog and playbooks
+
+New educational features flow through a git-based loop: **propose -> curate -> implement**.
+
+- [`backlog/`](backlog/) holds educational feature proposals as OKF files, each with a
+  `status` in its frontmatter. See [`backlog/index.md`](backlog/index.md).
+- [`playbooks/`](playbooks/) are the tool-agnostic, single-source-of-truth prompts that drive
+  the loop: `propose-educational-features`, `curate-backlog`, `implement-proposal`, and the
+  always-on `knowledge-brain` rule.
+- Status shares one lifecycle across `knowledge/` and `backlog/`:
+  `proposed -> approved -> in-progress -> accepted` (plus `rejected`, `superseded`). An
+  approved proposal graduates into a `knowledge/educational/` decision when it ships.
+- All vendor-specific files (Cursor/Claude rules, slash commands, and skills) are **generated**
+  from `playbooks/` by `make agents` and are gitignored. Edit the playbook, never the
+  generated file. Run `make agents` (optionally `VENDORS=cursor`) to (re)build them.
+
 ## Working in the app
 
 - App code and commands live in `web/` (`npm run dev`, `npm run build`, `npm test`).

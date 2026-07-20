@@ -1,7 +1,7 @@
 ---
 id: kebab-case-id
 title: The design decision, stated as a rule
-status: accepted        # proposed | accepted | superseded
+status: accepted        # proposed | approved | in-progress | accepted | rejected | superseded
 date: 2026-07-20
 tags: [educational]
 theory: One-line grounding, e.g. "Self-Determination Theory (Deci & Ryan)"

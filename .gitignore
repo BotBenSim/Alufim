@@ -14,3 +14,10 @@ alufim.standalone.html
 web/node_modules/
 web/.next/
 web/out/
+
+# Generated agent files — rebuilt from playbooks/ via `make agents` (single source of truth)
+.cursor/rules/knowledge.mdc
+.cursor/commands/
+.cursor/skills/
+.claude/
+/CLAUDE.md
