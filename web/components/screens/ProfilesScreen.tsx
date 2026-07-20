@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   AddProfileCard,
   ProfileCard,
@@ -43,22 +44,26 @@ export function ProfilesScreen() {
   );
 
   const handleSelectProfile = (id: string, name: string) => {
-    ensure();
     selectProfile(id);
     speak(`שלום ${name}`);
+    ensure();
   };
 
   const handleSelectCharacter = (id: string, he: string) => {
-    ensure();
+    if (previewCharacterId === id) return;
     selectCharacter(id);
+    if (previewCharacterId) {
+      flushSync(() => setPreviewCharacterId(null));
+    }
     speak(he);
+    ensure();
     setPreviewCharacterId(id);
   };
 
   const handleSelectGame = (id: GameId) => {
-    ensure();
     selectGame(id);
     speak(GAMES[id].title);
+    ensure();
   };
 
   return (
