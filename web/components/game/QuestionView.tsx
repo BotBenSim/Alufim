@@ -193,17 +193,25 @@ export function QuestionView({
       id="questionCard"
       className={cn(
         PLAY_CARD_STAGE_CLASS,
-        "flex flex-col items-center justify-center gap-2 bg-white/90 px-4 py-3.5 pr-14 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
+        "relative flex flex-col items-center justify-center gap-2 bg-white/90 px-4 pb-3.5 pt-11 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
       )}
     >
       <KidButton
         variant="speak"
         id="speakBtn"
-        className="absolute right-3 top-3 z-[1]"
+        className="absolute end-2.5 top-2.5 z-[1]"
         onClick={onSpeak}
         aria-label="השמע שוב"
       >
-        🔊
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="currentColor"
+          aria-hidden
+        >
+          <path d="M3 9v6h4l5 4V5L7 9H3Zm13.5 3a4.5 4.5 0 0 0-2.4-4v8a4.5 4.5 0 0 0 2.4-4Zm2.5 0c0 2.5-1.1 4.7-2.8 6.2l1.4 1.4A9.5 9.5 0 0 0 21 12a9.5 9.5 0 0 0-3.4-7.2l-1.4 1.4A7.5 7.5 0 0 1 19 12Z" />
+        </svg>
       </KidButton>
 
       {choiceProps.kind === "math" && (

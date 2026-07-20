@@ -27,7 +27,7 @@ const kidButtonVariants = cva(
         answerGroup:
           "rounded-3xl min-w-[clamp(78px,17vw,120px)] min-h-[clamp(74px,16vw,110px)] max-w-[clamp(120px,30vw,210px)] px-3.5 py-3 text-[clamp(20px,4.6vw,32px)] leading-tight flex flex-wrap items-center justify-center gap-0.5 bg-gradient-to-br from-[#63D2A6] to-[#22A06B] shadow-[0_7px_0_#157A4F,0_12px_20px_rgba(0,0,0,.18)] active:shadow-[0_2px_0_#157A4F] h-auto w-auto",
         speak:
-          "rounded-full w-11 h-11 text-[22px] text-white bg-[#4DA3FF] shadow-[0_3px_0_#2F7BD0] active:shadow-[0_1px_0_#2F7BD0]",
+          "inline-flex items-center justify-center rounded-[12px] h-8 w-11 text-white bg-[#4DA3FF] shadow-[0_3px_0_#2F7BD0,0_4px_10px_rgba(47,123,208,.25)] hover:bg-[#3b93ef] active:translate-y-0.5 active:shadow-[0_1px_0_#2F7BD0]",
       },
       off: {
         true: "bg-[#B8C4CE] shadow-[0_7px_0_#8E9BA6] pointer-events-none opacity-60 active:translate-y-0",

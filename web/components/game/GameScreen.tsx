@@ -35,7 +35,6 @@ export function GameScreen() {
   const { speak, speakEn, cancel } = useSpeech();
   const { burst } = useConfetti();
   const lastSpokenKey = useRef<string | null>(null);
-  const introPendingKey = useRef<string | null>(null);
   const prevStep = useRef<number | null>(null);
 
   const profile = app.profiles.find((p) => p.id === app.lastProfileId) ?? null;
@@ -56,42 +55,14 @@ export function GameScreen() {
     if (showMission || minigameOverlay || evolveOverlay) return;
     if (run.phase !== "learn") return;
     if (lastSpokenKey.current === run.currentKey) return;
-    if (introPendingKey.current === run.currentKey) return;
 
     ensure();
-
-    const isIntro = run.step === 1 && lastSpokenKey.current === null;
-    if (isIntro) {
-      introPendingKey.current = run.currentKey;
-      speak("יוצאים לדרך!");
-      const key = run.currentKey;
-      const t = window.setTimeout(() => {
-        const st = useStore.getState();
-        const r = st.run;
-        if (
-          r?.currentKey === key &&
-          r.current &&
-          !r.locked &&
-          !st.showMission &&
-          !st.minigameOverlay &&
-          !st.evolveOverlay
-        ) {
-          speakQuestion(r.current, speak, speakEn);
-          lastSpokenKey.current = key;
-        }
-        introPendingKey.current = null;
-      }, 1300);
-      return () => window.clearTimeout(t);
-    }
-
     speakQuestion(run.current, speak, speakEn);
     lastSpokenKey.current = run.currentKey;
   }, [
     run?.current,
     run?.currentKey,
-    run?.step,
     run?.phase,
-    run?.locked,
     showMission,
     minigameOverlay,
     evolveOverlay,
@@ -103,7 +74,6 @@ export function GameScreen() {
   useEffect(() => {
     if (!run) {
       lastSpokenKey.current = null;
-      introPendingKey.current = null;
     }
   }, [run]);
 

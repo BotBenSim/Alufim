@@ -300,14 +300,13 @@
 }
 
 @media (max-height: 520px) {
-  #questionCard { padding: 8px 12px; padding-inline-end: 52px; }
+  #questionCard { padding: 8px 12px; }
   #gameArea { gap: 8px; }
   #gamePanel { gap: 8px; }
   #runHeader { padding: 5px 10px; }
 }
 
 #questionCard { position: relative; }
-#speakBtn { position: absolute; top: 12px; right: 12px; z-index: 1; }
 
 /* ---------- design-system Panel ---------- */
 .panel {
