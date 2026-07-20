@@ -10,6 +10,8 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-07-20 — play-beat heroes rebuilt with real skill moments (path-dash jump window, timing-bounce sweet zone, slice-swipe hit-test); stubs out of picker — see [play-beat-minigame-variety](educational/play-beat-minigame-variety.md).
+- 2026-07-20 — play-beat minigames: [minigame-provider-pattern](technical/minigame-provider-pattern.md), [play-beat-minigame-variety](educational/play-beat-minigame-variety.md), six engine educational decisions; [start-from-first-form](educational/start-from-first-form.md) + [product/start-from-first-form](product/start-from-first-form.md).
 - 2026-07-20 — technical: added design-pattern ADRs (game-provider-pattern, data-driven-content, question-dispatch-by-op, pure-logic-in-lib); folded public-repo into [static-export-pages](technical/static-export-pages.md) and parity-testing into [pure-logic-in-lib](technical/pure-logic-in-lib.md).
 - 2026-07-20 — [educational](educational/index.md): reshaped from theory essays into concrete game-design decisions (always-gain-xp, play-beat interludes, no-time-pressure/FOMO, right-sized difficulty, celebrate-progress, choose-and-nurture, audio-first, game-variety).
 - 2026-07-20 — knowledge base: reorganized into categories — `technical/`, `educational/`, `product/` — each with its own index and template.

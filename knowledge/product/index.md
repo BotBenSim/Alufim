@@ -22,7 +22,6 @@ sections: **Problem -> Decision -> User impact -> Trade-offs -> Signals to watch
 
 ## Decisions
 
-_None recorded yet._ Copy [`TEMPLATE.md`](TEMPLATE.md) to add the first one. Candidates from
-the migration worth capturing: progressive reveal (animals appear only after a child is
-chosen, games only after an animal), all answers inside one question card, hear-again control
-in the top-right corner, and the aligned XP/question/replay play panel.
+| ID | Decision | Status |
+| --- | --- | --- |
+| [start-from-first-form](start-from-first-form.md) | Show living baby, not egg, from the start | accepted |

@@ -58,7 +58,7 @@ export function AboutScreen() {
           </tbody>
         </table>
         <p>
-          משימות קצב: משימת ביטחון +{XP_BEAT.mission}, האכלת החיה +{XP_BEAT.play}.
+          משימות קצב: משימת ביטחון +{XP_BEAT.mission}, משחקון עם החיה +{XP_BEAT.play}.
         </p>
 
         <h3 className="mt-4 text-[clamp(19px,4vw,24px)] text-[#2F6B9E]">צורות ו-XP</h3>

@@ -26,11 +26,16 @@ export type CharProgress = { form: number; totalXp: number };
 
 export type GameConfig = { enabled: boolean; level: DifficultyLevel };
 
+/** Play-beat mini-game toggles (additive on saves; migrated if missing). */
+export type MinigameConfig = { enabled: boolean };
+
 export type Profile = {
   id: string;
   name: string;
   avatar: string;
   games: Record<GameId, GameConfig>;
+  /** Which play-beat engines may appear; defaults applied in migrateProfile */
+  minigames: Record<string, MinigameConfig>;
   characters: Record<string, CharProgress>;
   activeCharacterId: string | null;
 };
