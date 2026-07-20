@@ -130,7 +130,7 @@ export function TimingBounceView({ session, formArt, onInput, playSfx }: Minigam
       }
 
       if (!stunned) {
-        // Steady land pace — cactus distance / pack size carry the variety
+        // Steady land pace — cactus distance / holds carry the variety
         const speed = pacedSpeed(0, c);
         setGroundScroll((g) => (g + speed * 180 * dt) % 48);
 

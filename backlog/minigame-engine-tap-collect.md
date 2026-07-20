@@ -25,6 +25,9 @@ related:
 
 # Mini-game engine — tap-collect (savanna sparkles / reef gems)
 
+> **Superseded / removed.** Stub engine deleted from the product — do not reintroduce.
+> Live play-beat engines: path-dash, timing-bounce, slice-swipe, sling-shot, char-maze, cut-rope.
+
 ## Problem / opportunity
 
 The play beat is one repeated feed tap. Kids need distinct, short care/play moments.

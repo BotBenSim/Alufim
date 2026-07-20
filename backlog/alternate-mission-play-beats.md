@@ -11,7 +11,7 @@ related:
   - play-beat-interludes
   - game-variety
   - play-beat-minigame-host
-  - minigame-engine-tap-collect
+  - play-beat-minigame-variety
   - visible-collection-board
 ---
 

@@ -31,10 +31,6 @@ export type JumpPlayConfig = {
   spawnHoldMs: readonly [number, number];
   /** How fast world pace oscillates (higher = choppier). 0 = steady scroll. */
   paceDriftRate: number;
-  /** 0..1 chance to spawn a multi-cactus pack */
-  clusterChance: number;
-  /** Max cacti in a pack (1 = singles only) */
-  clusterMax: number;
   /** Height (px up) to clear a short obstacle */
   clearYShort: number;
   /** Height (px up) to clear a tall obstacle — typically needs double jump */
@@ -65,8 +61,6 @@ const BASE: JumpPlayConfig = {
   breatherChance: 0.25,
   spawnHoldMs: [0, 900],
   paceDriftRate: 1.1,
-  clusterChance: 0,
-  clusterMax: 1,
   clearYShort: 26,
   clearYTall: 52,
   runnerX: 0.18,
@@ -76,7 +70,7 @@ const BASE: JumpPlayConfig = {
   groundH: 22,
 };
 
-/** Default jump feel per engine — skins may override fields via `skin.jump`. */
+/** Default jump feel per engine — only deltas from BASE. Skins may override via `skin.jump`. */
 export const JUMP_CONFIG_BY_ENGINE: Partial<Record<MinigameEngineId, JumpPlayConfig>> = {
   pathDash: {
     ...BASE,
@@ -85,41 +79,27 @@ export const JUMP_CONFIG_BY_ENGINE: Partial<Record<MinigameEngineId, JumpPlayCon
     gravity: 2200,
     speedMin: 0.32,
     speedMax: 0.58,
-    hardChance: 0.35,
-    hitStunMs: 650,
     gapEasy: [0.11, 0.2],
-    gapWide: [0.28, 0.4],
     roofWidth: [0.22, 0.52],
     runnerX: 0.22,
-    roofTop: 0.34,
     artSize: 78,
   },
   timingBounce: {
     ...BASE,
     jumpVelocity: -780,
-    doubleJumpVelocity: -700,
-    gravity: 2100,
-    // Steady land scroll (~20% faster than prior 0.55) — rhythm from spawn gaps
+    // Steady land scroll — rhythm from spawn gaps
     speedMin: 0.66,
     speedMax: 0.66,
     hardChance: 0.4,
     hitStunMs: 700,
-    // Jump rhythm: quick follow-ups vs long gaps (one cactus at a time)
     spawnNear: [0.75, 0.95],
     spawnFar: [1.25, 1.85],
     spawnBreather: [2.1, 3.1],
     closeChance: 0.42,
     breatherChance: 0.28,
-    spawnHoldMs: [0, 900],
     paceDriftRate: 0,
-    clusterChance: 0,
-    clusterMax: 1,
-    clearYShort: 26,
-    clearYTall: 52,
     runnerX: 0.14,
-    hitHalf: 0.07,
     artSize: 88,
-    groundH: 22,
   },
 };
 
@@ -147,18 +127,14 @@ export function pickGap(cfg: JumpPlayConfig, allowHard: boolean): number {
  * Scroll speed. When `paceDriftRate` is 0 (or speedMin≈speedMax), returns a steady pace.
  * Otherwise sine-drifts between min/max (used by pathDash).
  */
-export function pacedSpeed(
-  phase: number,
-  cfg: JumpPlayConfig,
-  burst = 1
-): number {
+export function pacedSpeed(phase: number, cfg: JumpPlayConfig): number {
   if (cfg.paceDriftRate <= 0 || cfg.speedMax - cfg.speedMin < 0.01) {
     return (cfg.speedMin + cfg.speedMax) / 2;
   }
   const pulse = (Math.sin(phase) + 1) / 2;
   const wobble = 0.85 + 0.3 * Math.sin(phase * 2.7 + 1.3);
   const base = cfg.speedMin + pulse * (cfg.speedMax - cfg.speedMin);
-  const speed = base * wobble * burst;
+  const speed = base * wobble;
   return Math.min(cfg.speedMax * 1.15, Math.max(cfg.speedMin * 0.85, speed));
 }
 
@@ -184,12 +160,8 @@ export function tryBeginJump(
 
 export function spawnObstacleX(cfg: JumpPlayConfig): {
   x: number;
-  /** Per-obstacle tempo multiplier for pacedSpeed (ignored when pace is steady) */
-  burst: number;
   tall: boolean;
   holdMs: number;
-  /** How many obstacles in this pack (1–clusterMax) */
-  cluster: number;
 } {
   const roll = Math.random();
   let x: number;
@@ -200,18 +172,9 @@ export function spawnObstacleX(cfg: JumpPlayConfig): {
   } else {
     x = randRange(cfg.spawnFar);
   }
-  const maxCluster = Math.max(1, Math.floor(cfg.clusterMax));
-  let cluster = 1;
-  if (maxCluster > 1 && Math.random() < cfg.clusterChance) {
-    cluster = 2 + (maxCluster > 2 && Math.random() < 0.45 ? 1 : 0);
-    cluster = Math.min(cluster, maxCluster);
-  }
   return {
     x,
-    burst: 1,
     tall: Math.random() < cfg.hardChance,
-    // Holds create empty runway between packs (distance variety at steady speed)
     holdMs: Math.random() < 0.6 ? randRange(cfg.spawnHoldMs) : 0,
-    cluster,
   };
 }

@@ -24,6 +24,9 @@ related:
 
 # Mini-game engine — catch (falling treats / shrimp catch)
 
+> **Superseded / removed.** Stub engine deleted from the product — do not reintroduce.
+> Live play-beat engines: path-dash, timing-bounce, slice-swipe, sling-shot, char-maze, cut-rope.
+
 ## Problem / opportunity
 
 Feed taps feel static. A catch engine gives motion and anticipation — items appear or fall

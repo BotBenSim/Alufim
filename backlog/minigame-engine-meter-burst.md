@@ -25,6 +25,9 @@ related:
 
 # Mini-game engine — meter-burst (roar / splash / cheer)
 
+> **Superseded / removed.** Stub engine deleted from the product — do not reintroduce.
+> Live play-beat engines: path-dash, timing-bounce, slice-swipe, sling-shot, char-maze, cut-rope.
+
 ## Problem / opportunity
 
 Evolve already uses mash-to-fill taps; kids enjoy that agency. Generalizing it into a play-beat
