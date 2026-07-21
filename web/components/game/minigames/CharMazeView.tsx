@@ -73,7 +73,8 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
       window.setTimeout(() => setBump(false), 160);
       setFlash("miss");
       window.setTimeout(() => setFlash(null), 280);
-      playSfxRef.current("bonk");
+      // Host plays missSfx — don't double-fire here
+      onInputRef.current({ type: "action", action: "step", quality: "miss" });
       return;
     }
 

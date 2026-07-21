@@ -26,6 +26,12 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
   const View = strategy.View;
 
   useEffect(() => {
+    audio.ensure();
+    // Unlock AudioContext when the beat starts (ensure is stable).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-arm per skin
+  }, [overlay.session.skinId]);
+
+  useEffect(() => {
     if (!overlay.done) speak(overlay.session.promptHe);
   }, [overlay.session.skinId, overlay.done, overlay.session.promptHe, speak]);
 
@@ -49,7 +55,8 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
       const now = Date.now();
       if (now - lastMissSpeak.current > 1200) {
         lastMissSpeak.current = now;
-        speak("עוד פעם!");
+        // Let the miss beep finish before speech steals the audio focus
+        window.setTimeout(() => speak("עוד פעם!"), 180);
       }
     } else {
       playSfx(strategy.goodSfx);

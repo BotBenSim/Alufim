@@ -32,17 +32,21 @@ export function useAudio() {
     (freq: number, t0: number, dur: number, type: OscillatorType = "sine", vol = 0.25) => {
       const ctx = ensure();
       if (!ctx) return;
+      const attack = 0.018;
+      const playDur = Math.max(dur, attack + 0.05);
+      const start = ctx.currentTime + Math.max(0, t0);
       const o = ctx.createOscillator();
       const g = ctx.createGain();
       o.type = type;
       o.frequency.value = freq;
-      g.gain.setValueAtTime(0.0001, ctx.currentTime + t0);
-      g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + t0 + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t0 + dur);
+      // linearRamp — exponentialRamp is easy to kill on short / soft notes
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.linearRampToValueAtTime(Math.max(0.0001, vol), start + attack);
+      g.gain.linearRampToValueAtTime(0.0001, start + playDur);
       o.connect(g);
       g.connect(ctx.destination);
-      o.start(ctx.currentTime + t0);
-      o.stop(ctx.currentTime + t0 + dur + 0.05);
+      o.start(start);
+      o.stop(start + playDur + 0.05);
     },
     [ensure]
   );
@@ -81,11 +85,20 @@ export function useAudio() {
   /** Minigame SFX voiced for the active animal (jump, knife cut, …). */
   const playMinigameSfx = useCallback(
     (sfx: MinigameSfx, characterId: string) => {
-      for (const n of characterMinigameNotes(characterId, sfx)) {
-        tone(n.freq, n.t0, n.dur, n.type, n.vol);
+      const ctx = ensure();
+      if (!ctx) return;
+      const play = () => {
+        for (const n of characterMinigameNotes(characterId, sfx)) {
+          tone(n.freq, n.t0, n.dur, n.type, n.vol);
+        }
+      };
+      if (ctx.state === "suspended") {
+        void ctx.resume().then(play).catch(() => {});
+      } else {
+        play();
       }
     },
-    [tone]
+    [ensure, tone]
   );
 
   return {

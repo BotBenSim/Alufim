@@ -25,10 +25,11 @@ function makeRoof(id: number, x: number, cfg: JumpPlayConfig): Roof {
 
 function seedRoofs(cfg: JumpPlayConfig): Roof[] {
   const roofs: Roof[] = [];
-  let x = 0.05;
+  // Long runway so the animal runs a few seconds before the first gap.
+  let x = 0;
   for (let i = 0; i < 6; i++) {
     const r = makeRoof(i + 1, x, cfg);
-    if (i === 0) r.w = Math.max(r.w, 0.45);
+    if (i === 0) r.w = 1.15;
     roofs.push(r);
     x += r.w + pickGap(cfg, i >= 2);
   }
@@ -46,8 +47,9 @@ function onRoof(roofs: Roof[], px: number): Roof | null {
 }
 
 function rebuildFromSafe(nextId: { n: number }, cfg: JumpPlayConfig, runnerX: number): Roof[] {
-  const safe = makeRoof(nextId.n++, runnerX - 0.12, cfg);
-  safe.w = 0.45;
+  const safe = makeRoof(nextId.n++, Math.min(0, runnerX - 0.15), cfg);
+  // Extra runway after a fall so the child can settle before the next gap.
+  safe.w = 0.95;
   const list = [safe];
   let x = safe.x + safe.w + pickGap(cfg, false);
   for (let i = 0; i < 5; i++) {
@@ -58,6 +60,14 @@ function rebuildFromSafe(nextId: { n: number }, cfg: JumpPlayConfig, runnerX: nu
   return list;
 }
 
+/** True when standing near the edge — time to show a jump cue. */
+function nearJumpEdge(roofs: Roof[], runnerX: number): boolean {
+  const under = onRoof(roofs, runnerX);
+  if (!under) return false;
+  const distToEdge = under.x + under.w - runnerX;
+  return distToEdge > 0.04 && distToEdge < 0.28;
+}
+
 export function PathDashView({ session, formArt, onInput, playSfx }: MinigameViewProps) {
   const st = session.state as PathDashState;
   const cfg = st.jump ?? resolveJumpConfig("pathDash");
@@ -66,7 +76,8 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
   const [runFrame, setRunFrame] = useState(0);
   const [flash, setFlash] = useState<"good" | "miss" | null>(null);
   const [falling, setFalling] = useState(false);
-  const [popCoin, setPopCoin] = useState(false);
+  const [jumpCue, setJumpCue] = useState(false);
+  const jumpCueRef = useRef(false);
 
   const roofsRef = useRef(roofs);
   const yRef = useRef(0);
@@ -97,9 +108,9 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
     if (!crossedGapThisJumpRef.current) return;
     scoredThisJumpRef.current = true;
     setFlash("good");
-    setPopCoin(true);
     window.setTimeout(() => setFlash(null), 400);
-    window.setTimeout(() => setPopCoin(false), 500);
+    // Clear success chime on a well-timed gap clear (Host also plays goodSfx)
+    playSfxRef.current("land");
     report("good");
   };
 
@@ -167,6 +178,15 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
 
       const under = onRoof(roofsRef.current, c.runnerX);
       const overGap = !under;
+      const cue =
+        !stunned &&
+        !fallingRef.current &&
+        !jumpingRef.current &&
+        nearJumpEdge(roofsRef.current, c.runnerX);
+      if (cue !== jumpCueRef.current) {
+        jumpCueRef.current = cue;
+        setJumpCue(cue);
+      }
 
       if (jumpingRef.current && overGap) {
         crossedGapThisJumpRef.current = true;
@@ -265,16 +285,16 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
         />
       ))}
 
-      {popCoin && (
+      {jumpCue && (
         <div
-          className="pointer-events-none absolute animate-[slicePop_0.5s_ease-out] text-[28px]"
+          className="pointer-events-none absolute z-[4] animate-jumpCuePulse text-[clamp(36px,9vw,56px)] font-black text-[#FFD93D] drop-shadow-[0_2px_0_#C8923B]"
           style={{
             left: `${runnerX * 100}%`,
-            bottom: `${roofTop * 100 + 18}%`,
-            transform: "translateX(-50%)",
+            bottom: `${roofTop * 100 + 22}%`,
           }}
+          aria-hidden
         >
-          {st.treatEmoji}
+          ▲
         </div>
       )}
 

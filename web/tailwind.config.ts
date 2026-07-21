@@ -87,6 +87,10 @@ const config: Config = {
           "0%": { transform: "translateY(-10vh) rotate(0deg)", opacity: "1" },
           "100%": { transform: "translateY(110vh) rotate(720deg)", opacity: "0" },
         },
+        jumpCuePulse: {
+          "0%, 100%": { transform: "translate(-50%, 0) scale(1)", opacity: "0.55" },
+          "50%": { transform: "translate(-50%, -10px) scale(1.18)", opacity: "1" },
+        },
       },
       animation: {
         skyDrift: "skyDrift 46s linear infinite",
@@ -94,6 +98,7 @@ const config: Config = {
         evoPop: "evoPop .85s cubic-bezier(.34,1.45,.64,1)",
         xpFloatUp: "xpFloatUp 1.4s ease-out forwards",
         confettiFall: "confettiFall 2.8s linear forwards",
+        jumpCuePulse: "jumpCuePulse 0.55s ease-in-out infinite",
       },
     },
   },
