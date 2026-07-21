@@ -5,7 +5,7 @@ status: accepted
 date: 2026-07-21
 tags: [deployment, ci, github-pages, staging]
 supersedes: []
-related: [static-export-pages, state-persistence]
+related: [static-export-pages, state-persistence, pwa-serwist]
 ---
 
 # Per-PR staging previews on GitHub Pages
@@ -55,3 +55,5 @@ same-repo PR into `/Alufim/pr/<number>/` and ship them in the same Pages artifac
 - Closing a PR triggers a redeploy that drops its `/pr/<n>/` folder.
 - Fork PRs are not signaled/deployed as staging.
 - `basePath` and the PWA manifest must read `NEXT_PUBLIC_BASE_PATH` at build time.
+- The production service worker must network-only `/Alufim/pr/` so its `/Alufim/`
+  scope does not serve stale prod assets to staging previews.
