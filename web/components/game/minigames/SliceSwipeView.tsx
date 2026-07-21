@@ -39,6 +39,8 @@ const JUICE: Record<string, string[]> = {
   "🥩": ["#C92A2A", "#FF6B6B", "#FFA8A8"],
   "🦐": ["#FF922B", "#FFC078", "#FFD43B"],
   "🐠": ["#4DABF7", "#FFD43B", "#74C0FC"],
+  "🔥": ["#FF922B", "#FF6B6B", "#FFD43B"],
+  "🍃": ["#69DB7C", "#51CF66", "#FFD43B"],
 };
 
 function juiceColors(emoji: string): string[] {
@@ -102,15 +104,17 @@ function makeBurst(f: Flyer): Burst {
   return { id: f.id, emoji: f.emoji, x: f.x, y: f.y, drops };
 }
 
+/** Hits only — empty air is silent (no miss SFX / flash). */
 export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
   const st = session.state as SliceSwipeState;
   const [flyers, setFlyers] = useState<Flyer[]>([]);
   const [bursts, setBursts] = useState<Burst[]>([]);
-  const [flash, setFlash] = useState<"good" | "miss" | null>(null);
+  const [flash, setFlash] = useState<"good" | null>(null);
   const flyersRef = useRef<Flyer[]>([]);
-  const elRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const elRefs = useRef<Record<string, HTMLElement | null>>({});
   const pointer = useRef<{ x: number; y: number } | null>(null);
   const coolRef = useRef(false);
+  const tappedRef = useRef(false);
   const onInputRef = useRef(onInput);
   onInputRef.current = onInput;
   const pool = st.pool;
@@ -196,51 +200,54 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
       stageClassName="touch-none"
       stageProps={{
         onPointerDown: (e) => {
-          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+          (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
           pointer.current = { x: e.clientX, y: e.clientY };
+          tappedRef.current = true;
         },
         onPointerMove: (e) => {
           if (!pointer.current) return;
           const prev = pointer.current;
           pointer.current = { x: e.clientX, y: e.clientY };
           if (Math.hypot(e.clientX - prev.x, e.clientY - prev.y) > SLICE_MOVE) {
+            tappedRef.current = false;
             trySlice(prev.x, prev.y, e.clientX, e.clientY);
           }
         },
-        onPointerUp: () => {
+        onPointerUp: (e) => {
+          if (pointer.current && tappedRef.current) {
+            const { x, y } = pointer.current;
+            trySlice(x, y, x, y);
+          }
           pointer.current = null;
+          tappedRef.current = false;
+          try {
+            (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+          } catch {
+            /* ignore */
+          }
         },
         onPointerCancel: () => {
           pointer.current = null;
+          tappedRef.current = false;
         },
       }}
     >
       {flyers.map((f) => (
-        <button
+        <div
           key={f.id}
-          type="button"
           ref={(el) => {
             elRefs.current[f.id] = el;
           }}
-          className="absolute z-[1] border-none px-2 py-2 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
+          className="pointer-events-none absolute z-[1] px-2 py-2 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
           style={{
             left: `${f.x * 100}%`,
             top: `${f.y * 100}%`,
             transform: "translate(-50%, -50%)",
           }}
-          onClick={(e) => {
-            e.stopPropagation();
-            const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-            trySlice(
-              r.left + r.width / 2,
-              r.top + r.height / 2,
-              r.left + r.width / 2,
-              r.top + r.height / 2
-            );
-          }}
+          aria-hidden
         >
           {f.emoji}
-        </button>
+        </div>
       ))}
 
       {bursts.map((b) => (

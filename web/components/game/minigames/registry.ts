@@ -21,7 +21,7 @@ export type MinigameUiStrategy = {
  * Host looks up by engineId (no switch). Add view here when adding an engine.
  */
 export const MINIGAME_UI: Record<MinigameEngineId, MinigameUiStrategy> = {
-  pathDash: { View: PathDashView, goodSfx: "land", missSfx: "bonk" },
+  pathDash: { View: PathDashView, goodSfx: "pop", missSfx: "bonk" },
   timingBounce: { View: TimingBounceView, goodSfx: "land", missSfx: "bonk" },
   sliceSwipe: { View: SliceSwipeView, goodSfx: "slice", missSfx: "miss" },
   slingShot: { View: SlingShotView, goodSfx: "pop", missSfx: "miss" },
