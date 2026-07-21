@@ -54,5 +54,5 @@ Off-ramps: `rejected`, `superseded`.
 | [audit-medium-hard-levels](audit-medium-hard-levels.md) | Playtest + fix medium/hard across all learning games | proposed | ZPD + flow (right-sized difficulty) |
 | [hebrew-literacy-game](hebrew-literacy-game.md) | Dedicated Hebrew literacy game (letters/sounds) for ~age 4 | proposed | Emergent literacy + phonological awareness + retrieval practice |
 | [nikud-open-syllables](nikud-open-syllables.md) | Teach ניקוד + open CV syllables in the Hebrew game | proposed | Phonological awareness + alphabetic principle + CRA |
-| [pointed-first-words](pointed-first-words.md) | First pointed Hebrew words (audio + image + nikud) | proposed | Emergent literacy + paired-associate + retrieval practice |
+| [pointed-first-words](pointed-first-words.md) | Basic pointed Hebrew words (themed first lexicon) | proposed | Emergent literacy + paired-associate + retrieval practice |
 | [letter-form-readiness](letter-form-readiness.md) | Pre-writing form play (match, sofit, stroke demo; no OCR) | proposed | Fine-motor readiness + visual discrimination |

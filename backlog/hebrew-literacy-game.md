@@ -30,8 +30,9 @@ sprinkle, but it is not a literacy path. A ~4-year-old learning to read and writ
 clear, calm ladder — letter → sound → shape discrimination — without competing number tasks,
 and without having to decode the UI ([audio-first](../knowledge/educational/audio-first.md)).
 
-There is also no home for **ניקוד**, open syllables, or first pointed words. Stuffing all of
-that into `find` would blur the game’s identity and make parent difficulty tuning harder.
+There is also no home for **ניקוד**, open syllables, or **basic pointed words** (family,
+body, home, animals, food, nature). Stuffing all of that into `find` would blur the game’s
+identity and make parent difficulty tuning harder.
 
 ## Proposed feature
 
@@ -53,9 +54,10 @@ small letter set with clear distractors; medium widens the alphabet; hard adds l
 Parents can still retune band length / letter pool
 ([parent-tuned-difficulty-bands](../knowledge/educational/parent-tuned-difficulty-bands.md)).
 
-Leave **ניקוד**, syllables, first words, and pre-writing form play to the related proposals
-so reviewers can approve the ladder in steps — but design the provider/`kinds` list so those
-kinds plug in later without a second game.
+Leave **ניקוד**, syllables, **basic words**, and pre-writing form play to the related
+proposals so reviewers can approve the ladder in steps — but design the provider/`kinds`
+list so those kinds plug in later without a second game. The north star for this game is
+that a child can read a small set of everyday pointed words, not only name letters.
 
 Optionally thin `find`’s default `kinds` so letters/sounds mostly live here (keep a light
 overlap only if playtests say variety inside `find` still helps).
