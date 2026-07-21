@@ -57,5 +57,8 @@ Edit the playbook, never the generated file (`.cursor/`, `.claude/`, `CLAUDE.md`
   served under `/Alufim/`.
 - On every push to `main`, [`.github/workflows/pages.yml`](.github/workflows/pages.yml) builds
   `web/out` and deploys it to **GitHub Pages** (repo is public so Pages can serve it).
+- Open PRs get a **staging preview** at `https://botbensim.github.io/Alufim/pr/<n>/` (same
+  Pages site, separate path + save key). See
+  [`knowledge/technical/pr-preview-pages.md`](knowledge/technical/pr-preview-pages.md).
 - State is saved in the browser's `localStorage`; a Serwist service worker caches assets for
   **offline play**.

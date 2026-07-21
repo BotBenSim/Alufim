@@ -5,7 +5,7 @@ status: accepted
 date: 2026-06-22
 tags: [pwa, offline, serwist, nextjs]
 supersedes: []
-related: [static-export-pages, nextjs-migration]
+related: [static-export-pages, nextjs-migration, pr-preview-pages]
 ---
 
 # Offline play via Serwist PWA
