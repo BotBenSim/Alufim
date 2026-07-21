@@ -3,7 +3,7 @@ id: technical-index
 title: Technical - Engineering Decisions
 type: manifest
 format: OKF/1.0
-updated: 2026-07-20
+updated: 2026-07-21
 tags: [technical, engineering, architecture, manifest]
 ---
 
@@ -39,6 +39,7 @@ The core patterns that keep the app extensible — start here to understand the 
 | --- | --- | --- |
 | [nextjs-migration](nextjs-migration.md) | Migrate vanilla index.html to Next.js/React/TS in `web/` | accepted |
 | [static-export-pages](static-export-pages.md) | Static export to GitHub Pages via Actions (public repo) | accepted |
+| [pr-preview-pages](pr-preview-pages.md) | Per-PR staging previews under `/Alufim/pr/<n>/` | accepted |
 | [pwa-serwist](pwa-serwist.md) | Offline play via Serwist PWA | accepted |
 | [state-persistence](state-persistence.md) | Preserve `alufim_state_v2` localStorage shape | accepted |
 | [zustand-store](zustand-store.md) | Zustand + persist for app state | accepted |

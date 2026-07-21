@@ -1,0 +1,23 @@
+name: PR preview signal
+
+# Lightweight signal so pages.yml can redeploy staging from the main branch
+# context (github-pages environment only allows main).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+concurrency:
+  group: pr-preview-signal-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    # Fork PRs are not deployed (token/environment limits).
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Signal deploy workflow
+        run: |
+          echo "PR #${{ github.event.number }}"
+          echo "action=${{ github.event.action }}"
+          echo "sha=${{ github.event.pull_request.head.sha }}"

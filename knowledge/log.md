@@ -2,7 +2,7 @@
 id: log
 title: Decision Log
 type: log
-updated: 2026-07-20
+updated: 2026-07-21
 tags: [log, changelog]
 ---
 
@@ -10,6 +10,7 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-07-21 — [pr-preview-pages](technical/pr-preview-pages.md): per-PR staging previews on the same GitHub Pages site (`/Alufim/pr/<n>/`).
 - 2026-07-20 — `Panel` surface/shell in design system for settings + about chrome — see [design-system](technical/design-system.md).
 - 2026-07-20 — `SettingsButton` + `.btnRow` for equal-size settings actions — see [design-system](technical/design-system.md).
 - 2026-07-20 — settings form primitives: equal-width `PillControl` + compact `SettingsNumberField` — see [design-system](technical/design-system.md).

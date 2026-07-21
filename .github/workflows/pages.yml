@@ -3,39 +3,68 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows: ["PR preview signal"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write
+  actions: read
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: >
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout main (production)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: web/package.json
+          cache-dependency-path: web/package-lock.json
+
       - name: Install dependencies
         run: npm install
-      - name: Build static site
+
+      - name: Build production site
         run: npm run build
         env:
           NEXT_PUBLIC_BASE_PATH: /Alufim
-      - uses: actions/upload-pages-artifact@v3
+
+      - name: Stage production into site/
+        working-directory: .
+        run: |
+          mkdir -p site
+          cp -a web/out/. site/
+
+      - name: Build open PR staging previews
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_PATH_ROOT: /Alufim
+        run: bash scripts/build-pr-previews.sh site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: web/out
+          path: site
 
   deploy:
     needs: build
@@ -46,3 +75,60 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  comment:
+    needs: deploy
+    if: github.event_name == 'workflow_run'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          REPO: ${{ github.repository }}
+        run: |
+          num=$(gh api "repos/${REPO}/actions/runs/${RUN_ID}" --jq '.pull_requests[0].number // empty')
+          if [[ -z "${num}" ]]; then
+            num=$(gh pr list --repo "${REPO}" --state all --head "${HEAD_BRANCH}" \
+              --json number,headRefOid,state --jq \
+              "[.[] | select(.headRefOid==\"${HEAD_SHA}\")] | .[0].number // empty")
+          fi
+          if [[ -z "${num}" ]]; then
+            num=$(gh pr list --repo "${REPO}" --state all --head "${HEAD_BRANCH}" \
+              --json number --jq '.[0].number // empty')
+          fi
+          echo "number=${num}" >> "${GITHUB_OUTPUT}"
+          if [[ -n "${num}" ]]; then
+            state=$(gh pr view "${num}" --repo "${REPO}" --json state --jq .state)
+            echo "state=${state}" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Comment staging URL on PR
+        if: steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ steps.pr.outputs.number }}
+          PR_STATE: ${{ steps.pr.outputs.state }}
+          REPO: ${{ github.repository }}
+        run: |
+          marker="<!-- alufim-pr-preview -->"
+          url="https://botbensim.github.io/Alufim/pr/${PR}/"
+          if [[ "${PR_STATE}" == "OPEN" ]]; then
+            body=$(printf '%s\n### Staging preview\n\n%s\n\n%s\n' \
+              "${marker}" \
+              "Preview: ${url}" \
+              "_Updates on each push. Uses a separate save key so production progress is untouched._")
+          else
+            body=$(printf '%s\n### Staging preview\n\nPreview for this PR was removed after it closed.\n' "${marker}")
+          fi
+
+          existing=$(gh api "repos/${REPO}/issues/${PR}/comments" --paginate \
+            --jq ".[] | select(.body | contains(\"${marker}\")) | .id" | head -1)
+          if [[ -n "${existing}" ]]; then
+            gh api -X PATCH "repos/${REPO}/issues/comments/${existing}" -f body="${body}"
+          else
+            gh pr comment "${PR}" --repo "${REPO}" --body "${body}"
+          fi

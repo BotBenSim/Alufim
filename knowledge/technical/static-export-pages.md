@@ -5,7 +5,7 @@ status: accepted
 date: 2026-06-22
 tags: [deployment, ci, github-pages, nextjs]
 supersedes: [public-repo]
-related: [nextjs-migration, pwa-serwist]
+related: [nextjs-migration, pwa-serwist, pr-preview-pages]
 ---
 
 # Static export to GitHub Pages via Actions

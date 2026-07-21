@@ -5,7 +5,8 @@ import { defaultCurriculum, ensureCurriculum } from "./difficulty";
 import { clampPlayEverySteps, DEFAULT_PLAY_EVERY_STEPS } from "./rhythm";
 import type { AppState, GameId, Profile } from "./types";
 
-export const STATE_KEY = "alufim_state_v2";
+/** Production / local default. PR staging overrides via NEXT_PUBLIC_STATE_KEY. */
+export const STATE_KEY = process.env.NEXT_PUBLIC_STATE_KEY || "alufim_state_v2";
 
 export function defaultGames(): Profile["games"] {
   return {
