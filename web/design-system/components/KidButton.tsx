@@ -2,6 +2,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
+const boyAnswerFill =
+  "text-white bg-gradient-to-br from-[#4DA3FF] to-[#2F7BD0] shadow-[0_7px_0_#1F5A9E,0_12px_20px_rgba(0,0,0,.18)] active:shadow-[0_2px_0_#1F5A9E]";
+const girlAnswerFill =
+  "text-white bg-gradient-to-br from-[#F783AC] to-[#D6336C] shadow-[0_7px_0_#A61E4D,0_12px_20px_rgba(0,0,0,.18)] active:shadow-[0_2px_0_#A61E4D]";
+const boySpeakFill =
+  "text-white bg-[#4DA3FF] shadow-[0_3px_0_#2F7BD0,0_4px_10px_rgba(47,123,208,.25)] hover:bg-[#3b93ef] active:translate-y-0.5 active:shadow-[0_1px_0_#2F7BD0]";
+const girlSpeakFill =
+  "text-white bg-[#F783AC] shadow-[0_3px_0_#D6336C,0_4px_10px_rgba(214,51,108,.25)] hover:bg-[#e66f9a] active:translate-y-0.5 active:shadow-[0_1px_0_#D6336C]";
+
 const kidButtonVariants = cva(
   "border-none font-bold cursor-pointer transition-transform active:translate-y-0.5 disabled:opacity-45 disabled:grayscale disabled:cursor-default disabled:active:translate-y-0",
   {
@@ -19,15 +28,19 @@ const kidButtonVariants = cva(
           "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-gradient-to-br from-[#4DA3FF] to-[#2F7BD0] shadow-[0_5px_0_#1F5A9E] active:shadow-[0_2px_0_#1F5A9E]",
         top: "rounded-2xl text-[15px] px-3 py-2 bg-white/90 text-heading shadow-[0_3px_8px_rgba(0,0,0,.12)]",
         answer:
-          "rounded-full w-[clamp(74px,16vw,120px)] h-[clamp(74px,16vw,120px)] text-[clamp(32px,7vw,52px)] text-white bg-gradient-to-br from-[#4DA3FF] to-[#2F7BD0] shadow-[0_7px_0_#1F5A9E,0_12px_20px_rgba(0,0,0,.18)] active:shadow-[0_2px_0_#1F5A9E]",
+          "rounded-full w-[clamp(74px,16vw,120px)] h-[clamp(74px,16vw,120px)] text-[clamp(32px,7vw,52px)]",
         answerEng:
-          "rounded-full w-[clamp(86px,19vw,140px)] h-[clamp(86px,19vw,140px)] text-[clamp(46px,10vw,76px)] bg-gradient-to-br from-[#F783AC] to-[#D6336C] shadow-[0_7px_0_#A61E4D,0_12px_20px_rgba(0,0,0,.18)] active:shadow-[0_2px_0_#A61E4D]",
+          "rounded-full w-[clamp(86px,19vw,140px)] h-[clamp(86px,19vw,140px)] text-[clamp(46px,10vw,76px)]",
         answerFind:
-          "rounded-full w-[clamp(74px,16vw,120px)] h-[clamp(74px,16vw,120px)] text-[clamp(40px,9vw,68px)] bg-gradient-to-br from-[#FFB454] to-[#F76707] shadow-[0_7px_0_#C2410C,0_12px_20px_rgba(0,0,0,.18)] active:shadow-[0_2px_0_#C2410C]",
+          "rounded-full w-[clamp(74px,16vw,120px)] h-[clamp(74px,16vw,120px)] text-[clamp(40px,9vw,68px)]",
         answerGroup:
-          "rounded-3xl min-w-[clamp(78px,17vw,120px)] min-h-[clamp(74px,16vw,110px)] max-w-[clamp(120px,30vw,210px)] px-3.5 py-3 text-[clamp(20px,4.6vw,32px)] leading-tight flex flex-wrap items-center justify-center gap-0.5 bg-gradient-to-br from-[#63D2A6] to-[#22A06B] shadow-[0_7px_0_#157A4F,0_12px_20px_rgba(0,0,0,.18)] active:shadow-[0_2px_0_#157A4F] h-auto w-auto",
+          "rounded-3xl min-w-[clamp(78px,17vw,120px)] min-h-[clamp(74px,16vw,110px)] max-w-[clamp(120px,30vw,210px)] px-3.5 py-3 text-[clamp(20px,4.6vw,32px)] leading-tight flex flex-wrap items-center justify-center gap-0.5 h-auto w-auto",
         speak:
-          "inline-flex items-center justify-center rounded-[12px] h-8 w-11 text-white bg-[#4DA3FF] shadow-[0_3px_0_#2F7BD0,0_4px_10px_rgba(47,123,208,.25)] hover:bg-[#3b93ef] active:translate-y-0.5 active:shadow-[0_1px_0_#2F7BD0]",
+          "inline-flex items-center justify-center rounded-[12px] h-8 w-11",
+      },
+      tone: {
+        boy: "",
+        girl: "",
       },
       off: {
         true: "bg-[#B8C4CE] shadow-[0_7px_0_#8E9BA6] pointer-events-none opacity-60 active:translate-y-0",
@@ -38,8 +51,25 @@ const kidButtonVariants = cva(
         false: "",
       },
     },
+    compoundVariants: [
+      {
+        variant: ["answer", "answerEng", "answerFind", "answerGroup"],
+        tone: "boy",
+        off: false,
+        class: boyAnswerFill,
+      },
+      {
+        variant: ["answer", "answerEng", "answerFind", "answerGroup"],
+        tone: "girl",
+        off: false,
+        class: girlAnswerFill,
+      },
+      { variant: "speak", tone: "boy", off: false, class: boySpeakFill },
+      { variant: "speak", tone: "girl", off: false, class: girlSpeakFill },
+    ],
     defaultVariants: {
       variant: "text",
+      tone: "boy",
       off: false,
       wobble: false,
     },
@@ -52,6 +82,7 @@ export type KidButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
 export function KidButton({
   className,
   variant,
+  tone,
   off,
   wobble,
   ...props
@@ -59,7 +90,7 @@ export function KidButton({
   return (
     <button
       type="button"
-      className={cn(kidButtonVariants({ variant, off, wobble }), className)}
+      className={cn(kidButtonVariants({ variant, tone, off, wobble }), className)}
       {...props}
     />
   );

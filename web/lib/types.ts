@@ -2,6 +2,8 @@ export type DifficultyLevel = "easy" | "medium" | "hard";
 export type GameId = "add" | "sub" | "find" | "eng";
 export type BeatType = "learn" | "mission" | "play";
 export type RunPhase = "learn" | "mission" | "play" | "evolve";
+/** Accent for question UI (answer / hear-again buttons). */
+export type PlayerGender = "boy" | "girl";
 
 export type ArtDescriptor =
   | { type: "emoji"; value: string }
@@ -57,6 +59,8 @@ export type Profile = {
   id: string;
   name: string;
   avatar: string;
+  /** Boy → blue question accents; girl → pink. */
+  gender: PlayerGender;
   games: Record<GameId, GameConfig>;
   /** Which play-beat engines may appear; defaults applied in migrateProfile */
   minigames: Record<string, MinigameConfig>;

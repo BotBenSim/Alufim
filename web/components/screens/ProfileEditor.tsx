@@ -34,12 +34,25 @@ import type {
   GameCurriculum,
   GameId,
   MathVisual,
+  PlayerGender,
 } from "@/lib/types";
 import type { MinigameEngineId } from "@/lib/minigames/types";
 import { useStore } from "@/state/store";
 import { cn } from "@/lib/utils";
 
 const AVATAR_EMOJIS = ["🦄", "🦖", "🚀", "🐬", "🦁", "🐶", "🐱", "🐉", "🐧", "🐼", "🦊", "🐢"];
+
+const GENDER_OPTIONS: { value: PlayerGender; label: string }[] = [
+  { value: "boy", label: "ילד" },
+  { value: "girl", label: "ילדה" },
+];
+
+const PHOTO_GENDER: Record<string, PlayerGender> = {
+  ellie: "girl",
+  ethan: "boy",
+  nova: "girl",
+  uni: "boy",
+};
 
 type SettingsSection = "profile" | "games" | "minigames" | "advanced";
 
@@ -111,7 +124,10 @@ export function ProfileEditor() {
     setExpandedGame(null);
   };
 
-  const setAvatar = (next: string) => updateEditorDraft({ avatar: next });
+  const setAvatar = (next: string, gender?: PlayerGender) =>
+    updateEditorDraft(gender ? { avatar: next, gender } : { avatar: next });
+
+  const setGender = (gender: PlayerGender) => updateEditorDraft({ gender });
 
   const toggleGame = (gid: GameId) => {
     const games = { ...editorDraft.games };
@@ -257,6 +273,18 @@ export function ProfileEditor() {
                   placeholder="ילד/ה"
                 />
 
+                <div className="flabel">ילד או ילדה</div>
+                <PillControl
+                  className="mb-1"
+                  options={GENDER_OPTIONS}
+                  value={editorDraft.gender}
+                  onChange={setGender}
+                  aria-label="מין השחקן"
+                />
+                <p className="settingsPaneBlurb mt-1">
+                  כפתורי התשובות והשמע־שוב יהיו כחולים לילד וורודים לילדה.
+                </p>
+
                 <div className="flabel">תמונה</div>
                 <div id="avatarGrid" className="avatarGrid">
                   {AVATAR_EMOJIS.map((e) => (
@@ -289,7 +317,7 @@ export function ProfileEditor() {
                         "avatarOpt h-[54px] w-[54px] overflow-hidden rounded-full border-[3px] p-0",
                         editorDraft.avatar === ph ? "border-[#2E9E5B]" : "border-transparent"
                       )}
-                      onClick={() => setAvatar(ph)}
+                      onClick={() => setAvatar(ph, PHOTO_GENDER[id])}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={ph} alt="" className="h-full w-full object-cover" />

@@ -3,9 +3,18 @@ import { GAME_ORDER } from "@/data/games";
 import { defaultMinigameConfig, MINIGAME_ORDER } from "@/data/minigameMeta";
 import { defaultCurriculum, ensureCurriculum } from "./difficulty";
 import { clampPlayEverySteps, DEFAULT_PLAY_EVERY_STEPS } from "./rhythm";
-import type { AppState, GameId, Profile } from "./types";
+import type { AppState, GameId, PlayerGender, Profile } from "./types";
 
 export const STATE_KEY = "alufim_state_v2";
+
+/** Preset names that default to girl when gender is missing on old saves. */
+const GIRL_PRESET_NAMES = new Set(["אלי", "נובה"]);
+
+export function normalizeGender(value: unknown, name?: string): PlayerGender {
+  if (value === "boy" || value === "girl") return value;
+  if (name && GIRL_PRESET_NAMES.has(name.trim())) return "girl";
+  return "boy";
+}
 
 export function defaultGames(): Profile["games"] {
   return {
@@ -16,7 +25,11 @@ export function defaultGames(): Profile["games"] {
   };
 }
 
-export function newProfile(name: string, avatar: string): Profile {
+export function newProfile(
+  name: string,
+  avatar: string,
+  gender: PlayerGender = "boy"
+): Profile {
   const chars: Profile["characters"] = {};
   CHARACTERS.forEach((c) => {
     if (c.starter) chars[c.id] = { form: 0, totalXp: 0 };
@@ -25,6 +38,7 @@ export function newProfile(name: string, avatar: string): Profile {
     id: `p${Date.now()}_${Math.floor(Math.random() * 99999)}`,
     name: name || "ילד/ה",
     avatar: avatar || "🙂",
+    gender: normalizeGender(gender, name),
     games: defaultGames(),
     minigames: defaultMinigameConfig(),
     playEverySteps: DEFAULT_PLAY_EVERY_STEPS,
@@ -66,18 +80,19 @@ export function migrateProfile(p: Profile): Profile {
     }
   });
   if (!p.avatar) p.avatar = "🙂";
+  p.gender = normalizeGender(p.gender, p.name);
   return p;
 }
 
 export function seedPresetProfiles(state: AppState, photos: Record<string, string>): AppState {
-  const presets = [
-    { name: "אלי", avatar: photos.ellie },
-    { name: "איתן", avatar: photos.ethan },
-    { name: "נובה", avatar: photos.nova },
-    { name: "יוני", avatar: photos.uni },
+  const presets: { name: string; avatar: string; gender: PlayerGender }[] = [
+    { name: "אלי", avatar: photos.ellie, gender: "girl" },
+    { name: "איתן", avatar: photos.ethan, gender: "boy" },
+    { name: "נובה", avatar: photos.nova, gender: "girl" },
+    { name: "יוני", avatar: photos.uni, gender: "boy" },
   ];
   presets.forEach((pr) => {
-    state.profiles.push(newProfile(pr.name, pr.avatar));
+    state.profiles.push(newProfile(pr.name, pr.avatar, pr.gender));
   });
   return state;
 }

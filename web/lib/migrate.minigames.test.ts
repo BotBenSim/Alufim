@@ -76,6 +76,30 @@ describe("profile minigames migration", () => {
     expect(next.minigames).toEqual(defaultMinigameConfig());
     expect(next.playEverySteps).toBe(3);
     expect(next.characters.lion.totalXp).toBe(10);
+    expect(next.gender).toBe("boy");
+  });
+
+  it("migrateProfile infers girl gender for Ellie/Nova presets", () => {
+    const ellie = {
+      id: "p1",
+      name: "אלי",
+      avatar: "🙂",
+      games: {
+        find: { enabled: true, level: "easy" },
+        add: { enabled: true, level: "easy" },
+        sub: { enabled: true, level: "easy" },
+        eng: { enabled: true, level: "easy" },
+      },
+      characters: { lion: { form: 0, totalXp: 0 } },
+      activeCharacterId: "lion",
+    } as unknown as Profile;
+
+    expect(migrateProfile(ellie).gender).toBe("girl");
+  });
+
+  it("newProfile stores explicit gender", () => {
+    expect(newProfile("אלי", "🙂", "girl").gender).toBe("girl");
+    expect(newProfile("איתן", "🙂", "boy").gender).toBe("boy");
   });
 
   it("migrateProfile keeps customized playEverySteps", () => {

@@ -90,6 +90,7 @@ type UiState = {
   editingProfileId: string | null;
   editorDraft: {
     avatar: string;
+    gender: Profile["gender"];
     games: Profile["games"];
     minigames: Record<MinigameEngineId, { enabled: boolean }>;
     playEverySteps: number;
@@ -312,6 +313,7 @@ export const useStore = create<Store>()(
           editingProfileId: id,
           editorDraft: {
             avatar: migrated?.avatar ?? "🙂",
+            gender: migrated?.gender ?? "boy",
             games: migrated ? migrated.games : defaultGames(),
             minigames: migrated
               ? { ...defaultMinigameConfig(), ...migrated.minigames }
@@ -351,6 +353,7 @@ export const useStore = create<Store>()(
               ...p,
               name: trimmed,
               avatar: editorDraft.avatar,
+              gender: editorDraft.gender,
               games,
               minigames: editorDraft.minigames,
               playEverySteps: clampPlayEverySteps(editorDraft.playEverySteps),
@@ -375,7 +378,7 @@ export const useStore = create<Store>()(
             homeGameSection: profileHasActiveAnimal(saved),
           });
         } else {
-          const np = newProfile(trimmed, editorDraft.avatar);
+          const np = newProfile(trimmed, editorDraft.avatar, editorDraft.gender);
           np.games = games;
           np.minigames = editorDraft.minigames;
           np.playEverySteps = clampPlayEverySteps(editorDraft.playEverySteps);
