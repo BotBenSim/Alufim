@@ -44,6 +44,7 @@ export function GameScreen() {
   const prevStep = useRef<number | null>(null);
 
   const profile = app.profiles.find((p) => p.id === app.lastProfileId) ?? null;
+  const gender = profile?.gender ?? "boy";
   const prog = profile && run ? profile.characters[run.character.id] : null;
   const formArt = run && prog ? currentFormArt(run.character, prog.totalXp) : null;
   const xp = prog && run ? xpBarState(prog.totalXp, run.character.forms.length) : null;
@@ -235,6 +236,7 @@ export function GameScreen() {
           {/* XP bar always stays; only the question card swaps for the minigame */}
           <GamePlayPanel
             run={run}
+            gender={gender}
             formArt={formArt}
             xp={xp}
             xpGainFlash={xpGainFlash}
@@ -275,6 +277,7 @@ export function GameScreen() {
                 <KidButton
                   key={em}
                   variant="answerEng"
+                  tone={gender}
                   wobble={wobbleAnswer === em}
                   onClick={() => handleAnswer(em)}
                 >

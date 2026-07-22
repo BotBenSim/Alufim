@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { CharacterArt } from "@/components/art/CharacterArt";
 import { QuestionView } from "@/components/game/QuestionView";
 import { XpBar } from "@/design-system";
-import type { ArtDescriptor, RunState } from "@/lib/types";
+import type { ArtDescriptor, PlayerGender, RunState } from "@/lib/types";
 
 /** Shared column width — XP header, question card, and minigame all align here. */
 export const PLAY_COLUMN_CLASS = "flex w-[min(94vw,520px)] flex-col items-stretch gap-3.5";
@@ -15,6 +15,7 @@ export const PLAY_CARD_STAGE_CLASS =
 
 type GamePlayPanelProps = {
   run: RunState;
+  gender?: PlayerGender;
   formArt: ArtDescriptor;
   xp: { pct: number; label: string };
   xpGainFlash: number | null;
@@ -29,6 +30,7 @@ type GamePlayPanelProps = {
 /** Character + XP bar, then question — or a swapped body of the same width. */
 export function GamePlayPanel({
   run,
+  gender = "boy",
   formArt,
   xp,
   xpGainFlash,
@@ -56,6 +58,7 @@ export function GamePlayPanel({
       {body ?? (
         <QuestionView
           run={run}
+          gender={gender}
           disabledAnswers={disabledAnswers}
           wobbleAnswer={wobbleAnswer}
           onAnswer={onAnswer}

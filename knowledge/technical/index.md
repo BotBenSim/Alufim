@@ -3,7 +3,7 @@ id: technical-index
 title: Technical - Engineering Decisions
 type: manifest
 format: OKF/1.0
-updated: 2026-07-20
+updated: 2026-07-22
 tags: [technical, engineering, architecture, manifest]
 ---
 
@@ -41,5 +41,6 @@ The core patterns that keep the app extensible — start here to understand the 
 | [static-export-pages](static-export-pages.md) | Static export to GitHub Pages via Actions (public repo) | accepted |
 | [pwa-serwist](pwa-serwist.md) | Offline play via Serwist PWA | accepted |
 | [state-persistence](state-persistence.md) | Preserve `alufim_state_v2` localStorage shape | accepted |
+| [player-gender-field](player-gender-field.md) | Profile `gender` field with additive migrate | accepted |
 | [zustand-store](zustand-store.md) | Zustand + persist for app state | accepted |
 | [hydration-gating](hydration-gating.md) | Gate UI until store rehydrates | accepted |

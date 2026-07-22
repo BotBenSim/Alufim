@@ -3,7 +3,7 @@ id: product-index
 title: Product - UX and Product Decisions
 type: manifest
 format: OKF/1.0
-updated: 2026-07-20
+updated: 2026-07-22
 tags: [product, ux, manifest]
 ---
 
@@ -26,3 +26,4 @@ sections: **Problem -> Decision -> User impact -> Trade-offs -> Signals to watch
 | --- | --- | --- |
 | [start-from-first-form](start-from-first-form.md) | Show living baby, not egg, from the start | accepted |
 | [settings-sidebar](settings-sidebar.md) | Profile settings: sidebar + child avatar | accepted |
+| [player-gender-accent](player-gender-accent.md) | Boy/girl accent for question buttons | accepted |

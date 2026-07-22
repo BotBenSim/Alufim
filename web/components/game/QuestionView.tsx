@@ -10,7 +10,7 @@ import { subRenderMeta, type SubQuestion } from "@/lib/providers/sub";
 import { engRenderMeta, type EngQuestion } from "@/lib/providers/eng";
 import type { AnswerChoice } from "@/lib/answerChoice";
 import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
-import type { RunState } from "@/lib/types";
+import type { PlayerGender, RunState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { numberOptions, repeatStr } from "@/lib/random";
 
@@ -51,6 +51,7 @@ function EmojiGroup({
 
 type QuestionViewProps = {
   run: RunState;
+  gender?: PlayerGender;
   disabledAnswers: string[];
   wobbleAnswer: string | null;
   onAnswer: (value: string) => void;
@@ -59,6 +60,7 @@ type QuestionViewProps = {
 
 export function QuestionView({
   run,
+  gender = "boy",
   disabledAnswers,
   wobbleAnswer,
   onAnswer,
@@ -207,6 +209,7 @@ export function QuestionView({
       <div className="relative z-20 flex shrink-0 justify-end pb-1.5">
         <KidButton
           variant="speak"
+          tone={gender}
           id="speakBtn"
           onClick={onSpeak}
           aria-label="השמע שוב"
@@ -329,6 +332,7 @@ export function QuestionView({
                   <KidButton
                     key={o.value}
                     variant="answerGroup"
+                    tone={gender}
                     off={disabledAnswers.includes(o.value)}
                     wobble={wobbleAnswer === o.value}
                     onClick={() => onAnswer(o.value)}
@@ -341,6 +345,7 @@ export function QuestionView({
                     <KidButton
                       key={o.value}
                       variant={choiceProps.variant}
+                      tone={gender}
                       off={disabledAnswers.includes(o.value)}
                       wobble={wobbleAnswer === o.value}
                       onClick={() => onAnswer(o.value)}
@@ -352,6 +357,7 @@ export function QuestionView({
                     <KidButton
                       key={o}
                       variant={choiceProps.variant}
+                      tone={gender}
                       off={disabledAnswers.includes(o)}
                       wobble={wobbleAnswer === o}
                       onClick={() => onAnswer(o)}
