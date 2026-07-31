@@ -14,7 +14,11 @@ type SettingsNumberFieldProps = Omit<
   layout?: "stack" | "inline";
 };
 
-/** Compact labeled number input for settings forms. */
+/**
+ * Compact labeled number input for settings forms.
+ * Commits on blur/Enter only so partial typing (e.g. "2" on the way to "20")
+ * cannot thrash paired min/max fields.
+ */
 export function SettingsNumberField({
   label,
   value,
@@ -22,6 +26,7 @@ export function SettingsNumberField({
   className,
   id,
   min,
+  max,
   layout = "stack",
   ...props
 }: SettingsNumberFieldProps) {
@@ -36,9 +41,17 @@ export function SettingsNumberField({
   const commit = (raw: string) => {
     const parsed = parseInt(raw, 10);
     if (Number.isNaN(parsed)) {
-      const fallback = typeof min === "number" ? min : 0;
-      onChange(fallback);
-      setText(String(fallback));
+      setText(String(value));
+      return;
+    }
+    const minN = typeof min === "number" ? Number(min) : undefined;
+    const maxN = typeof max === "number" ? Number(max) : undefined;
+    if (minN != null && parsed < minN) {
+      setText(String(value));
+      return;
+    }
+    if (maxN != null && parsed > maxN) {
+      setText(String(value));
       return;
     }
     onChange(parsed);
@@ -56,10 +69,12 @@ export function SettingsNumberField({
     >
       <span className="settingsNumLabel">{label}</span>
       <input
+        {...props}
         id={inputId}
         className="settingsNumInput"
         type="number"
         min={min}
+        max={max}
         value={text}
         onFocus={(e) => {
           setFocused(true);
@@ -75,14 +90,12 @@ export function SettingsNumberField({
           setFocused(false);
           commit(text);
         }}
-        onChange={(e) => {
-          const raw = e.target.value;
-          setText(raw);
-          if (raw === "" || raw === "-") return;
-          const parsed = parseInt(raw, 10);
-          if (!Number.isNaN(parsed)) onChange(parsed);
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.currentTarget.blur();
+          }
         }}
-        {...props}
+        onChange={(e) => setText(e.target.value)}
       />
     </label>
   );

@@ -180,8 +180,24 @@ export function ProfileEditor() {
     const cur = editorDraft.games[gid].curriculum;
     const levelBands = [...(cur.bands[level] ?? [])];
     const band = { ...(levelBands[bandIndex] ?? {}) };
-    band[field] = value;
-    levelBands[bandIndex] = band;
+    const next = { ...band, [field]: value };
+
+    // Paired ranges require strictly upper > lower; reject invalid edits.
+    if (typeof value === "number") {
+      const loHi =
+        field === "minSum" || field === "maxSum"
+          ? ([Number(next.minSum), Number(next.maxSum)] as const)
+          : field === "minTop" || field === "maxMin"
+            ? ([Number(next.minTop), Number(next.maxMin)] as const)
+            : field === "qLo" || field === "qHi"
+              ? ([Number(next.qLo), Number(next.qHi)] as const)
+              : null;
+      if (loHi && Number.isFinite(loHi[0]) && Number.isFinite(loHi[1]) && !(loHi[1] > loHi[0])) {
+        return;
+      }
+    }
+
+    levelBands[bandIndex] = next;
     patchCurriculum(gid, {
       bands: { ...cur.bands, [level]: levelBands },
     });
@@ -460,71 +476,99 @@ export function ProfileEditor() {
                                       )}
                                     </div>
                                     <div className="bandFields">
-                                      {gid === "add" && (
-                                        <>
-                                          <SettingsNumberField
-                                            label="סכום מינ׳"
-                                            value={Number(band.minSum) || 0}
-                                            onChange={(v) =>
-                                              updateBandField(gid, level, idx, "minSum", v)
-                                            }
-                                          />
-                                          <SettingsNumberField
-                                            label="סכום מקס׳"
-                                            value={Number(band.maxSum) || 0}
-                                            onChange={(v) =>
-                                              updateBandField(gid, level, idx, "maxSum", v)
-                                            }
-                                          />
-                                        </>
-                                      )}
-                                      {gid === "sub" && (
-                                        <>
-                                          <SettingsNumberField
-                                            label="מינ׳"
-                                            value={Number(band.minTop) || 0}
-                                            onChange={(v) =>
-                                              updateBandField(gid, level, idx, "minTop", v)
-                                            }
-                                          />
-                                          <SettingsNumberField
-                                            label="מקס׳"
-                                            value={Number(band.maxMin) || 0}
-                                            onChange={(v) =>
-                                              updateBandField(gid, level, idx, "maxMin", v)
-                                            }
-                                          />
-                                        </>
-                                      )}
-                                      {gid === "find" && (
-                                        <>
-                                          <SettingsNumberField
-                                            label="מספר עד"
-                                            value={Number(band.maxNum) || 0}
-                                            onChange={(v) =>
-                                              updateBandField(gid, level, idx, "maxNum", v)
-                                            }
-                                          />
-                                          <SettingsNumberField
-                                            label="טווח נמוך"
-                                            value={Number(band.qLo) || 0}
-                                            onChange={(v) =>
-                                              updateBandField(gid, level, idx, "qLo", v)
-                                            }
-                                          />
-                                          <SettingsNumberField
-                                            label="טווח גבוה"
-                                            value={Number(band.qHi) || 0}
-                                            onChange={(v) =>
-                                              updateBandField(gid, level, idx, "qHi", v)
-                                            }
-                                          />
-                                        </>
-                                      )}
+                                      {gid === "add" && (() => {
+                                        const minSum = Number(band.minSum) || 2;
+                                        const maxSum = Number(band.maxSum) || 8;
+                                        return (
+                                          <>
+                                            <SettingsNumberField
+                                              label="סכום מינ׳"
+                                              value={minSum}
+                                              min={2}
+                                              max={maxSum - 1}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "minSum", v)
+                                              }
+                                            />
+                                            <SettingsNumberField
+                                              label="סכום מקס׳"
+                                              value={maxSum}
+                                              min={minSum + 1}
+                                              max={200}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "maxSum", v)
+                                              }
+                                            />
+                                          </>
+                                        );
+                                      })()}
+                                      {gid === "sub" && (() => {
+                                        const minTop = Number(band.minTop) || 2;
+                                        const maxMin = Number(band.maxMin) || 8;
+                                        return (
+                                          <>
+                                            <SettingsNumberField
+                                              label="מינ׳"
+                                              value={minTop}
+                                              min={2}
+                                              max={maxMin - 1}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "minTop", v)
+                                              }
+                                            />
+                                            <SettingsNumberField
+                                              label="מקס׳"
+                                              value={maxMin}
+                                              min={minTop + 1}
+                                              max={200}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "maxMin", v)
+                                              }
+                                            />
+                                          </>
+                                        );
+                                      })()}
+                                      {gid === "find" && (() => {
+                                        const qLo = Number(band.qLo) || 1;
+                                        const qHi = Number(band.qHi) || 4;
+                                        return (
+                                          <>
+                                            <SettingsNumberField
+                                              label="מספר עד"
+                                              value={Number(band.maxNum) || 0}
+                                              min={1}
+                                              max={100}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "maxNum", v)
+                                              }
+                                            />
+                                            <SettingsNumberField
+                                              label="טווח נמוך"
+                                              value={qLo}
+                                              min={1}
+                                              max={qHi - 1}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "qLo", v)
+                                              }
+                                            />
+                                            <SettingsNumberField
+                                              label="טווח גבוה"
+                                              value={qHi}
+                                              min={qLo + 1}
+                                              max={20}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "qHi", v)
+                                              }
+                                            />
+                                          </>
+                                        );
+                                      })()}
                                       {gid === "eng" && (
                                         <SettingsNumberField
                                           label="אורך מקס׳"
                                           value={Number(band.maxLen) || 0}
+                                          min={1}
+                                          max={64}
                                           onChange={(v) =>
                                             updateBandField(gid, level, idx, "maxLen", v)
                                           }
