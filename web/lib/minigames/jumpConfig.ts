@@ -12,6 +12,12 @@ export type JumpPlayConfig = {
   /** 0..1 chance a gap/obstacle uses the hard variant */
   hardChance: number;
   hitStunMs: number;
+  /** Grace after stepping off an edge where a jump still counts (ms) */
+  coyoteMs: number;
+  /** Half-width of the feet for landing tests — bigger = stickier landings (normalized) */
+  feetHalf: number;
+  /** How far before an edge the jump cue appears — roughly half a second of warning (normalized) */
+  cueLead: number;
   /** Easy gap width range (roof runners) */
   gapEasy: readonly [number, number];
   /** Wide gap — usually needs double jump */
@@ -51,6 +57,9 @@ const BASE: JumpPlayConfig = {
   speedMax: 0.6,
   hardChance: 0.35,
   hitStunMs: 650,
+  coyoteMs: 180,
+  feetHalf: 0.07,
+  cueLead: 0.32,
   gapEasy: [0.12, 0.2],
   gapWide: [0.28, 0.4],
   roofWidth: [0.24, 0.5],
@@ -72,31 +81,47 @@ const BASE: JumpPlayConfig = {
 
 /** Default jump feel per engine — only deltas from BASE. Skins may override via `skin.jump`. */
 export const JUMP_CONFIG_BY_ENGINE: Partial<Record<MinigameEngineId, JumpPlayConfig>> = {
+  /**
+   * Roof runner. Gaps are sized against the jump *reach* (airtime × scroll speed, roughly
+   * 0.30–0.49 screen widths here) so that:
+   *  - reach at the slowest pace still clears `gapEasy[1]` — a late jump is always survivable;
+   *  - reach at the fastest pace stays under `gapEasy[0] + roofWidth[0]` — you can't overshoot
+   *    a short roof and land back in a gap.
+   * `jumpConfig.test.ts` guards both bounds.
+   */
   pathDash: {
     ...BASE,
     jumpVelocity: -820,
-    doubleJumpVelocity: -720,
-    gravity: 2200,
-    speedMin: 0.32,
-    speedMax: 0.58,
-    gapEasy: [0.11, 0.2],
-    roofWidth: [0.22, 0.52],
+    doubleJumpVelocity: -700,
+    // Snappier arc: heavier gravity keeps reach in range now that the world scrolls faster
+    gravity: 2750,
+    speedMin: 0.6,
+    speedMax: 0.72,
+    paceDriftRate: 0.8,
+    hardChance: 0.15,
+    hitStunMs: 450,
+    gapEasy: [0.14, 0.22],
+    gapWide: [0.24, 0.32],
+    roofWidth: [0.38, 0.54],
     runnerX: 0.22,
     artSize: 78,
   },
   timingBounce: {
     ...BASE,
-    jumpVelocity: -780,
+    jumpVelocity: -840,
+    gravity: 2600,
     // Steady land scroll — rhythm from spawn gaps
-    speedMin: 0.66,
-    speedMax: 0.66,
+    speedMin: 0.95,
+    speedMax: 0.95,
     hardChance: 0.4,
-    hitStunMs: 700,
-    spawnNear: [0.75, 0.95],
-    spawnFar: [1.25, 1.85],
-    spawnBreather: [2.1, 3.1],
+    hitStunMs: 550,
+    // Everything spawns past the right edge, so a cactus never pops in mid-screen
+    spawnNear: [1.05, 1.25],
+    spawnFar: [1.45, 1.95],
+    spawnBreather: [2.1, 2.7],
     closeChance: 0.42,
-    breatherChance: 0.28,
+    breatherChance: 0.18,
+    spawnHoldMs: [0, 400],
     paceDriftRate: 0,
     runnerX: 0.14,
     artSize: 88,
@@ -123,19 +148,32 @@ export function pickGap(cfg: JumpPlayConfig, allowHard: boolean): number {
   return randRange(cfg.gapEasy);
 }
 
+/** Slowest and fastest scroll `pacedSpeed` can return — the range gap sizing is tuned against. */
+export function paceBounds(cfg: JumpPlayConfig): { min: number; max: number } {
+  if (cfg.paceDriftRate <= 0 || cfg.speedMax - cfg.speedMin < 0.01) {
+    const steady = (cfg.speedMin + cfg.speedMax) / 2;
+    return { min: steady, max: steady };
+  }
+  return { min: cfg.speedMin * 0.85, max: cfg.speedMax * 1.15 };
+}
+
 /**
  * Scroll speed. When `paceDriftRate` is 0 (or speedMin≈speedMax), returns a steady pace.
  * Otherwise sine-drifts between min/max (used by pathDash).
  */
 export function pacedSpeed(phase: number, cfg: JumpPlayConfig): number {
-  if (cfg.paceDriftRate <= 0 || cfg.speedMax - cfg.speedMin < 0.01) {
-    return (cfg.speedMin + cfg.speedMax) / 2;
-  }
+  const { min, max } = paceBounds(cfg);
+  if (min === max) return min;
   const pulse = (Math.sin(phase) + 1) / 2;
   const wobble = 0.85 + 0.3 * Math.sin(phase * 2.7 + 1.3);
   const base = cfg.speedMin + pulse * (cfg.speedMax - cfg.speedMin);
-  const speed = base * wobble;
-  return Math.min(cfg.speedMax * 1.15, Math.max(cfg.speedMin * 0.85, speed));
+  return Math.min(max, Math.max(min, base * wobble));
+}
+
+/** How far one full-height jump carries the runner at `speed`, in screen widths. */
+export function jumpReach(cfg: JumpPlayConfig, speed: number): number {
+  const airtimeSec = (2 * Math.abs(cfg.jumpVelocity)) / cfg.gravity;
+  return airtimeSec * speed;
 }
 
 /**

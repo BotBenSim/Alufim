@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { MINIGAME_SKINS } from "@/data/minigames";
 import {
+  jumpReach,
+  paceBounds,
   pacedSpeed,
   pickGap,
   resolveJumpConfig,
@@ -76,4 +79,66 @@ describe("pickGap / pacedSpeed", () => {
     expect(a).toBeGreaterThanOrEqual(cfg.speedMin * 0.85);
     expect(b).toBeLessThanOrEqual(cfg.speedMax * 1.15);
   });
+});
+
+/**
+ * These guard the "fair for a five-year-old" envelope. Tuning speed without re-checking
+ * gap/roof sizes is what makes the roof runner feel unfair, so assert it for every skin.
+ */
+describe("path dash stays clearable at any pace", () => {
+  const skins = [
+    { id: "engine default", jump: undefined },
+    ...MINIGAME_SKINS.filter((s) => s.engineId === "pathDash"),
+  ];
+
+  it.each(skins.map((s) => [s.id, s.jump] as const))(
+    "%s: slowest pace still clears the widest easy gap",
+    (_id, jump) => {
+      const cfg = resolveJumpConfig("pathDash", jump ? { jump } : undefined);
+      expect(jumpReach(cfg, paceBounds(cfg).min)).toBeGreaterThan(cfg.gapEasy[1] + cfg.feetHalf);
+    }
+  );
+
+  it.each(skins.map((s) => [s.id, s.jump] as const))(
+    "%s: fastest pace cannot overshoot the shortest roof",
+    (_id, jump) => {
+      const cfg = resolveJumpConfig("pathDash", jump ? { jump } : undefined);
+      expect(jumpReach(cfg, paceBounds(cfg).max)).toBeLessThan(cfg.gapEasy[0] + cfg.roofWidth[0]);
+    }
+  );
+
+  it.each(skins.map((s) => [s.id, s.jump] as const))(
+    "%s: single-jump skins never get a double-jump-only gap",
+    (_id, jump) => {
+      const cfg = resolveJumpConfig("pathDash", jump ? { jump } : undefined);
+      if (cfg.maxJumps <= 1) expect(cfg.hardChance).toBe(0);
+    }
+  );
+});
+
+describe("cactus run gives enough time to react", () => {
+  const skins = [
+    { id: "engine default", jump: undefined },
+    ...MINIGAME_SKINS.filter((s) => s.engineId === "timingBounce"),
+  ];
+
+  it.each(skins.map((s) => [s.id, s.jump] as const))(
+    "%s: obstacles enter off-stage and take ≥0.8s to arrive",
+    (_id, jump) => {
+      const cfg = resolveJumpConfig("timingBounce", jump ? { jump } : undefined);
+      const speed = pacedSpeed(0, cfg);
+      expect(cfg.spawnNear[0]).toBeGreaterThan(1);
+      const reactionSec = (cfg.spawnNear[0] - cfg.runnerX) / speed;
+      expect(reactionSec).toBeGreaterThanOrEqual(0.8);
+    }
+  );
+
+  it.each(skins.map((s) => [s.id, s.jump] as const))(
+    "%s: a single hop clears the tall obstacle",
+    (_id, jump) => {
+      const cfg = resolveJumpConfig("timingBounce", jump ? { jump } : undefined);
+      const peakPx = cfg.jumpVelocity ** 2 / (2 * cfg.gravity);
+      expect(peakPx).toBeGreaterThan(cfg.clearYTall * 1.5);
+    }
+  );
 });

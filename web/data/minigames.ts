@@ -18,7 +18,7 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "גַּג לְגַג — קִפְצו ותִפְסוּ!",
     items: ["🦈", "💎"],
     targetCount: 5,
-    jump: { speedMin: 0.36, speedMax: 0.62 },
+    jump: { speedMin: 0.64, speedMax: 0.74 },
   },
   {
     id: "turtle-leaf-trail",
@@ -27,8 +27,8 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "גַּג לְגַג — קִפְצו ותִפְסוּ!",
     items: ["🐢", "🪙"],
     targetCount: 5,
-    // Slower, single-jump friendly for turtle
-    jump: { maxJumps: 1, speedMax: 0.45, hardChance: 0.1 },
+    // Slower and single-jump — so never hand it a wide gap that needs the second jump
+    jump: { maxJumps: 1, speedMin: 0.58, speedMax: 0.68, hardChance: 0 },
   },
   {
     id: "dragon-rooftop-dash",
@@ -37,7 +37,7 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "גַּג לְגַג — קִפְצו ותִפְסוּ!",
     items: ["🐉", "🔥"],
     targetCount: 5,
-    jump: { speedMax: 0.7, hardChance: 0.35 },
+    jump: { speedMin: 0.66, speedMax: 0.75, hardChance: 0.22 },
   },
   {
     id: "rabbit-rooftop-dash",
@@ -46,7 +46,7 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "גַּג לְגַג — קִפְצו ותִפְסוּ!",
     items: ["🐰", "⭐"],
     targetCount: 5,
-    jump: { hardChance: 0.4, doubleJumpVelocity: -760 },
+    jump: { hardChance: 0.22, doubleJumpVelocity: -760 },
   },
   // timingBounce — Chrome-dino style jump over obstacles
   {
@@ -74,7 +74,8 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "קִפְצו מֵעַל הַקַּקְטוּסִים!",
     items: ["🐉", "🌵"],
     targetCount: 5,
-    jump: { speedMax: 0.85, hardChance: 0.4 },
+    // Steady scroll — set min and max together
+    jump: { speedMin: 1.1, speedMax: 1.1, hardChance: 0.4 },
   },
   {
     id: "shark-reef-hops",
@@ -83,7 +84,7 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "קִפְצו מֵעַל הַקַּקְטוּסִים!",
     items: ["🦈", "🌵"],
     targetCount: 5,
-    jump: { speedMin: 0.34, speedMax: 0.7 },
+    jump: { speedMin: 1.02, speedMax: 1.02 },
   },
   {
     id: "turtle-shell-hops",
@@ -92,7 +93,7 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     promptHe: "קִפְצו מֵעַל הַקַּקְטוּסִים!",
     items: ["🐢", "🌵"],
     targetCount: 5,
-    jump: { maxJumps: 1, speedMax: 0.5, hardChance: 0.15 },
+    jump: { maxJumps: 1, speedMin: 0.82, speedMax: 0.82, hardChance: 0.15 },
   },
   // sliceSwipe
   {
