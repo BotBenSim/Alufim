@@ -5,6 +5,7 @@ import { sliceSwipeEngine } from "./sliceSwipe";
 import { slingShotEngine } from "./slingShot";
 import { charMazeEngine } from "./charMaze";
 import { cutRopeEngine } from "./cutRope";
+import { laneCatchEngine } from "./laneCatch";
 
 export type {
   MinigameEngine,
@@ -26,6 +27,7 @@ export const MINIGAME_ENGINES: Record<MinigameEngineId, MinigameEngine> = {
   slingShot: slingShotEngine,
   charMaze: charMazeEngine,
   cutRope: cutRopeEngine,
+  laneCatch: laneCatchEngine,
 };
 
 export function getMinigameEngine(id: MinigameEngineId): MinigameEngine {

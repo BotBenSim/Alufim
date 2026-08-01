@@ -71,5 +71,18 @@ type MinigameUiStrategy = {
 5. Add a view under `web/components/game/minigames/` that uses `MinigameShell` and
    `MinigameViewProps`, then register it in `MINIGAME_UI`.
 
+Skins may carry engine-specific optional fields as long as they are additive; `laneCatch` reads
+`skin.avoidItems` (the inedible objects to let fall) and every other engine ignores it.
+
 Registered engines: `pathDash`, `timingBounce`, `sliceSwipe`, `slingShot`, `charMaze`,
-`cutRope`.
+`cutRope`, `laneCatch`.
+
+| Engine | Input action | View | Decision |
+| --- | --- | --- | --- |
+| `pathDash` | `jump` | `PathDashView` | [minigame-path-dash](../educational/minigame-path-dash.md) |
+| `timingBounce` | `hop` | `TimingBounceView` | [minigame-timing-bounce](../educational/minigame-timing-bounce.md) |
+| `sliceSwipe` | `slice` | `SliceSwipeView` | [minigame-slice-swipe](../educational/minigame-slice-swipe.md) |
+| `slingShot` | `launch` | `SlingShotView` | [minigame-sling-shot](../educational/minigame-sling-shot.md) |
+| `charMaze` | `step` | `CharMazeView` | [minigame-char-maze](../educational/minigame-char-maze.md) |
+| `cutRope` | `cut` | `CutRopeView` | [minigame-cut-rope](../educational/minigame-cut-rope.md) |
+| `laneCatch` | `catch` | `LaneCatchView` | [minigame-lane-catch](../educational/minigame-lane-catch.md) |

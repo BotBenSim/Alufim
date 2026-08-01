@@ -35,5 +35,6 @@ then a skin tagged for the active animal. The host runs `start` / `applyInput` u
 - Do not celebrate every micro-win as hard as evolution.
 - Each active engine needs a real skill moment (timing or aim); miss means “try again,” never lose.
 - Only skill engines ship: city roofs, dino race, ninja slice, sling-shot snack feed,
-  character maze, and cut-rope (`ACTIVE_ENGINES`). Stub engines (`meterBurst`, `tapCollect`,
-  `catch`) were removed rather than left half-built.
+  character maze, cut-rope, and lane-catch (`ACTIVE_ENGINES`). Stub engines (`meterBurst`,
+  `tapCollect`, `catch`) were removed rather than left half-built — lane-catch is a new,
+  fuller design under a new id, not a revival of the `catch` stub.

@@ -11,12 +11,15 @@ describe("profile minigames migration", () => {
     expect(p.minigames.timingBounce.enabled).toBe(true);
     expect(p.minigames.sliceSwipe.enabled).toBe(true);
     expect(p.minigames.slingShot.enabled).toBe(true);
-    expect(p.minigames.charMaze.enabled).toBe(true);
-    expect(p.minigames.cutRope.enabled).toBe(true);
+    expect(p.minigames.laneCatch.enabled).toBe(true);
+    // Opt-in engines — off until a parent turns them on in settings
+    expect(p.minigames.charMaze.enabled).toBe(false);
+    expect(p.minigames.cutRope.enabled).toBe(false);
     expect(Object.keys(p.minigames).sort()).toEqual(
       [
         "charMaze",
         "cutRope",
+        "laneCatch",
         "pathDash",
         "sliceSwipe",
         "slingShot",

@@ -281,6 +281,13 @@
   100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
 }
 
+/* Lane-catch: "that isn't food" shrug — never a penalty, just a shake */
+@keyframes laneCatchYuck {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+  25% { transform: translate(-50%, -50%) rotate(-11deg) scale(0.96); }
+  60% { transform: translate(-50%, -50%) rotate(9deg) scale(0.98); }
+}
+
 .slice-half-l { animation: sliceHalfLeft 0.55s ease-out forwards; }
 .slice-half-r { animation: sliceHalfRight 0.55s ease-out forwards; }
 .slice-slash { animation: sliceSlash 0.35s ease-out forwards; }

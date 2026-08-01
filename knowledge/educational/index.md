@@ -51,6 +51,7 @@ numbers or studies.
 | [minigame-sling-shot](minigame-sling-shot.md) | Sling-shot fling food to the character | Attention span + novelty + motor planning |
 | [minigame-char-maze](minigame-char-maze.md) | Character maze — guide animal to the exit | Attention span + novelty + spatial reasoning |
 | [minigame-cut-rope](minigame-cut-rope.md) | Cut-rope — swipe ropes so snack falls to friend | Attention span + novelty + cause-and-effect |
+| [minigame-lane-catch](minigame-lane-catch.md) | Lane-catch — catch the food, let the junk fall | Attention span + novelty + inhibitory control |
 
 Superseded stubs (removed from product): [minigame-tap-collect](minigame-tap-collect.md),
 [minigame-catch](minigame-catch.md), [minigame-meter-burst](minigame-meter-burst.md).

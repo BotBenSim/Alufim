@@ -10,6 +10,7 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-08-01 — lane-catch play-beat: three-lane falling-food catcher with a go/no-go "only food" rule, no penalty for catching junk — see [minigame-lane-catch](educational/minigame-lane-catch.md).
 - 2026-08-01 — runners sped up (~45%) and the roof runner made preschooler-fair: jump reach envelope, coyote time, off-screen cactus spawns — see [runner-jump-tuning](technical/runner-jump-tuning.md), [minigame-path-dash](educational/minigame-path-dash.md), [minigame-timing-bounce](educational/minigame-timing-bounce.md).
 - 2026-07-22 — per-profile boy/girl accent for answer + hear-again buttons — see [player-gender-accent](product/player-gender-accent.md), [player-gender-field](technical/player-gender-field.md).
 - 2026-07-20 — `Panel` surface/shell in design system for settings + about chrome — see [design-system](technical/design-system.md).
