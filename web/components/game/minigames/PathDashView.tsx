@@ -16,20 +16,17 @@ import type { MinigameViewProps } from "./types";
 
 type Roof = { id: number; x: number; w: number };
 
-/** Half-width of feet for land/stand tests (normalized). Generous so edge landings stick. */
-const FEET_HALF = 0.055;
-
 function makeRoof(id: number, x: number, cfg: JumpPlayConfig): Roof {
   return { id, x, w: randRange(cfg.roofWidth) };
 }
 
 function seedRoofs(cfg: JumpPlayConfig): Roof[] {
   const roofs: Roof[] = [];
-  // Long runway so the animal runs a few seconds before the first gap.
+  // Runway so the animal runs for a beat before the first gap.
   let x = 0;
   for (let i = 0; i < 6; i++) {
     const r = makeRoof(i + 1, x, cfg);
-    if (i === 0) r.w = 1.15;
+    if (i === 0) r.w = 0.95;
     roofs.push(r);
     x += r.w + pickGap(cfg, i >= 2);
   }
@@ -37,9 +34,9 @@ function seedRoofs(cfg: JumpPlayConfig): Roof[] {
 }
 
 /** True if any part of the feet overlaps the roof — not just the center pixel. */
-function onRoof(roofs: Roof[], px: number): Roof | null {
-  const left = px - FEET_HALF;
-  const right = px + FEET_HALF;
+function onRoof(roofs: Roof[], px: number, cfg: JumpPlayConfig): Roof | null {
+  const left = px - cfg.feetHalf;
+  const right = px + cfg.feetHalf;
   for (const r of roofs) {
     if (right >= r.x && left <= r.x + r.w) return r;
   }
@@ -49,7 +46,7 @@ function onRoof(roofs: Roof[], px: number): Roof | null {
 function rebuildFromSafe(nextId: { n: number }, cfg: JumpPlayConfig, runnerX: number): Roof[] {
   const safe = makeRoof(nextId.n++, Math.min(0, runnerX - 0.15), cfg);
   // Extra runway after a fall so the child can settle before the next gap.
-  safe.w = 0.95;
+  safe.w = 0.85;
   const list = [safe];
   let x = safe.x + safe.w + pickGap(cfg, false);
   for (let i = 0; i < 5; i++) {
@@ -60,12 +57,12 @@ function rebuildFromSafe(nextId: { n: number }, cfg: JumpPlayConfig, runnerX: nu
   return list;
 }
 
-/** True when standing near the edge — time to show a jump cue. */
-function nearJumpEdge(roofs: Roof[], runnerX: number): boolean {
-  const under = onRoof(roofs, runnerX);
+/** True when standing near the edge — time to show a jump cue. Stays lit up to the very edge. */
+function nearJumpEdge(roofs: Roof[], runnerX: number, cfg: JumpPlayConfig): boolean {
+  const under = onRoof(roofs, runnerX, cfg);
   if (!under) return false;
   const distToEdge = under.x + under.w - runnerX;
-  return distToEdge > 0.04 && distToEdge < 0.28;
+  return distToEdge > 0 && distToEdge < cfg.cueLead;
 }
 
 export function PathDashView({ session, formArt, onInput, playSfx }: MinigameViewProps) {
@@ -89,6 +86,8 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
   const crossedGapThisJumpRef = useRef(false);
   const scoredThisJumpRef = useRef(false);
   const stunUntilRef = useRef(0);
+  /** Last moment the feet were on a roof — drives coyote time. */
+  const leftGroundAtRef = useRef(0);
   const nextId = useRef({ n: 20 });
   const cfgRef = useRef(cfg);
   cfgRef.current = cfg;
@@ -115,11 +114,16 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
   };
 
   const startJump = () => {
-    if (completeRef.current || fallingRef.current) return;
-    if (performance.now() < stunUntilRef.current) return;
+    if (completeRef.current) return;
+    const now = performance.now();
+    if (now < stunUntilRef.current) return;
     const c = cfgRef.current;
-    const grounded =
-      !!onRoof(roofsRef.current, c.runnerX) && yRef.current >= -2;
+    const standing = !!onRoof(roofsRef.current, c.runnerX, c) && yRef.current >= -2;
+    // Coyote time: a tap just after running off the edge still launches a full jump,
+    // even once the drop has started.
+    const coyote = !jumpingRef.current && now - leftGroundAtRef.current <= c.coyoteMs;
+    if (fallingRef.current && !coyote) return;
+    const grounded = standing || coyote;
     const next = tryBeginJump(c, {
       grounded,
       jumping: jumpingRef.current,
@@ -129,6 +133,8 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
     if (grounded) {
       crossedGapThisJumpRef.current = false;
       scoredThisJumpRef.current = false;
+      fallingRef.current = false;
+      setFalling(false);
     }
     jumpsUsedRef.current = next.jumpsUsed;
     jumpingRef.current = true;
@@ -159,7 +165,7 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
       const c = cfgRef.current;
       const stunned = now < stunUntilRef.current;
 
-      pacePhaseRef.current += dt * (0.7 + Math.random() * 0.5);
+      pacePhaseRef.current += dt * c.paceDriftRate * (0.7 + Math.random() * 0.5);
       const speed = pacedSpeed(pacePhaseRef.current, c);
 
       if (!stunned && !fallingRef.current) {
@@ -176,13 +182,16 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
         setRoofs(list);
       }
 
-      const under = onRoof(roofsRef.current, c.runnerX);
+      const under = onRoof(roofsRef.current, c.runnerX, c);
       const overGap = !under;
+      if (under && !jumpingRef.current && !fallingRef.current) {
+        leftGroundAtRef.current = now;
+      }
       const cue =
         !stunned &&
         !fallingRef.current &&
         !jumpingRef.current &&
-        nearJumpEdge(roofsRef.current, c.runnerX);
+        nearJumpEdge(roofsRef.current, c.runnerX, c);
       if (cue !== jumpCueRef.current) {
         jumpCueRef.current = cue;
         setJumpCue(cue);
@@ -195,8 +204,9 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
       if (jumpingRef.current || fallingRef.current) {
         vRef.current += c.gravity * dt;
         yRef.current += vRef.current * dt;
-        if (jumpingRef.current && !fallingRef.current && yRef.current >= 0) {
-          if (onRoof(roofsRef.current, c.runnerX)) {
+        // Only ever land on the way down — a coyote-rescue jump starts below roof level.
+        if (jumpingRef.current && !fallingRef.current && yRef.current >= 0 && vRef.current > 0) {
+          if (onRoof(roofsRef.current, c.runnerX, c)) {
             yRef.current = 0;
             vRef.current = 0;
             jumpingRef.current = false;

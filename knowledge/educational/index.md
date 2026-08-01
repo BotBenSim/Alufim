@@ -3,7 +3,7 @@ id: educational-index
 title: Educational - Learning Theory Behind Features
 type: manifest
 format: OKF/1.0
-updated: 2026-07-20
+updated: 2026-08-01
 tags: [educational, pedagogy, manifest]
 ---
 
@@ -45,8 +45,8 @@ numbers or studies.
 | [game-variety](game-variety.md) | Four varied games over one drill | Retrieval practice + interleaving |
 | [start-from-first-form](start-from-first-form.md) | Start as living baby, not egg | Self-Determination Theory (relatedness) |
 | [play-beat-minigame-variety](play-beat-minigame-variety.md) | Varied no-fail micro-games on the play beat | Attention span + novelty |
-| [minigame-path-dash](minigame-path-dash.md) | Path-dash short no-fail dash | Attention span + novelty |
-| [minigame-timing-bounce](minigame-timing-bounce.md) | Timing-bounce generous hops | Attention span + novelty |
+| [minigame-path-dash](minigame-path-dash.md) | Path-dash roof runner a five-year-old can beat | Flow + attention span |
+| [minigame-timing-bounce](minigame-timing-bounce.md) | Timing-bounce cactus jump, generous hops | Flow + attention span |
 | [minigame-slice-swipe](minigame-slice-swipe.md) | Slice-swipe with no bomb fail | Attention span + novelty |
 | [minigame-sling-shot](minigame-sling-shot.md) | Sling-shot fling food to the character | Attention span + novelty + motor planning |
 | [minigame-char-maze](minigame-char-maze.md) | Character maze — guide animal to the exit | Attention span + novelty + spatial reasoning |

@@ -263,7 +263,9 @@ function clampBand(
   if (gameId === "add") {
     let minSum = clampNum(next.minSum, 2, 200, 2);
     let maxSum = clampNum(next.maxSum, 2, 200, 8);
-    if (minSum > maxSum) [minSum, maxSum] = [maxSum, minSum];
+    // Never swap — that thrashes the other bound while typing. Nudge max up.
+    if (maxSum <= minSum) maxSum = Math.min(200, minSum + 1);
+    if (maxSum <= minSum) minSum = Math.max(2, maxSum - 1);
     return {
       ...next,
       minSum,
@@ -274,7 +276,8 @@ function clampBand(
   if (gameId === "sub") {
     let minTop = clampNum(next.minTop, 2, 200, 2);
     let maxMin = clampNum(next.maxMin, 2, 200, 8);
-    if (minTop > maxMin) [minTop, maxMin] = [maxMin, minTop];
+    if (maxMin <= minTop) maxMin = Math.min(200, minTop + 1);
+    if (maxMin <= minTop) minTop = Math.max(2, maxMin - 1);
     return {
       ...next,
       minTop,
@@ -283,11 +286,17 @@ function clampBand(
     };
   }
   if (gameId === "find") {
+    let qLo = next.qLo != null ? clampNum(next.qLo, 1, 20, 1) : next.qLo;
+    let qHi = next.qHi != null ? clampNum(next.qHi, 1, 20, 4) : next.qHi;
+    if (qLo != null && qHi != null && qHi <= qLo) {
+      qHi = Math.min(20, qLo + 1);
+      if (qHi <= qLo) qLo = Math.max(1, qHi - 1);
+    }
     return {
       ...next,
       maxNum: clampNum(next.maxNum, 1, 100, 5),
-      qLo: next.qLo != null ? clampNum(next.qLo, 1, 20, 1) : next.qLo,
-      qHi: next.qHi != null ? clampNum(next.qHi, 1, 20, 4) : next.qHi,
+      qLo,
+      qHi,
     };
   }
   if (gameId === "eng") {

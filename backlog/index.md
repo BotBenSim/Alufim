@@ -3,7 +3,7 @@ id: backlog-index
 title: Backlog - Educational Feature Proposals
 type: manifest
 format: OKF/1.0
-updated: 2026-07-20
+updated: 2026-08-01
 tags: [backlog, educational, manifest]
 ---
 
@@ -52,3 +52,6 @@ Off-ramps: `rejected`, `superseded`.
 | [positive-bond-affection](positive-bond-affection.md) | Growing mood/affection feedback (positive-only, no decay) | proposed | SDT relatedness + positive reinforcement |
 | [session-quest-surprise-chest](session-quest-surprise-chest.md) | Tiny per-run quest ending in a surprise chest | proposed | Goal-gradient + variable always-positive reward |
 | [audit-medium-hard-levels](audit-medium-hard-levels.md) | Playtest + fix medium/hard across all learning games | proposed | ZPD + flow (right-sized difficulty) |
+| [animal-epic-boss-steps-and-skills](animal-epic-boss-steps-and-skills.md) | Growth steps as boss moments; each game grants a move | proposed | SDT competence + goal-gradient + interleaving |
+| [hebrew-writing-game](hebrew-writing-game.md) | Hebrew writing game (trace/build letters) | proposed | Grapho-motor letter learning + faded scaffolding |
+| [music-ear-and-chords-game](music-ear-and-chords-game.md) | Music game: echo tunes + happy/sad chords | proposed | Sound before symbol (Gordon) + retrieval practice |

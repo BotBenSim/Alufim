@@ -3,7 +3,7 @@ id: technical-index
 title: Technical - Engineering Decisions
 type: manifest
 format: OKF/1.0
-updated: 2026-07-22
+updated: 2026-08-01
 tags: [technical, engineering, architecture, manifest]
 ---
 
@@ -32,6 +32,7 @@ The core patterns that keep the app extensible — start here to understand the 
 | [question-dispatch-by-op](question-dispatch-by-op.md) | Dispatch render/speech by `Question.op` | accepted |
 | [pure-logic-in-lib](pure-logic-in-lib.md) | Pure, testable logic in `lib/`, split from React | accepted |
 | [design-system](design-system.md) | Design system: tokens + primitives | accepted |
+| [runner-jump-tuning](runner-jump-tuning.md) | Runner minigames: jump reach envelope + coyote time | accepted |
 
 ## Platform and state
 

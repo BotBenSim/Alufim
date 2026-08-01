@@ -144,15 +144,26 @@ describe("defaultCurriculum / ensureCurriculum", () => {
 });
 
 describe("clampCurriculum", () => {
-  it("swaps inverted add min/max and clamps steps", () => {
+  it("nudges max up when inverted (does not swap bounds) and clamps steps", () => {
     const cur = defaultCurriculum("add");
     cur.stepsPerBlock = 99;
     cur.bands.easy[0] = { minSum: 20, maxSum: 5 };
     const clamped = clampCurriculum("add", cur);
     expect(clamped.stepsPerBlock).toBe(20);
     expect(clamped.bands.easy[0]).toEqual({
-      minSum: 5,
-      maxSum: 20,
+      minSum: 20,
+      maxSum: 21,
+      visual: "fullCount",
+    });
+  });
+
+  it("keeps a valid add range unchanged", () => {
+    const cur = defaultCurriculum("add");
+    cur.bands.easy[0] = { minSum: 4, maxSum: 10, visual: "fullCount" };
+    const clamped = clampCurriculum("add", cur);
+    expect(clamped.bands.easy[0]).toEqual({
+      minSum: 4,
+      maxSum: 10,
       visual: "fullCount",
     });
   });
