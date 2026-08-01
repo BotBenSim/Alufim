@@ -10,7 +10,15 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-08-01 — proposed target architecture for accounts, parent-only passwordless auth, per-entity sync and household subscriptions; local-first with our own API — see [accounts-sync-architecture](technical/accounts-sync-architecture.md).
 - 2026-08-01 — runners sped up (~45%) and the roof runner made preschooler-fair: jump reach envelope, coyote time, off-screen cactus spawns — see [runner-jump-tuning](technical/runner-jump-tuning.md), [minigame-path-dash](educational/minigame-path-dash.md), [minigame-timing-bounce](educational/minigame-timing-bounce.md).
+- 2026-08-01 — proposed: per-stage question counts in settings (`counts[]`, 0 = skip), for every game — see [skill-mix-settings](technical/skill-mix-settings.md).
+- 2026-08-01 — proposed: one 7-stage ladder filled in three times (Hebrew / English / music); 3 new mechanics cover all of it — see [track-skill-ladders](educational/track-skill-ladders.md).
+- 2026-08-01 — proposed: domains (Hebrew / English / music) become tracks of many small games, not one card each — see [curriculum-tracks](technical/curriculum-tracks.md).
+- 2026-08-01 — target audience stated as 3–8 year olds; every feature must span the range (no adult mode) — see [target-age-range](product/target-age-range.md).
+- 2026-08-01 — Hebrew literacy sequence recorded: letters → nikud → syllable (acrophonic names, body-coda blending), not English phonics — see [hebrew-reading-sequence](educational/hebrew-reading-sequence.md).
+- 2026-08-01 — every scaffold (colour, glow, label, guide) must declare the band that removes it; colour-coding and falling-note evidence — see [faded-scaffold-ladder](educational/faded-scaffold-ladder.md).
+- 2026-08-01 — sound-before-symbol adopted for all symbol teaching (music notes, Hebrew letters); reading/music ladders are one engine — see [sound-before-symbol](educational/sound-before-symbol.md).
 - 2026-07-22 — per-profile boy/girl accent for answer + hear-again buttons — see [player-gender-accent](product/player-gender-accent.md), [player-gender-field](technical/player-gender-field.md).
 - 2026-07-20 — `Panel` surface/shell in design system for settings + about chrome — see [design-system](technical/design-system.md).
 - 2026-07-20 — `SettingsButton` + `.btnRow` for equal-size settings actions — see [design-system](technical/design-system.md).

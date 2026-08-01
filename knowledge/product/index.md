@@ -27,3 +27,4 @@ sections: **Problem -> Decision -> User impact -> Trade-offs -> Signals to watch
 | [start-from-first-form](start-from-first-form.md) | Show living baby, not egg, from the start | accepted |
 | [settings-sidebar](settings-sidebar.md) | Profile settings: sidebar + child avatar | accepted |
 | [player-gender-accent](player-gender-accent.md) | Boy/girl accent for question buttons | accepted |
+| [target-age-range](target-age-range.md) | Audience is 3–8; features span the whole range | accepted |

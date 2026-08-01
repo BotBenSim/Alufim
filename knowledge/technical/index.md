@@ -32,6 +32,8 @@ The core patterns that keep the app extensible — start here to understand the 
 | [question-dispatch-by-op](question-dispatch-by-op.md) | Dispatch render/speech by `Question.op` | accepted |
 | [pure-logic-in-lib](pure-logic-in-lib.md) | Pure, testable logic in `lib/`, split from React | accepted |
 | [design-system](design-system.md) | Design system: tokens + primitives | accepted |
+| [curriculum-tracks](curriculum-tracks.md) | Domains are tracks of many small games | proposed |
+| [skill-mix-settings](skill-mix-settings.md) | Parent sets questions-per-stage (`counts`), 0 = skip | proposed |
 | [runner-jump-tuning](runner-jump-tuning.md) | Runner minigames: jump reach envelope + coyote time | accepted |
 
 ## Platform and state
@@ -45,3 +47,4 @@ The core patterns that keep the app extensible — start here to understand the 
 | [player-gender-field](player-gender-field.md) | Profile `gender` field with additive migrate | accepted |
 | [zustand-store](zustand-store.md) | Zustand + persist for app state | accepted |
 | [hydration-gating](hydration-gating.md) | Gate UI until store rehydrates | accepted |
+| [accounts-sync-architecture](accounts-sync-architecture.md) | Accounts/auth/sync: local-first, server as sync + entitlement layer | proposed |
