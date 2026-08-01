@@ -21,6 +21,7 @@ export function defaultGames(): Profile["games"] {
     find: { enabled: true, level: "easy", curriculum: defaultCurriculum("find") },
     add: { enabled: true, level: "easy", curriculum: defaultCurriculum("add") },
     sub: { enabled: true, level: "easy", curriculum: defaultCurriculum("sub") },
+    nums: { enabled: true, level: "easy", curriculum: defaultCurriculum("nums") },
     mul: { enabled: true, level: "easy", curriculum: defaultCurriculum("mul") },
     div: { enabled: true, level: "easy", curriculum: defaultCurriculum("div") },
     eng: { enabled: true, level: "easy", curriculum: defaultCurriculum("eng") },

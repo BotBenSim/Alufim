@@ -18,13 +18,16 @@ import {
 import { CHARACTERS, characterById } from "@/data/characters";
 import { GAMES, GAME_ORDER } from "@/data/games";
 import { MINIGAME_META } from "@/data/minigameMeta";
+import { NUMS_STAGES } from "@/data/nums";
 import { PHOTOS } from "@/data/photos";
 import {
   clampCurriculum,
   defaultCurriculum,
   isMathGame,
+  hasStageBands,
   MATH_VISUAL_OPTIONS,
   MAX_BAND_COUNT,
+  MAX_STAGE,
   normalizeMathVisual,
 } from "@/lib/difficulty";
 import { isImgAvatar } from "@/lib/migrate";
@@ -115,6 +118,8 @@ function emptyBand(gameId: GameId): DifficultyBand {
   if (gameId === "mul") return { minFactor: 1, maxFactor: 5, visual: "fullCount" };
   if (gameId === "div") return { maxDivisor: 3, maxQuotient: 5, visual: "fullCount" };
   if (gameId === "find") return { maxNum: 5, qLo: 1, qHi: 4 };
+  if (gameId === "nums") return { stage: 1, maxNum: 10 };
+  if (hasStageBands(gameId)) return { stage: 1 };
   return { maxLen: 8 };
 }
 
@@ -498,6 +503,20 @@ export function ProfileEditor() {
                               </div>
                             )}
 
+                            {gid === "nums" && (
+                              <div className="visualLegend">
+                                <div className="visualLegendTitle">שלבים</div>
+                                <div className="visualLegendRows">
+                                  {NUMS_STAGES.map((s) => (
+                                    <div key={s.stage} className="visualLegendRow">
+                                      <span className="visualLegendName">שלב {s.stage}</span>
+                                      <span className="visualLegendEx">{s.label}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
                             <div className="flabel">
                               קטעים — רמה {levelLabelHe(level)}
                             </div>
@@ -713,6 +732,30 @@ export function ProfileEditor() {
                                           </>
                                         );
                                       })()}
+                                      {hasStageBands(gid) && (
+                                        <>
+                                          <SettingsNumberField
+                                            label="שלב"
+                                            value={Number(band.stage) || 1}
+                                            min={1}
+                                            max={MAX_STAGE}
+                                            onChange={(v) =>
+                                              updateBandField(gid, level, idx, "stage", v)
+                                            }
+                                          />
+                                          {gid === "nums" && (
+                                            <SettingsNumberField
+                                              label="מספר עד"
+                                              value={Number(band.maxNum) || 10}
+                                              min={2}
+                                              max={100}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "maxNum", v)
+                                              }
+                                            />
+                                          )}
+                                        </>
+                                      )}
                                       {gid === "eng" && (
                                         <SettingsNumberField
                                           label="אורך מקס׳"

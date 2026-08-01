@@ -5,6 +5,7 @@ import { mulProvider } from "./mul";
 import { divProvider } from "./div";
 import { engProvider } from "./eng";
 import { findProvider } from "./find";
+import { numsProvider } from "./nums";
 import { hebreadProvider } from "./hebread";
 import { engreadProvider } from "./engread";
 import { musicProvider } from "./music";
@@ -15,6 +16,7 @@ import type { StageProvider } from "./stage";
  * new one only needs its own data + provider file.
  */
 export const STAGE_PROVIDERS = {
+  nums: numsProvider,
   hebread: hebreadProvider,
   engread: engreadProvider,
   music: musicProvider,

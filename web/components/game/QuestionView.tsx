@@ -180,6 +180,16 @@ export function QuestionView({
 
     if (isStageGame(q.op)) {
       const meta = STAGE_PROVIDERS[q.op].render(q);
+      if (meta.variant === "answerGroup") {
+        // Sets of emoji need the wrapping button; the label is the answer.
+        return {
+          kind: "findGroup" as const,
+          prompt: meta.prompt,
+          hint: meta.hint,
+          options: meta.options.map((o) => ({ value: o, label: o })),
+          variant: "answerGroup" as const,
+        };
+      }
       return {
         kind: "find" as const,
         prompt: meta.prompt,

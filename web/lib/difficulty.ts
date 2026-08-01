@@ -8,6 +8,7 @@ import type {
 import { ENGREAD_BANDS } from "@/data/engread";
 import { HEBREAD_BANDS } from "@/data/hebread";
 import { MUSIC_BANDS } from "@/data/music";
+import { NUMS_BANDS } from "@/data/nums";
 import { bandForStepWithCounts, blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
 
 type AddBlock = { minSum: number; maxSum: number; visual: MathVisual };
@@ -58,6 +59,7 @@ export const GAME_DIFFICULTY: Record<
   GameId,
   Partial<Record<DifficultyLevel, AnyBlock[]>>
 > = {
+  nums: NUMS_BANDS,
   hebread: HEBREAD_BANDS,
   engread: ENGREAD_BANDS,
   music: MUSIC_BANDS,
@@ -222,6 +224,19 @@ const MATH_GAMES = new Set<GameId>(["add", "sub", "mul", "div"]);
 export function isMathGame(gameId: GameId): boolean {
   return MATH_GAMES.has(gameId);
 }
+
+/**
+ * Games built as a ladder, where a band picks which rung to stand on.
+ * `lib/providers` has the matching type guard for a question's `op`; this one
+ * is kept separate so the data layer never imports the providers.
+ */
+const STAGE_GAMES = new Set<GameId>(["nums", "hebread", "engread", "music"]);
+
+export function hasStageBands(gameId: GameId): boolean {
+  return STAGE_GAMES.has(gameId);
+}
+
+export const MAX_STAGE = 5;
 
 function withDefaultVisuals(
   gameId: GameId,
@@ -407,6 +422,13 @@ function clampBand(
   if (gameId === "eng") {
     return { ...next, maxLen: clampNum(next.maxLen, 1, 64, 8) };
   }
+  if (hasStageBands(gameId)) {
+    const stage = clampNum(next.stage, 1, MAX_STAGE, 1);
+    // Only the numbers ladder exposes a ceiling; the others read from their
+    // own word and note tables.
+    if (gameId !== "nums") return { ...next, stage };
+    return { ...next, stage, maxNum: clampNum(next.maxNum, 2, 100, 10) };
+  }
   return next;
 }
 
@@ -438,6 +460,9 @@ export function curriculumSummary(
   }
   if (gameId === "eng") {
     return `התחלה: עד ${band.maxLen ?? "?"} אותיות`;
+  }
+  if (gameId === "nums") {
+    return `התחלה: שלב ${band.stage ?? 1} · עד ${band.maxNum ?? "?"}`;
   }
   if (band.stage) {
     return `התחלה: שלב ${band.stage}`;

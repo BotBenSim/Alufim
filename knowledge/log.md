@@ -10,6 +10,7 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-08-01 — shipped the numbers game: a 5-stage ladder from matching quantities to reading `34` as tens and ones, with `100` taught against `10` and `1000`; stage bands are now editable in settings for every ladder game — see [number-sense-ladder](educational/number-sense-ladder.md).
 - 2026-08-01 — shipped multiplication and division games: equal groups and fair sharing, no remainders, near-miss distractors — see [multiplication-as-equal-groups](educational/multiplication-as-equal-groups.md).
 - 2026-08-01 — shipped three learning tracks (Hebrew reading, English phonics, music ear-training), stages 1-5 each, as three games behind one shared stage contract — see [track-skill-ladders](educational/track-skill-ladders.md).
 - 2026-08-01 — shipped per-stage question counts (`counts[]`, 0 = skip) with a settings toggle per game — see [skill-mix-settings](technical/skill-mix-settings.md).

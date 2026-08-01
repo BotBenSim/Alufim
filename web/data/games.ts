@@ -16,6 +16,13 @@ export const GAMES = {
     cardClass: "sub",
     provider: PROVIDERS.sub,
   },
+  nums: {
+    title: "מספרים",
+    icon: "🔢",
+    subtitle: "לספור ולהכיר ספרות",
+    cardClass: "find",
+    provider: PROVIDERS.nums,
+  },
   mul: {
     title: "כפל",
     icon: "✖️",
@@ -69,6 +76,7 @@ export const GAMES = {
 
 /** One flat list, ordered so games from the same subject sit next to each other. */
 export const GAME_ORDER: GameId[] = [
+  "nums",
   "add",
   "sub",
   "mul",

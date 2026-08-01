@@ -16,8 +16,11 @@ export type StageRender = {
   hint?: string;
   /** Button labels; the tapped label is compared against `Question.answer`. */
   options: string[];
-  /** `answerFind` for glyphs/letters, `answerEng` for emoji/pictures. */
-  variant: "answerFind" | "answerEng";
+  /**
+   * `answerFind` for glyphs/letters, `answerEng` for a single emoji/picture,
+   * `answerGroup` for a whole set of emoji that needs room to wrap.
+   */
+  variant: "answerFind" | "answerEng" | "answerGroup";
 };
 
 /** What to say when the question appears. Hebrew and English are spoken separately. */

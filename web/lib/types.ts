@@ -4,6 +4,7 @@ export type GameId =
   | "sub"
   | "mul"
   | "div"
+  | "nums"
   | "find"
   | "eng"
   | "hebread"
