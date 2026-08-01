@@ -49,7 +49,7 @@ const GAP_SECONDS = 0.3;
 const MISS_LABEL_GONE = "אופס…";
 const MISS_LABEL_INEDIBLE = "לא אוכל…";
 
-export function LaneCatchView({ session, formArt, onInput, playSfx }: MinigameViewProps) {
+export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) {
   const st = session.state as LaneCatchState;
   const lanes = st.lanes || LANE_COUNT;
 
@@ -61,7 +61,6 @@ export function LaneCatchView({ session, formArt, onInput, playSfx }: MinigameVi
 
   const animalXRef = useRef(animalX);
   const targetLaneRef = useRef(1);
-  const walkingRef = useRef(false);
   const dropRef = useRef<Drop | null>(null);
   const gapRef = useRef(GAP_SECONDS);
   const dropIndexRef = useRef(0);
@@ -77,8 +76,6 @@ export function LaneCatchView({ session, formArt, onInput, playSfx }: MinigameVi
   avoidRef.current = st.avoid;
   const onInputRef = useRef(onInput);
   onInputRef.current = onInput;
-  const playSfxRef = useRef(playSfx);
-  playSfxRef.current = playSfx;
 
   const syncDrop = useCallback((next: Drop | null) => {
     dropRef.current = next;
@@ -89,7 +86,6 @@ export function LaneCatchView({ session, formArt, onInput, playSfx }: MinigameVi
     (lane: number) => {
       if (completeRef.current || lane === targetLaneRef.current) return;
       targetLaneRef.current = lane;
-      walkingRef.current = true;
     },
     []
   );
@@ -188,10 +184,6 @@ export function LaneCatchView({ session, formArt, onInput, playSfx }: MinigameVi
         const nx = moveToward(animalXRef.current, target, WALK_SPEED * dt);
         animalXRef.current = nx;
         setAnimalX(nx);
-        if (nx === target && walkingRef.current) {
-          walkingRef.current = false;
-          playSfxRef.current("land");
-        }
       }
 
       const d = dropRef.current;
@@ -241,7 +233,7 @@ export function LaneCatchView({ session, formArt, onInput, playSfx }: MinigameVi
       flash={flash}
       flashGoodLabel="טעים!"
       flashMissLabel={missLabel}
-      stageClassName="touch-none cursor-pointer border-none bg-gradient-to-b from-[#FFF4D6] to-[#FFE3B3]"
+      stageClassName="touch-none cursor-pointer border-none"
       stageProps={{
         role: "button",
         tabIndex: 0,
@@ -277,11 +269,8 @@ export function LaneCatchView({ session, formArt, onInput, playSfx }: MinigameVi
 
       {telegraphing && (
         <div
-          className="pointer-events-none absolute top-[6%] z-[2] animate-pulse text-[clamp(26px,7vw,40px)] leading-none opacity-70"
-          style={{
-            left: `${laneCenter(telegraphing.lane, lanes) * 100}%`,
-            transform: "translateX(-50%)",
-          }}
+          className="pointer-events-none absolute top-[6%] z-[2] animate-jumpCuePulse text-[clamp(26px,7vw,40px)] leading-none"
+          style={{ left: `${laneCenter(telegraphing.lane, lanes) * 100}%` }}
           aria-hidden
         >
           ✨
@@ -303,14 +292,15 @@ export function LaneCatchView({ session, formArt, onInput, playSfx }: MinigameVi
       )}
 
       <div
-        className="pointer-events-none absolute z-[4]"
+        className={`pointer-events-none absolute z-[4] ${
+          wobble ? "animate-[laneCatchYuck_0.48s_ease-out]" : ""
+        }`}
         style={{
           left: `${animalX * 100}%`,
           top: `${ANIMAL_Y * 100}%`,
           width: ART,
           height: ART,
-          transform: `translate(-50%, -50%) ${wobble ? "rotate(-10deg)" : "rotate(0deg)"}`,
-          transition: "transform 120ms ease-out",
+          transform: "translate(-50%, -50%)",
         }}
       >
         <CharacterArt art={formArt} size={ART} className="drop-shadow-lg" />
