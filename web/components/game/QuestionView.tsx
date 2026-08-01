@@ -8,6 +8,7 @@ import { AnswerGlyphView } from "@/components/game/AnswerGlyphView";
 import { addRenderMeta, type AddQuestion } from "@/lib/providers/add";
 import { subRenderMeta, type SubQuestion } from "@/lib/providers/sub";
 import { engRenderMeta, type EngQuestion } from "@/lib/providers/eng";
+import { isStageGame, STAGE_PROVIDERS } from "@/lib/providers";
 import type { AnswerChoice } from "@/lib/answerChoice";
 import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
 import type { PlayerGender, RunState } from "@/lib/types";
@@ -110,6 +111,17 @@ export function QuestionView({
         hint: meta.hint,
         options: meta.options,
         variant: "answerEng" as const,
+      };
+    }
+
+    if (isStageGame(q.op)) {
+      const meta = STAGE_PROVIDERS[q.op].render(q);
+      return {
+        kind: "find" as const,
+        prompt: meta.prompt,
+        hint: meta.hint,
+        options: meta.options,
+        variant: meta.variant,
       };
     }
 

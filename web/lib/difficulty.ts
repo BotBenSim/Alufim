@@ -5,6 +5,9 @@ import type {
   GameId,
   MathVisual,
 } from "./types";
+import { ENGREAD_BANDS } from "@/data/engread";
+import { HEBREAD_BANDS } from "@/data/hebread";
+import { MUSIC_BANDS } from "@/data/music";
 import { bandForStepWithCounts, blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
 
 type AddBlock = { minSum: number; maxSum: number; visual: MathVisual };
@@ -42,8 +45,13 @@ export function mathVisualLabel(v: MathVisual): string {
 /** Factory template — deep-copied into profiles on create / migrate / reset. */
 export const GAME_DIFFICULTY: Record<
   GameId,
-  Partial<Record<DifficultyLevel, AddBlock[] | SubBlock[] | FindBlock[] | EngBlock[]>>
+  Partial<
+    Record<DifficultyLevel, AddBlock[] | SubBlock[] | FindBlock[] | EngBlock[] | DifficultyBand[]>
+  >
 > = {
+  hebread: HEBREAD_BANDS,
+  engread: ENGREAD_BANDS,
+  music: MUSIC_BANDS,
   add: {
     easy: [
       { minSum: 2, maxSum: 8, visual: "fullCount" },
@@ -178,7 +186,7 @@ function withDefaultVisuals(
 
 function cloneBands(
   gameId: GameId,
-  rows: AddBlock[] | SubBlock[] | FindBlock[] | EngBlock[] | undefined
+  rows: AddBlock[] | SubBlock[] | FindBlock[] | EngBlock[] | DifficultyBand[] | undefined
 ): DifficultyBand[] {
   const cloned = JSON.parse(JSON.stringify(rows ?? [{}])) as DifficultyBand[];
   return withDefaultVisuals(gameId, cloned);

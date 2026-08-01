@@ -3,6 +3,7 @@ import { findCatLabel, LETTER_NAME } from "@/data/find";
 import { addSpeakPrompt, type AddQuestion } from "@/lib/providers/add";
 import { subSpeakPrompt, type SubQuestion } from "@/lib/providers/sub";
 import type { EngQuestion, EngWord } from "@/lib/providers/eng";
+import { isStageGame, STAGE_PROVIDERS } from "@/lib/providers";
 import type { Question } from "@/lib/types";
 
 type FindQ = Question & {
@@ -41,6 +42,13 @@ export function speakQuestion(q: Question, speak: SpeakFn, speakEn: SpeakFn) {
       else if (fq.kind === "reason") speak(fq.prompt || "", true);
       else if (fq.kind === "cat" && fq.cat && fq.item?.he)
         speak(findCatLabel(fq.cat, fq.item.he), true);
+      break;
+    }
+    default: {
+      if (!isStageGame(q.op)) break;
+      const { he, en } = STAGE_PROVIDERS[q.op].speak(q);
+      if (he) speak(he, true);
+      if (en) speakEn(en, true);
       break;
     }
   }

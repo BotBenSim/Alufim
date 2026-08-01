@@ -1,5 +1,12 @@
 export type DifficultyLevel = "easy" | "medium" | "hard";
-export type GameId = "add" | "sub" | "find" | "eng";
+export type GameId =
+  | "add"
+  | "sub"
+  | "find"
+  | "eng"
+  | "hebread"
+  | "engread"
+  | "music";
 export type BeatType = "learn" | "mission" | "play";
 export type RunPhase = "learn" | "mission" | "play" | "evolve";
 /** Accent for question UI (answer / hear-again buttons). */

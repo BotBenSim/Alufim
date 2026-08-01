@@ -30,6 +30,35 @@ export const GAMES = {
     cardClass: "find",
     provider: PROVIDERS.find,
   },
+  hebread: {
+    title: "קריאה בעברית",
+    icon: "📖",
+    subtitle: "מצליל לאות למילה",
+    cardClass: "find",
+    provider: PROVIDERS.hebread,
+  },
+  engread: {
+    title: "קריאה באנגלית",
+    icon: "🅰️",
+    subtitle: "sound it out",
+    cardClass: "eng",
+    provider: PROVIDERS.engread,
+  },
+  music: {
+    title: "מוזיקה",
+    icon: "🎵",
+    subtitle: "לשמוע, לנגן, לקרוא תווים",
+    cardClass: "sub",
+    provider: PROVIDERS.music,
+  },
 } as const;
 
-export const GAME_ORDER: GameId[] = ["add", "sub", "find", "eng"];
+export const GAME_ORDER: GameId[] = [
+  "add",
+  "sub",
+  "find",
+  "eng",
+  "hebread",
+  "engread",
+  "music",
+];

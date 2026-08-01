@@ -22,6 +22,9 @@ export function defaultGames(): Profile["games"] {
     add: { enabled: true, level: "easy", curriculum: defaultCurriculum("add") },
     sub: { enabled: true, level: "easy", curriculum: defaultCurriculum("sub") },
     eng: { enabled: true, level: "easy", curriculum: defaultCurriculum("eng") },
+    hebread: { enabled: true, level: "easy", curriculum: defaultCurriculum("hebread") },
+    engread: { enabled: true, level: "easy", curriculum: defaultCurriculum("engread") },
+    music: { enabled: true, level: "easy", curriculum: defaultCurriculum("music") },
   };
 }
 
