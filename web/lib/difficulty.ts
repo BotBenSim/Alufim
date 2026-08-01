@@ -361,6 +361,9 @@ export function curriculumSummary(
   if (gameId === "eng") {
     return `התחלה: עד ${band.maxLen ?? "?"} אותיות`;
   }
+  if (band.stage) {
+    return `התחלה: שלב ${band.stage}`;
+  }
   return "התחלה";
 }
 
