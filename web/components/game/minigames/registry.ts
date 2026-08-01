@@ -2,6 +2,7 @@ import type { MinigameEngineId } from "@/lib/minigames/types";
 import type { MinigameSfx } from "@/hooks/useAudio";
 import { CharMazeView } from "./CharMazeView";
 import { CutRopeView } from "./CutRopeView";
+import { LaneCatchView } from "./LaneCatchView";
 import { PathDashView } from "./PathDashView";
 import { SliceSwipeView } from "./SliceSwipeView";
 import { SlingShotView } from "./SlingShotView";
@@ -27,4 +28,5 @@ export const MINIGAME_UI: Record<MinigameEngineId, MinigameUiStrategy> = {
   slingShot: { View: SlingShotView, goodSfx: "pop", missSfx: "miss" },
   charMaze: { View: CharMazeView, goodSfx: "pop", missSfx: "bonk" },
   cutRope: { View: CutRopeView, goodSfx: "pop", missSfx: "miss" },
+  laneCatch: { View: LaneCatchView, goodSfx: "pop", missSfx: "miss" },
 };

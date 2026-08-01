@@ -10,6 +10,7 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-08-01 — lane-catch play-beat: three-lane falling-food catcher with a go/no-go "only food" rule, no penalty for catching junk — see [minigame-lane-catch](educational/minigame-lane-catch.md).
 - 2026-08-01 — proposed target architecture for accounts, parent-only passwordless auth, per-entity sync and household subscriptions; local-first with our own API — see [accounts-sync-architecture](technical/accounts-sync-architecture.md).
 - 2026-08-01 — runners sped up (~45%) and the roof runner made preschooler-fair: jump reach envelope, coyote time, off-screen cactus spawns — see [runner-jump-tuning](technical/runner-jump-tuning.md), [minigame-path-dash](educational/minigame-path-dash.md), [minigame-timing-bounce](educational/minigame-timing-bounce.md).
 - 2026-08-01 — proposed: per-stage question counts in settings (`counts[]`, 0 = skip), for every game — see [skill-mix-settings](technical/skill-mix-settings.md).

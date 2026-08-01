@@ -54,6 +54,13 @@ export const MINIGAME_META: MinigameMeta[] = [
     blurb: "חתכו את החבל — החטיף נופל לפה",
     defaultEnabled: false,
   },
+  {
+    id: "laneCatch",
+    title: "אוכל נופל",
+    icon: "🍗",
+    blurb: "זוזו לצד ותפסו רק אוכל אמיתי",
+    defaultEnabled: true,
+  },
 ];
 
 export const MINIGAME_ORDER: MinigameEngineId[] = MINIGAME_META.map((m) => m.id);

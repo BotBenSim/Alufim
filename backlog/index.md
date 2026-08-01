@@ -46,6 +46,7 @@ Off-ramps: `rejected`, `superseded`.
 | [minigame-engine-sling-shot](minigame-engine-sling-shot.md) | Engine: sling-shot (fling food to the character) | accepted | Attention span + novelty + motor planning |
 | [minigame-engine-char-maze](minigame-engine-char-maze.md) | Engine: char-maze (guide animal to the exit) | accepted | Attention span + novelty + spatial reasoning |
 | [minigame-engine-cut-rope](minigame-engine-cut-rope.md) | Engine: cut-rope (swipe ropes so snack falls) | accepted | Attention span + novelty + cause-and-effect |
+| [minigame-engine-lane-catch](minigame-engine-lane-catch.md) | Engine: lane-catch (catch falling food, let junk drop) | accepted | Attention span + novelty + inhibitory control |
 | [varied-surprising-feed-beat](varied-surprising-feed-beat.md) | Varied foods/reactions on feed (superseded by host + engines) | superseded | Variable-ratio reinforcement + novelty |
 | [alternate-mission-play-beats](alternate-mission-play-beats.md) | Schedule find-mission in rhythm (related to tap-collect) | proposed | Attention span + interleaving |
 | [visible-collection-board](visible-collection-board.md) | Collection gallery + near "next friend" goal | proposed | Curiosity gap + goal-gradient + SDT |
