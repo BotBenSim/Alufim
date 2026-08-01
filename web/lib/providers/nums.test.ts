@@ -121,13 +121,32 @@ describe("numsProvider", () => {
     }
   });
 
-  it("asks for the successor at stage 4", () => {
-    const curriculum = atStage(4, 20);
-    for (let i = 0; i < 200; i++) {
-      const q = numsProvider.generate(ctx({ curriculum })) as NumsQuestion;
-      expect(q.dir).toBe("next");
-      expect(q.answer).toBe(String(q.n + 1));
-      expect(q.options as string[]).toContain(String(q.n + 1));
+  it("asks which is bigger at stage 4 — the answer is always the largest", () => {
+    for (const maxNum of [5, 10, 20, 100]) {
+      const curriculum = atStage(4, maxNum);
+      let sawQuantity = 0;
+      let sawNumeral = 0;
+      for (let i = 0; i < 80; i++) {
+        const q = numsProvider.generate(ctx({ curriculum })) as NumsQuestion;
+        expect(q.dir).toBe("compare");
+        expect(q.options as string[]).toContain(q.answer);
+        if (/^\d+$/.test(q.answer)) {
+          sawNumeral++;
+          const vals = (q.options as string[]).map(Number);
+          expect(Number(q.answer)).toBe(Math.max(...vals));
+          expect(q.n).toBe(Number(q.answer));
+        } else {
+          sawQuantity++;
+          // Bundles of ten count as ten each for magnitude.
+          const magnitude = (o: string) =>
+            [...o].filter((c) => c === TEN_GLYPH).length * 10 +
+            [...o].filter((c) => c === "🍎").length;
+          const magnitudes = (q.options as string[]).map(magnitude);
+          expect(magnitude(q.answer)).toBe(Math.max(...magnitudes));
+        }
+      }
+      if (maxNum <= MAX_DRAWN) expect(sawQuantity).toBeGreaterThan(0);
+      expect(sawNumeral).toBeGreaterThan(0);
     }
   });
 
@@ -151,7 +170,9 @@ describe("numsProvider", () => {
       for (let i = 0; i < 40; i++) {
         const q = numsProvider.generate(ctx({ curriculum })) as NumsQuestion;
         const { variant } = numsProvider.render(q);
-        expect(variant).toBe(q.dir === "toQuantity" ? "answerGroup" : "answerFind");
+        const asQuantity =
+          q.dir === "toQuantity" || (q.dir === "compare" && !/^\d+$/.test(q.answer));
+        expect(variant).toBe(asQuantity ? "answerGroup" : "answerFind");
       }
     }
   });

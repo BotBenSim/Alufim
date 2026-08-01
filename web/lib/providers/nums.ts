@@ -15,8 +15,8 @@ export type NumsQuestion = Question & {
   stage: number;
   /** The number the question is about; drives the spoken prompt. */
   n: number;
-  /** Set when the child is choosing a numeral rather than a quantity. */
-  dir?: "toNumeral" | "toQuantity" | "next";
+  /** What the child is choosing, or that they are picking the largest of three. */
+  dir?: "toNumeral" | "toQuantity" | "compare";
   answer: string;
 };
 
@@ -120,18 +120,27 @@ function genNumeralToQuantity(ctx: ProviderContext, maxNum: number): NumsQuestio
   };
 }
 
-/** Stage 4 — order: which number comes after this one. */
-function genOrder(ctx: ProviderContext, maxNum: number): NumsQuestion {
-  // Leave room for a successor inside the band.
-  const n = pickTarget(ctx, 4, Math.max(1, maxNum - 1), maxNum - 1);
-  const answer = n + 1;
+/**
+ * Stage 4 — which is bigger. Three options; the answer is the largest. Small
+ * bands get piles of emoji (count to decide); larger bands get numerals, so the
+ * child has to read magnitude rather than count.
+ */
+function genCompare(ctx: ProviderContext, maxNum: number): NumsQuestion {
+  const em = ctx.countEmoji || "🍎";
+  const asQuantity = maxNum <= MAX_DRAWN && rnd(2) === 0;
+  const hi = Math.max(3, asQuantity ? Math.min(maxNum, MAX_DRAWN) : maxNum);
+  const anchor = pickTarget(ctx, 4, hi, hi);
+  const nums = threeOptions(anchor, [], hi);
+  const answer = Math.max(...nums);
   return {
     op: "nums",
     stage: 4,
-    n,
-    dir: "next",
-    options: threeOptions(answer, [], maxNum).map(String),
-    answer: String(answer),
+    n: answer,
+    dir: "compare",
+    options: asQuantity
+      ? nums.map((v) => drawAmount(v, em))
+      : nums.map(String),
+    answer: asQuantity ? drawAmount(answer, em) : String(answer),
   };
 }
 
@@ -188,7 +197,7 @@ export const numsProvider: StageProvider = {
       case 3:
         return genNumeralToQuantity(ctx, maxNum);
       case 4:
-        return genOrder(ctx, maxNum);
+        return genCompare(ctx, maxNum);
       case 5:
         return genTensAndHundreds(ctx, maxNum);
       default:
@@ -203,7 +212,6 @@ export const numsProvider: StageProvider = {
 
   render(q: Question): StageRender {
     const qq = q as NumsQuestion;
-    const toNumeral = qq.dir !== "toQuantity";
     if (qq.stage === 1) {
       // The number is only spoken; printing it would make the choice a match.
       return {
@@ -213,14 +221,16 @@ export const numsProvider: StageProvider = {
         variant: "answerFind",
       };
     }
-    if (qq.dir === "next") {
+    if (qq.dir === "compare") {
+      const asQuantity = !/^\d+$/.test(qq.answer);
       return {
-        prompt: `${qq.n} ואז?`,
-        hint: "איזה מספר בא אחרי?",
+        prompt: asQuantity ? "איזו קבוצה גדולה יותר?" : "איזה מספר גדול יותר?",
+        hint: "👆",
         options: qq.options as string[],
-        variant: "answerFind",
+        variant: asQuantity ? "answerGroup" : "answerFind",
       };
     }
+    const toNumeral = qq.dir !== "toQuantity";
     return {
       prompt: (qq.prompt as string) || String(qq.n),
       hint: qq.stage === 2 || qq.stage === 5 ? "כמה יש?" : "👆",
@@ -231,7 +241,13 @@ export const numsProvider: StageProvider = {
 
   speak(q: Question): StageSpeak {
     const qq = q as NumsQuestion;
-    if (qq.dir === "next") return { he: `${hebNumber(qq.n)}, ואיזה מספר בא אחרי?` };
+    if (qq.dir === "compare") {
+      return {
+        he: /^\d+$/.test(qq.answer)
+          ? "איזה מספר גדול יותר?"
+          : "איזו קבוצה גדולה יותר?",
+      };
+    }
     if (qq.dir === "toQuantity") return { he: `מצאו ${hebNumber(qq.n)}` };
     // Counting stages must not read the answer out loud.
     if (qq.stage === 2 || (qq.stage === 5 && qq.prompt)) return { he: "כמה יש?" };

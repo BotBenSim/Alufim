@@ -10,6 +10,7 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-08-01 — numbers stage 4 is now "which is bigger" (three piles or three numerals); README marks the six newer games as WIP / quality not approved and notes the i18n plan is designed but not implemented.
 - 2026-08-01 — reworked the four ladders so they open on what the parent asked for: numbers on digit recognition (not matching piles), Hebrew/English on letters (not ear-only sound matching), music on chords (happy/sad, then I/IV/V) — see [number-sense-ladder](educational/number-sense-ladder.md), [track-skill-ladders](educational/track-skill-ladders.md).
 - 2026-08-01 — removed the מצא את game: five of its seven question kinds were superseded by the numbers and reading ladders, and a random kind per question made none of them practisable. Categorisation and magnitude comparison left with it and are queued in [reasoning-and-comparison-games](../backlog/reasoning-and-comparison-games.md); `web/data/find.ts` survives as shared vocabulary and letter data. Old saves are pruned of the `find` key on load — see [game-variety](educational/game-variety.md).
 - 2026-08-01 — shipped the numbers game: a 5-stage ladder from matching quantities to reading `34` as tens and ones, with `100` taught against `10` and `1000`; stage bands are now editable in settings for every ladder game — see [number-sense-ladder](educational/number-sense-ladder.md).

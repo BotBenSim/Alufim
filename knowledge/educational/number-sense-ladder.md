@@ -30,7 +30,7 @@ to it. Asking them to match two groups of five apples tests matching, not numera
 1. **Recognise the numeral** — hear the name, pick the digit among near neighbours.
 2. **Quantity → numeral** — count the apples, pick `5`.
 3. **Numeral → quantity** — see `5`, pick the matching group.
-4. **Order** — which number comes after this one.
+4. **Which is bigger** — three piles or three numerals; pick the largest (magnitude).
 5. **Tens and hundreds** — bundles of ten plus loose ones; landmarks `10` / `100` by shape.
 
 Counting stages never speak the answer ("כמה יש?" only). Stage 5 distractors include the
