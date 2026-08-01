@@ -5,7 +5,7 @@ import type {
   GameId,
   MathVisual,
 } from "./types";
-import { blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
+import { bandForStepWithCounts, blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
 
 type AddBlock = { minSum: number; maxSum: number; visual: MathVisual };
 type SubBlock = { minTop: number; maxMin: number; visual: MathVisual };
@@ -143,6 +143,28 @@ export const GAME_DIFFICULTY: Record<
 
 const LEVELS: DifficultyLevel[] = ["easy", "medium", "hard"];
 
+/** Max questions a parent may assign to one band. */
+export const MAX_BAND_COUNT = 99;
+
+function bandSlots(bands: Record<DifficultyLevel, DifficultyBand[]>): number {
+  return LEVELS.reduce((max, level) => Math.max(max, bands[level]?.length || 0), 0);
+}
+
+/**
+ * Clean a parent-edited `counts` array. Returns `undefined` when there is nothing
+ * usable — no array, or every band set to 0 — so the caller falls back to the
+ * uniform `stepsPerBlock` ramp and a run can never end up with zero questions.
+ */
+export function normalizeCounts(counts: unknown, slots: number): number[] | undefined {
+  if (!Array.isArray(counts) || slots <= 0) return undefined;
+  const out: number[] = [];
+  for (let i = 0; i < slots; i++) {
+    const n = Number(counts[i]);
+    out.push(Number.isFinite(n) ? Math.max(0, Math.min(MAX_BAND_COUNT, Math.floor(n))) : 0);
+  }
+  return out.some((n) => n > 0) ? out : undefined;
+}
+
 function withDefaultVisuals(
   gameId: GameId,
   rows: DifficultyBand[]
@@ -203,7 +225,8 @@ export function ensureCurriculum(
     }
   }
 
-  return { stepsPerBlock, bands };
+  const counts = normalizeCounts(existing.counts, bandSlots(bands));
+  return counts ? { stepsPerBlock, counts, bands } : { stepsPerBlock, bands };
 }
 
 /** Read band params from a profile-owned curriculum. */
@@ -213,8 +236,11 @@ export function diffParams<T = Record<string, unknown>>(
   stepIndex: number
 ): T {
   const rows = (curriculum.bands[level] || curriculum.bands.easy || [{}]) as T[];
-  const b = blockForStep(stepIndex, curriculum.stepsPerBlock);
-  return rows[Math.min(b, rows.length - 1)] ?? ({} as T);
+  const b = curriculum.counts?.length
+    ? bandForStepWithCounts(stepIndex, curriculum.counts)
+    : blockForStep(stepIndex, curriculum.stepsPerBlock);
+  const i = Math.max(0, Math.min(b, rows.length - 1));
+  return rows[i] ?? ({} as T);
 }
 
 export function effectiveLevel(
@@ -245,7 +271,8 @@ export function clampCurriculum(gameId: GameId, curriculum: GameCurriculum): Gam
     bands[level] = bands[level].map((band, i) => clampBand(gameId, band, i));
   }
 
-  return { stepsPerBlock, bands };
+  const counts = normalizeCounts(ensured.counts, bandSlots(bands));
+  return counts ? { stepsPerBlock, counts, bands } : { stepsPerBlock, bands };
 }
 
 function clampBand(
