@@ -7,7 +7,8 @@ export type MinigameEngineId =
   | "sliceSwipe"
   | "slingShot"
   | "charMaze"
-  | "cutRope";
+  | "cutRope"
+  | "laneCatch";
 
 /** Engines currently offered on the play beat. */
 export const ACTIVE_ENGINES: readonly MinigameEngineId[] = [
@@ -17,6 +18,7 @@ export const ACTIVE_ENGINES: readonly MinigameEngineId[] = [
   "slingShot",
   "charMaze",
   "cutRope",
+  "laneCatch",
 ] as const;
 
 export type MinigameSkin = {
@@ -25,6 +27,11 @@ export type MinigameSkin = {
   characterTags: string[];
   promptHe: string;
   items: string[];
+  /**
+   * Obviously inedible objects the child should let go by (lane-catch go/no-go).
+   * Never a different animal's food — "that's not food" has to be readable at a glance.
+   */
+  avoidItems?: string[];
   /** collects / good hits needed to complete */
   targetCount?: number;
   /**
@@ -42,7 +49,7 @@ export type MinigameContext = {
 
 export type MinigameInput = {
   type: "action";
-  action: "jump" | "hop" | "slice" | "launch" | "step" | "cut";
+  action: "jump" | "hop" | "slice" | "launch" | "step" | "cut" | "catch";
   targetId?: string;
   quality: "good" | "miss";
 };

@@ -260,6 +260,52 @@ export const MINIGAME_SKINS: MinigameSkin[] = [
     items: ["🍬", "🍃", "🍎"],
     targetCount: 4,
   },
+  // laneCatch — food falls lane by lane; avoidItems are objects, never another animal's food
+  {
+    id: "lion-lane-catch",
+    engineId: "laneCatch",
+    characterTags: ["lion"],
+    promptHe: "תִפְסוּ רַק אֶת הָאֹכֶל!",
+    items: ["🍖", "🥩", "🍗"],
+    avoidItems: ["🥾", "🪨", "🧦"],
+    targetCount: 5,
+  },
+  {
+    id: "rabbit-lane-catch",
+    engineId: "laneCatch",
+    characterTags: ["rabbit"],
+    promptHe: "תִפְסוּ רַק אֶת הָאֹכֶל!",
+    items: ["🥕", "🥬", "🍎"],
+    avoidItems: ["🪵", "🪨", "🧦"],
+    targetCount: 5,
+  },
+  {
+    id: "shark-lane-catch",
+    engineId: "laneCatch",
+    characterTags: ["shark"],
+    promptHe: "תִפְסוּ רַק אֶת הָאֹכֶל!",
+    items: ["🐠", "🦐", "🦑"],
+    avoidItems: ["🥾", "🪨", "🧦"],
+    targetCount: 5,
+  },
+  {
+    id: "turtle-lane-catch",
+    engineId: "laneCatch",
+    characterTags: ["turtle"],
+    promptHe: "תִפְסוּ רַק אֶת הָאֹכֶל!",
+    items: ["🍃", "🥬", "🍓"],
+    avoidItems: ["🪵", "🪨", "🧦"],
+    targetCount: 5,
+  },
+  {
+    id: "dragon-lane-catch",
+    engineId: "laneCatch",
+    characterTags: ["dragon"],
+    promptHe: "תִפְסוּ רַק אֶת הָאֹכֶל!",
+    items: ["🔥", "🍖", "🍎"],
+    avoidItems: ["🧱", "🪨", "🥾"],
+    targetCount: 5,
+  },
 ];
 
 export function skinsForEngine(engineId: MinigameSkin["engineId"]): MinigameSkin[] {

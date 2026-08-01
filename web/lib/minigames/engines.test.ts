@@ -2,9 +2,19 @@ import { describe, expect, it } from "vitest";
 import { MINIGAME_SKINS } from "@/data/minigames";
 import { CHARACTERS } from "@/data/characters";
 import { ACTIVE_ENGINES, MINIGAME_ENGINES } from "./index";
-import type { MinigameEngineId } from "./types";
+import type { MinigameEngineId, MinigameInput } from "./types";
 
 const lion = CHARACTERS.find((c) => c.id === "lion")!;
+
+const SCORING_ACTION: Record<MinigameEngineId, MinigameInput["action"]> = {
+  pathDash: "jump",
+  timingBounce: "hop",
+  sliceSwipe: "slice",
+  slingShot: "launch",
+  charMaze: "step",
+  cutRope: "cut",
+  laneCatch: "catch",
+};
 
 function skinFor(engineId: MinigameEngineId) {
   return (
@@ -14,11 +24,12 @@ function skinFor(engineId: MinigameEngineId) {
 }
 
 describe("minigame engines", () => {
-  it("registers the six active engines", () => {
+  it("registers the seven active engines", () => {
     expect(Object.keys(MINIGAME_ENGINES).sort()).toEqual(
       [
         "charMaze",
         "cutRope",
+        "laneCatch",
         "pathDash",
         "sliceSwipe",
         "slingShot",
@@ -38,18 +49,7 @@ describe("minigame engines", () => {
       let session = engine.start({ characterId: "lion", character: lion, skin });
       expect(session.complete).toBe(false);
 
-      const action =
-        id === "pathDash"
-          ? ("jump" as const)
-          : id === "timingBounce"
-            ? ("hop" as const)
-            : id === "slingShot"
-              ? ("launch" as const)
-              : id === "charMaze"
-                ? ("step" as const)
-                : id === "cutRope"
-                  ? ("cut" as const)
-                  : ("slice" as const);
+      const action = SCORING_ACTION[id];
 
       session = engine.applyInput(session, {
         type: "action",
