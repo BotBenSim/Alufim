@@ -1,7 +1,7 @@
 ---
 id: skill-mix-settings
 title: Parents set how many questions each stage gets, per game
-status: proposed
+status: accepted
 date: 2026-08-01
 tags: [architecture, curriculum, settings, difficulty]
 supersedes: []
@@ -21,7 +21,7 @@ That is too blunt for a stage ladder ([track-skill-ladders](../educational/track
 A child who is solid on "hear the difference" but shaky on "letter + nikud" should not get four of
 each. The parent needs to say: ten of stage 1, then ten of stage 2.
 
-## Decision (proposed)
+## Decision
 
 Let the parent set a **per-stage count** instead of one uniform number, for every game and track:
 
@@ -59,6 +59,11 @@ field per band, labelled with the stage name.
 
 - `counts` is optional and additive; absent means today's uniform behaviour, so existing saves are
   untouched ([state-persistence](state-persistence.md)).
-- `blockForStep` gains a counts-aware sibling in [`web/lib/xp.ts`](../../web/lib/xp.ts); pure and
-  unit-testable, with the existing function kept for the fallback path.
-- Validation matters: an all-zero `counts` must not produce a run with no questions.
+- `blockForStep` gained a counts-aware sibling, `bandForStepWithCounts`, in
+  [`web/lib/xp.ts`](../../web/lib/xp.ts); pure and unit-testable, with the existing function kept for
+  the fallback path.
+- `normalizeCounts` in [`web/lib/difficulty.ts`](../../web/lib/difficulty.ts) clamps, pads and
+  truncates a parent-edited array, and returns `undefined` for an all-zero one — so a run can never
+  end up with no questions.
+- The settings editor shows a per-game toggle; off is the uniform ramp, on reveals one "questions"
+  field per band and labels a `0` band as skipped.

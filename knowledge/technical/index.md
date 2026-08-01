@@ -33,7 +33,7 @@ The core patterns that keep the app extensible — start here to understand the 
 | [pure-logic-in-lib](pure-logic-in-lib.md) | Pure, testable logic in `lib/`, split from React | accepted |
 | [design-system](design-system.md) | Design system: tokens + primitives | accepted |
 | [curriculum-tracks](curriculum-tracks.md) | Domains are tracks of many small games | proposed |
-| [skill-mix-settings](skill-mix-settings.md) | Parent sets questions-per-stage (`counts`), 0 = skip | proposed |
+| [skill-mix-settings](skill-mix-settings.md) | Parent sets questions-per-stage (`counts`), 0 = skip | accepted |
 | [runner-jump-tuning](runner-jump-tuning.md) | Runner minigames: jump reach envelope + coyote time | accepted |
 
 ## Platform and state

@@ -23,6 +23,7 @@ import {
   clampCurriculum,
   defaultCurriculum,
   MATH_VISUAL_OPTIONS,
+  MAX_BAND_COUNT,
   normalizeMathVisual,
 } from "@/lib/difficulty";
 import { isImgAvatar } from "@/lib/migrate";
@@ -41,6 +42,26 @@ import { useStore } from "@/state/store";
 import { cn } from "@/lib/utils";
 
 const AVATAR_EMOJIS = ["🦄", "🦖", "🚀", "🐬", "🦁", "🐶", "🐱", "🐉", "🐧", "🐼", "🦊", "🐢"];
+
+const LEVELS_FOR_COUNTS: DifficultyLevel[] = ["easy", "medium", "hard"];
+
+/** First and last step of a band, honouring per-band counts when they are set. */
+function bandStepRange(
+  counts: number[] | undefined,
+  stepsPerBlock: number,
+  bandIndex: number
+): { start: number; end: number; skipped: boolean } {
+  if (!counts) {
+    return {
+      start: bandIndex * stepsPerBlock + 1,
+      end: (bandIndex + 1) * stepsPerBlock,
+      skipped: false,
+    };
+  }
+  const before = counts.slice(0, bandIndex).reduce((sum, n) => sum + n, 0);
+  const own = counts[bandIndex] ?? 0;
+  return { start: before + 1, end: before + own, skipped: own === 0 };
+}
 
 const GENDER_OPTIONS: { value: PlayerGender; label: string }[] = [
   { value: "boy", label: "ילד" },
@@ -158,16 +179,36 @@ export function ProfileEditor() {
 
   const patchCurriculum = (
     gid: GameId,
-    patch: Partial<{ stepsPerBlock: number; bands: GameCurriculum["bands"] }>
+    patch: Partial<{
+      stepsPerBlock: number;
+      bands: GameCurriculum["bands"];
+      /** `null` clears the per-band counts and returns to the uniform ramp. */
+      counts: number[] | null;
+    }>
   ) => {
     const games = { ...editorDraft.games };
     const prev = games[gid].curriculum;
+    const counts = patch.counts === undefined ? prev.counts : (patch.counts ?? undefined);
     const next = clampCurriculum(gid, {
       stepsPerBlock: patch.stepsPerBlock ?? prev.stepsPerBlock,
+      counts,
       bands: patch.bands ?? prev.bands,
     });
     games[gid] = { ...games[gid], curriculum: next };
     updateEditorDraft({ games });
+  };
+
+  const setBandCount = (gid: GameId, bandIndex: number, value: number) => {
+    const cur = editorDraft.games[gid].curriculum;
+    const slots = Math.max(...LEVELS_FOR_COUNTS.map((l) => cur.bands[l]?.length ?? 0));
+    const counts = Array.from(
+      { length: slots },
+      (_, i) => cur.counts?.[i] ?? cur.stepsPerBlock
+    );
+    counts[bandIndex] = Math.max(0, Math.min(MAX_BAND_COUNT, value || 0));
+    // All-zero would leave a run with nothing to ask; keep at least this band.
+    if (!counts.some((n) => n > 0)) counts[bandIndex] = 1;
+    patchCurriculum(gid, { counts });
   };
 
   const updateBandField = (
@@ -443,27 +484,62 @@ export function ProfileEditor() {
                             <div className="flabel">
                               קטעים — רמה {levelLabelHe(level)}
                             </div>
-                            <SettingsNumberField
-                              id={`stepsPerBlock-${gid}`}
-                              label="שלבים בכל קטע"
-                              min={1}
-                              max={20}
-                              value={curriculum.stepsPerBlock}
-                              onChange={(v) =>
-                                patchCurriculum(gid, {
-                                  stepsPerBlock: Math.max(1, v || 1),
-                                })
-                              }
-                            />
+                            <div className="minigameSettingsRow">
+                              <div className="minigameSettingsHit">
+                                <span className="minigameSettingsTitle">
+                                  מספר שאלות שונה לכל קטע
+                                </span>
+                                <span className="minigameSettingsDesc">
+                                  במקום אותו מספר שלבים בכל קטע
+                                </span>
+                              </div>
+                              <div className="settingsRowControls">
+                                <Toggle
+                                  className="settingsToggle"
+                                  on={!!curriculum.counts}
+                                  onClick={() =>
+                                    patchCurriculum(gid, {
+                                      counts: curriculum.counts
+                                        ? null
+                                        : bands.map(() => curriculum.stepsPerBlock),
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                            {curriculum.counts ? (
+                              <p className="curriculumIntro">
+                                קבעו כמה שאלות יש בכל קטע. קטע עם 0 מדלגים עליו.
+                              </p>
+                            ) : (
+                              <SettingsNumberField
+                                id={`stepsPerBlock-${gid}`}
+                                label="שלבים בכל קטע"
+                                min={1}
+                                max={20}
+                                value={curriculum.stepsPerBlock}
+                                onChange={(v) =>
+                                  patchCurriculum(gid, {
+                                    stepsPerBlock: Math.max(1, v || 1),
+                                  })
+                                }
+                              />
+                            )}
                             <div className="bandList">
                               {bands.map((band, idx) => {
-                                const stepStart = idx * curriculum.stepsPerBlock + 1;
-                                const stepEnd = (idx + 1) * curriculum.stepsPerBlock;
+                                const range = bandStepRange(
+                                  curriculum.counts,
+                                  curriculum.stepsPerBlock,
+                                  idx
+                                );
                                 return (
                                   <div key={idx} className="bandCard">
                                     <div className="bandCardHead">
                                       <span>
-                                        קטע {idx + 1} · שלבים {stepStart}–{stepEnd}
+                                        קטע {idx + 1} ·{" "}
+                                        {range.skipped
+                                          ? "מדלגים"
+                                          : `שלבים ${range.start}–${range.end}`}
                                       </span>
                                       {bands.length > 1 && (
                                         <button
@@ -476,6 +552,15 @@ export function ProfileEditor() {
                                       )}
                                     </div>
                                     <div className="bandFields">
+                                      {curriculum.counts && (
+                                        <SettingsNumberField
+                                          label="מספר שאלות"
+                                          min={0}
+                                          max={MAX_BAND_COUNT}
+                                          value={curriculum.counts[idx] ?? 0}
+                                          onChange={(v) => setBandCount(gid, idx, v)}
+                                        />
+                                      )}
                                       {gid === "add" && (() => {
                                         const minSum = Number(band.minSum) || 2;
                                         const maxSum = Number(band.maxSum) || 8;
