@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GAMES, GAME_GROUPS, GAME_ORDER } from "@/data/games";
+import { GAMES, GAME_ORDER } from "@/data/games";
 import { migrateProfile, newProfile, parseStoredState, STATE_KEY } from "./migrate";
 import type { Profile } from "./types";
 
@@ -23,13 +23,12 @@ function legacyProfile(): Profile {
   } as unknown as Profile;
 }
 
-describe("subject groups", () => {
-  // GAME_ORDER is derived from the groups, so a game left out of every group
-  // would vanish from both screens *and* stop being migrated into old saves.
-  it("place every game exactly once", () => {
-    const grouped = GAME_GROUPS.flatMap((g) => g.games);
-    expect([...grouped].sort()).toEqual(Object.keys(GAMES).sort());
-    expect(new Set(grouped).size).toBe(grouped.length);
+describe("GAME_ORDER", () => {
+  // A game missing here would vanish from both screens *and* stop being
+  // migrated into existing saves, since migrateProfile walks this list.
+  it("lists every game exactly once", () => {
+    expect([...GAME_ORDER].sort()).toEqual(Object.keys(GAMES).sort());
+    expect(new Set(GAME_ORDER).size).toBe(GAME_ORDER.length);
   });
 });
 

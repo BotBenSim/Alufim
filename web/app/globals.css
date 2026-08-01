@@ -471,15 +471,10 @@
 .profileNameInput {
   margin-bottom: 6px;
 }
-.gameSettingsGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 .gameSettingsList {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 10px;
   margin-top: 4px;
 }
 .gameSettingsCard {
