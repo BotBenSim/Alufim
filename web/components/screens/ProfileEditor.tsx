@@ -16,7 +16,7 @@ import {
   Toggle,
 } from "@/design-system";
 import { CHARACTERS, characterById } from "@/data/characters";
-import { GAMES, GAME_ORDER } from "@/data/games";
+import { GAMES, GAME_GROUPS } from "@/data/games";
 import { MINIGAME_META } from "@/data/minigameMeta";
 import { PHOTOS } from "@/data/photos";
 import {
@@ -392,7 +392,10 @@ export function ProfileEditor() {
                   ודרך ״התאמה״ כוונו במדויק את הקטעים, הטווחים והתצוגה.
                 </p>
                 <div id="gameRows" className="gameSettingsList">
-                  {GAME_ORDER.map((gid) => {
+                  {GAME_GROUPS.map((group) => (
+                  <div key={group.id} className="gameSettingsGroup">
+                  <div className="flabel">{group.title}</div>
+                  {group.games.map((gid) => {
                     const cfg = editorDraft.games[gid];
                     const g = GAMES[gid];
                     const open = expandedGame === gid && cfg.enabled;
@@ -689,6 +692,8 @@ export function ProfileEditor() {
                       </div>
                     );
                   })}
+                  </div>
+                  ))}
                 </div>
               </>
             )}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GAME_ORDER } from "@/data/games";
+import { GAMES, GAME_GROUPS, GAME_ORDER } from "@/data/games";
 import { migrateProfile, newProfile, parseStoredState, STATE_KEY } from "./migrate";
 import type { Profile } from "./types";
 
@@ -22,6 +22,16 @@ function legacyProfile(): Profile {
     },
   } as unknown as Profile;
 }
+
+describe("subject groups", () => {
+  // GAME_ORDER is derived from the groups, so a game left out of every group
+  // would vanish from both screens *and* stop being migrated into old saves.
+  it("place every game exactly once", () => {
+    const grouped = GAME_GROUPS.flatMap((g) => g.games);
+    expect([...grouped].sort()).toEqual(Object.keys(GAMES).sort());
+    expect(new Set(grouped).size).toBe(grouped.length);
+  });
+});
 
 describe("migrating a save from before the tracks shipped", () => {
   it("adds the three tracks, enabled and playable", () => {

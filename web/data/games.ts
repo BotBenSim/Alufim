@@ -53,12 +53,16 @@ export const GAMES = {
   },
 } as const;
 
-export const GAME_ORDER: GameId[] = [
-  "add",
-  "sub",
-  "find",
-  "eng",
-  "hebread",
-  "engread",
-  "music",
+/**
+ * Games are shown by subject, not as one long list. Ordering lives here so the
+ * home screen and the parent settings list can never drift apart.
+ */
+export const GAME_GROUPS: { id: string; title: string; games: GameId[] }[] = [
+  { id: "math", title: "מתמטיקה", games: ["add", "sub"] },
+  { id: "hebrew", title: "עברית", games: ["hebread"] },
+  { id: "english", title: "אנגלית", games: ["engread", "eng"] },
+  { id: "music", title: "מוזיקה", games: ["music"] },
+  { id: "general", title: "כללי", games: ["find"] },
 ];
+
+export const GAME_ORDER: GameId[] = GAME_GROUPS.flatMap((g) => g.games);
