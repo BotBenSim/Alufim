@@ -44,13 +44,6 @@ export const GAMES = {
     cardClass: "eng",
     provider: PROVIDERS.eng,
   },
-  find: {
-    title: "מצא את...",
-    icon: "🔍",
-    subtitle: "אותיות, חשיבה, כמויות וצלילים",
-    cardClass: "find",
-    provider: PROVIDERS.find,
-  },
   hebread: {
     title: "קריאה בעברית",
     icon: "📖",
@@ -85,5 +78,4 @@ export const GAME_ORDER: GameId[] = [
   "engread",
   "eng",
   "music",
-  "find",
 ];

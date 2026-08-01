@@ -117,7 +117,6 @@ function emptyBand(gameId: GameId): DifficultyBand {
   if (gameId === "sub") return { minTop: 2, maxMin: 8, visual: "fullCount" };
   if (gameId === "mul") return { minFactor: 1, maxFactor: 5, visual: "fullCount" };
   if (gameId === "div") return { maxDivisor: 3, maxQuotient: 5, visual: "fullCount" };
-  if (gameId === "find") return { maxNum: 5, qLo: 1, qHi: 4 };
   if (gameId === "nums") return { stage: 1, maxNum: 10 };
   if (hasStageBands(gameId)) return { stage: 1 };
   return { maxLen: 8 };
@@ -692,41 +691,6 @@ export function ProfileEditor() {
                                               max={200}
                                               onChange={(v) =>
                                                 updateBandField(gid, level, idx, "maxMin", v)
-                                              }
-                                            />
-                                          </>
-                                        );
-                                      })()}
-                                      {gid === "find" && (() => {
-                                        const qLo = Number(band.qLo) || 1;
-                                        const qHi = Number(band.qHi) || 4;
-                                        return (
-                                          <>
-                                            <SettingsNumberField
-                                              label="מספר עד"
-                                              value={Number(band.maxNum) || 0}
-                                              min={1}
-                                              max={100}
-                                              onChange={(v) =>
-                                                updateBandField(gid, level, idx, "maxNum", v)
-                                              }
-                                            />
-                                            <SettingsNumberField
-                                              label="טווח נמוך"
-                                              value={qLo}
-                                              min={1}
-                                              max={qHi - 1}
-                                              onChange={(v) =>
-                                                updateBandField(gid, level, idx, "qLo", v)
-                                              }
-                                            />
-                                            <SettingsNumberField
-                                              label="טווח גבוה"
-                                              value={qHi}
-                                              min={qLo + 1}
-                                              max={20}
-                                              onChange={(v) =>
-                                                updateBandField(gid, level, idx, "qHi", v)
                                               }
                                             />
                                           </>

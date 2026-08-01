@@ -131,62 +131,6 @@ export const GAME_DIFFICULTY: Record<
       { maxDivisor: 10, maxQuotient: 12, visual: "numbers" },
     ],
   },
-  find: {
-    easy: [
-      {
-        maxNum: 5,
-        kinds: ["bignum", "letter", "reason", "more"],
-        confuse: false,
-        qLo: 1,
-        qHi: 4,
-        qClose: false,
-      },
-      {
-        maxNum: 15,
-        kinds: ["bignum", "letter", "reason", "more", "phon", "num"],
-        confuse: false,
-        qLo: 2,
-        qHi: 6,
-        qClose: false,
-      },
-    ],
-    medium: [
-      {
-        maxNum: 10,
-        kinds: ["bignum", "letter", "reason", "more", "phon"],
-        confuse: false,
-        qLo: 2,
-        qHi: 6,
-        qClose: false,
-      },
-      {
-        maxNum: 25,
-        kinds: ["bignum", "letter", "reason", "more", "phon", "num"],
-        confuse: true,
-        qLo: 3,
-        qHi: 8,
-        qClose: true,
-      },
-    ],
-    hard: [
-      {
-        maxNum: 20,
-        kinds: ["bignum", "letter", "reason", "more", "phon"],
-        confuse: true,
-        qLo: 3,
-        qHi: 8,
-        qClose: true,
-      },
-      {
-        maxNum: 50,
-        kinds: ["bignum", "letter", "reason", "more", "phon"],
-        confuse: true,
-        qLo: 4,
-        qHi: 9,
-        qClose: true,
-      },
-    ],
-  },
   eng: {
     easy: [{ maxLen: 8 }],
     medium: [{ maxLen: 16 }],
@@ -405,20 +349,6 @@ function clampBand(
       visual: normalizeMathVisual(next.visual, bandIndex),
     };
   }
-  if (gameId === "find") {
-    let qLo = next.qLo != null ? clampNum(next.qLo, 1, 20, 1) : next.qLo;
-    let qHi = next.qHi != null ? clampNum(next.qHi, 1, 20, 4) : next.qHi;
-    if (qLo != null && qHi != null && qHi <= qLo) {
-      qHi = Math.min(20, qLo + 1);
-      if (qHi <= qLo) qLo = Math.max(1, qHi - 1);
-    }
-    return {
-      ...next,
-      maxNum: clampNum(next.maxNum, 1, 100, 5),
-      qLo,
-      qHi,
-    };
-  }
   if (gameId === "eng") {
     return { ...next, maxLen: clampNum(next.maxLen, 1, 64, 8) };
   }
@@ -454,9 +384,6 @@ export function curriculumSummary(
   if (gameId === "div") {
     const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
     return `התחלה: עד ${band.maxDivisor ?? "?"} חברים · ${vis}`;
-  }
-  if (gameId === "find") {
-    return `התחלה: עד ${band.maxNum ?? "?"}`;
   }
   if (gameId === "eng") {
     return `התחלה: עד ${band.maxLen ?? "?"} אותיות`;

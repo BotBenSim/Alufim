@@ -18,13 +18,13 @@ export type EngReadQuestion = Question & {
   op: "engread";
   /** 1–5, see ENGREAD_STAGES. */
   stage: number;
-  /** The letter the question turns on — the onset at stages 4–5. */
+  /** The letter the question turns on — the onset at the word rungs. */
   letter: string;
-  /** The English word the question is about: spoken at 1, read at 4–5. */
+  /** The English word the question is about: read at 3–4, spelled at 5. */
   word?: string;
-  /** Shown instead of a written prompt (stage 1). */
+  /** Shown instead of a written prompt (rung 5). */
   promptEmoji?: string;
-  /** Mnemonic keyword under the prompt (stage 2). */
+  /** Mnemonic keyword under the prompt (rung 1). */
   hintEmoji?: string;
   /** What the English voice says, at the stages where it says anything. */
   say?: string;
@@ -76,10 +76,6 @@ function letterFits(letter: string, chosen: readonly string[]): boolean {
   return !chosen.some((c) => letterClash(c, letter));
 }
 
-function picsWithSound(sound: string): EngPic[] {
-  return ENGREAD_PICS.filter((p) => p.sound === sound);
-}
-
 /**
  * Emoji options for a picture question. A distractor must make a different
  * first sound (otherwise it is a second right answer), show a picture nobody
@@ -106,8 +102,9 @@ function pickPicDistractors(
 }
 
 /**
- * Word options for stages 4–5. Same-rime words come first so the child has to
- * decode the onset rather than recognise a silhouette; onsets stay clear of one
+ * Word options for rungs 3–4, where the words are the prompt or the thing being
+ * matched to a picture. Same-rime words come first so the child has to decode
+ * the onset rather than recognise a silhouette; onsets stay clear of one
  * another's confusable families.
  */
 function pickWordDistractors(target: EngCvc, count: number): EngCvc[] {
@@ -132,32 +129,73 @@ function pickWordDistractors(target: EngCvc, count: number): EngCvc[] {
   return chosen;
 }
 
-/**
- * Stage 1 — hear an English word, pick the picture that starts with the same
- * sound. No letters anywhere: the child is matching phonemes, not symbols
- * (knowledge/educational/sound-before-symbol.md).
- */
-function genSameFirstSound(ctx: ProviderContext): EngReadQuestion {
-  // A word can only be the target if some other picture shares its first sound.
-  const targets = ENGREAD_PICS.filter((p) => picsWithSound(p.sound).length > 1);
-  const target = pick(fresh(targets, ctx, (p) => `engread:1:${p.en}`));
-  const answer = pick(picsWithSound(target.sound).filter((p) => p.en !== target.en));
-  const options = [answer, ...pickPicDistractors(target.sound, [target, answer], 2)];
-  return {
-    op: "engread",
-    stage: 1,
-    letter: target.l,
-    word: target.en,
-    promptEmoji: target.emoji,
-    say: target.en,
-    options: shuffle(options.map((p) => p.emoji)),
-    answer: answer.emoji,
-  };
+/** Index of the one letter two same-length words differ at, or -1 if not exactly one. */
+function diffSlot(a: string, b: string): number {
+  if (a.length !== b.length) return -1;
+  let at = -1;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === b[i]) continue;
+    if (at >= 0) return -1;
+    at = i;
+  }
+  return at;
 }
 
-/** Stage 2 — hear a letter sound (the phoneme, never the letter name), pick the letter. */
+/**
+ * True when no slot of a set of written words puts two clashing letters against
+ * each other. Letters only compete where they actually differ: `pan`/`pin` ask
+ * the child to tell `a` from `i` and ask nothing of the `p` and the `n` they
+ * share, so the confusable rule applies slot by slot rather than word by word.
+ */
+function spellingSetFits(words: readonly string[]): boolean {
+  const len = Math.max(...words.map((w) => w.length));
+  for (let i = 0; i < len; i++) {
+    const slot = [...new Set(words.map((w) => w[i]).filter(Boolean))];
+    for (let a = 0; a < slot.length; a++) {
+      for (let b = a + 1; b < slot.length; b++) {
+        if (letterClash(slot[a], slot[b])) return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
+ * Written-word options for rung 5. Near misses come first, and among those the
+ * ones that differ somewhere other than the first letter (`cat`/`can`,
+ * `pan`/`pin`), so a child who reads the onset and stops cannot get through.
+ * Twenty-one of the 32 words have such a neighbour and six have an onset-only
+ * one; the remaining five (`bed`, `kid`, `pot`, `cup`, `tub`) fall back to any
+ * other decodable word, so no word is dropped for want of a neighbour.
+ */
+function pickSpellingDistractors(target: EngCvc, count: number): EngCvc[] {
+  const rank = (w: EngCvc) => {
+    const at = diffSlot(target.en, w.en);
+    if (at > 0) return 0; // differs in the vowel or the final letter
+    if (at === 0) return 1; // differs in the onset only
+    return 2;
+  };
+  // Stable sort keeps the shuffle inside each rank, so the set varies run to run.
+  const pool = shuffle(ENGREAD_CVC.filter((w) => w.en !== target.en)).sort(
+    (a, b) => rank(a) - rank(b)
+  );
+  const chosen: EngCvc[] = [];
+  pool.forEach((cand) => {
+    if (chosen.length >= count) return;
+    if (!spellingSetFits([target.en, ...chosen.map((w) => w.en), cand.en])) return;
+    chosen.push(cand);
+  });
+  return chosen;
+}
+
+/**
+ * Rung 1 — hear a letter sound (the phoneme, never the letter name), pick the
+ * letter. The ladder opens here so that a letter is on screen from the first
+ * question; the sound still comes first within the question itself
+ * (knowledge/educational/sound-before-symbol.md).
+ */
 function genSoundToLetter(ctx: ProviderContext): EngReadQuestion {
-  const target = pick(fresh(LETTERS, ctx, (l) => `engread:2:${l}`));
+  const target = pick(fresh(LETTERS, ctx, (l) => `engread:1:${l}`));
   const chosen = [target];
   shuffle([...LETTERS]).forEach((l) => {
     if (chosen.length >= 3) return;
@@ -167,7 +205,7 @@ function genSoundToLetter(ctx: ProviderContext): EngReadQuestion {
   const keywords = ENGREAD_PICS.filter((p) => p.l === target);
   return {
     op: "engread",
-    stage: 2,
+    stage: 1,
     letter: target,
     hintEmoji: keywords.length ? pick(keywords).emoji : undefined,
     say: sayOf(target),
@@ -177,17 +215,17 @@ function genSoundToLetter(ctx: ProviderContext): EngReadQuestion {
 }
 
 /**
- * Stage 3 — see a letter, pick the picture whose English name starts with it.
+ * Rung 2 — see a letter, pick the picture whose English name starts with it.
  * The sound is not played: turning the symbol back into a sound is the skill.
  */
 function genLetterToSound(ctx: ProviderContext): EngReadQuestion {
   const withPics = LETTERS.filter((l) => ENGREAD_PICS.some((p) => p.l === l));
-  const target = pick(fresh(withPics, ctx, (l) => `engread:3:${l}`));
+  const target = pick(fresh(withPics, ctx, (l) => `engread:2:${l}`));
   const answer = pick(ENGREAD_PICS.filter((p) => p.l === target));
   const options = [answer, ...pickPicDistractors(soundOf(target), [answer], 2)];
   return {
     op: "engread",
-    stage: 3,
+    stage: 2,
     letter: target,
     options: shuffle(options.map((p) => p.emoji)),
     answer: answer.emoji,
@@ -195,18 +233,18 @@ function genLetterToSound(ctx: ProviderContext): EngReadQuestion {
 }
 
 /**
- * Stage 4 — body-coda blending: the word arrives split as `s`+`at`, and the
+ * Rung 3 — body-coda blending: the word arrives split as `s`+`at`, and the
  * child picks the whole word. Two parts, not three, because onset–rime is what
  * beginning readers can hold in mind.
  */
 function genBlend(ctx: ProviderContext): EngReadQuestion {
-  const target = pick(fresh(ENGREAD_CVC, ctx, (w) => `engread:4:${w.en}`));
+  const target = pick(fresh(ENGREAD_CVC, ctx, (w) => `engread:3:${w.en}`));
   const onset = target.en[0];
   const rime = target.en.slice(1);
   const options = [target, ...pickWordDistractors(target, 2)];
   return {
     op: "engread",
-    stage: 4,
+    stage: 3,
     letter: onset,
     word: target.en,
     say: `${sayOf(onset)}, ${rime}`,
@@ -216,20 +254,40 @@ function genBlend(ctx: ProviderContext): EngReadQuestion {
 }
 
 /**
- * Stage 5 — a decodable word is shown and nothing is spoken in English. This is
+ * Rung 4 — a decodable word is shown and nothing is spoken in English. This is
  * the rung where the child reads instead of listening, so the audio scaffold of
- * stages 1–4 is gone (knowledge/educational/faded-scaffold-ladder.md).
+ * the rungs below is gone (knowledge/educational/faded-scaffold-ladder.md).
  */
 function genReadWord(ctx: ProviderContext): EngReadQuestion {
-  const target = pick(fresh(ENGREAD_CVC, ctx, (w) => `engread:5:${w.en}`));
+  const target = pick(fresh(ENGREAD_CVC, ctx, (w) => `engread:4:${w.en}`));
   const options = [target, ...pickWordDistractors(target, 2)];
+  return {
+    op: "engread",
+    stage: 4,
+    letter: target.en[0],
+    word: target.en,
+    options: shuffle(options.map((w) => w.emoji)),
+    answer: target.emoji,
+  };
+}
+
+/**
+ * Rung 5 — the picture is given and the child picks its spelling: rung 4 run
+ * backwards, and the first rung that asks which letters a word is made of
+ * rather than what a word says. The options are near misses wherever the data
+ * has them, so recognising the first letter is not enough.
+ */
+function genWriteWord(ctx: ProviderContext): EngReadQuestion {
+  const target = pick(fresh(ENGREAD_CVC, ctx, (w) => `engread:5:${w.en}`));
+  const options = [target, ...pickSpellingDistractors(target, 2)];
   return {
     op: "engread",
     stage: 5,
     letter: target.en[0],
     word: target.en,
-    options: shuffle(options.map((w) => w.emoji)),
-    answer: target.emoji,
+    promptEmoji: target.emoji,
+    options: shuffle(options.map((w) => w.en)),
+    answer: target.en,
   };
 }
 
@@ -238,15 +296,15 @@ export const engreadProvider: StageProvider = {
 
   generate(ctx: ProviderContext): EngReadQuestion {
     const p = diffParams<{ stage?: number }>(ctx.curriculum, ctx.level, ctx.step);
-    switch (p.stage ?? 2) {
-      case 1:
-        return genSameFirstSound(ctx);
-      case 3:
+    switch (p.stage ?? 1) {
+      case 2:
         return genLetterToSound(ctx);
-      case 4:
+      case 3:
         return genBlend(ctx);
-      case 5:
+      case 4:
         return genReadWord(ctx);
+      case 5:
+        return genWriteWord(ctx);
       default:
         return genSoundToLetter(ctx);
     }
@@ -254,7 +312,7 @@ export const engreadProvider: StageProvider = {
 
   key(q) {
     const qq = q as EngReadQuestion;
-    // Stage 1 repeats a spoken word, 4–5 repeat a written word, 2–3 a letter.
+    // Rungs 3–5 repeat a word, rungs 1–2 a letter.
     return `engread:${qq.stage}:${qq.word ?? qq.letter}`;
   },
 
@@ -263,24 +321,24 @@ export const engreadProvider: StageProvider = {
     const copy = ENGREAD_COPY[qq.stage] ?? {};
     const options = qq.options;
     switch (qq.stage) {
-      case 1:
-        return {
-          prompt: qq.promptEmoji ?? "",
-          hint: copy.hint,
-          options,
-          variant: "answerEng",
-        };
-      case 3:
+      case 2:
         return { prompt: qq.letter, hint: copy.hint, options, variant: "answerEng" };
-      case 4:
+      case 3:
         return {
           prompt: `${qq.letter}-${(qq.word ?? "").slice(1)}`,
           hint: copy.hint,
           options,
           variant: "answerFind",
         };
-      case 5:
+      case 4:
         return { prompt: qq.word ?? "", hint: copy.hint, options, variant: "answerEng" };
+      case 5:
+        return {
+          prompt: qq.promptEmoji ?? "",
+          hint: copy.hint,
+          options,
+          variant: "answerFind",
+        };
       default:
         return {
           prompt: copy.prompt ?? "",

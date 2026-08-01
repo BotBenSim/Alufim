@@ -12,7 +12,7 @@ related: [data-driven-content, question-dispatch-by-op, pure-logic-in-lib]
 
 ## Context
 
-Alufim has four games (add, sub, eng, find) and will likely gain more. Each game generates
+Alufim has several games (add, sub, eng, …) and keeps gaining more. Each game generates
 questions differently, but the run loop, XP, rhythm, and UI should not care which game is
 active. We needed a way to add a game without editing the engine.
 
@@ -33,7 +33,7 @@ Providers live in [`web/lib/providers/`](../../web/lib/providers) and are wired 
 [`web/lib/providers/index.ts`](../../web/lib/providers/index.ts):
 
 ```ts
-export const PROVIDERS: Record<GameId, Provider> = { add, sub, eng, find };
+export const PROVIDERS: Record<GameId, Provider> = { add, sub, eng, ...STAGE_PROVIDERS };
 export function getProvider(gameId: GameId): Provider { return PROVIDERS[gameId]; }
 ```
 

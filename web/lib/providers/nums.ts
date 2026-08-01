@@ -74,17 +74,20 @@ function pickTarget(ctx: ProviderContext, stage: number, maxNum: number, cap: nu
   return pool[rnd(pool.length)];
 }
 
-/** Stage 1 — no numerals at all: match one quantity to another. */
-function genHowMany(ctx: ProviderContext, maxNum: number): NumsQuestion {
-  const em = ctx.countEmoji || "🍎";
-  const n = pickTarget(ctx, 1, maxNum, MAX_DRAWN);
+/**
+ * Stage 1 — the most direct question in the game: hear the number, press the
+ * numeral. Three digits and nothing else, so the only thing being tested is
+ * whether the child knows the shape.
+ */
+function genRecogniseNumeral(ctx: ProviderContext, maxNum: number): NumsQuestion {
+  const n = pickTarget(ctx, 1, maxNum, maxNum);
   return {
     op: "nums",
     stage: 1,
     n,
-    dir: "toQuantity",
-    options: threeOptions(n, [], Math.min(maxNum, MAX_DRAWN)).map((v) => drawAmount(v, em)),
-    answer: drawAmount(n, em),
+    dir: "toNumeral",
+    options: threeOptions(n, [], maxNum).map(String),
+    answer: String(n),
   };
 }
 
@@ -117,30 +120,18 @@ function genNumeralToQuantity(ctx: ProviderContext, maxNum: number): NumsQuestio
   };
 }
 
-/** Stage 4 — hear the name and pick it, or say which number comes next. */
-function genNameOrOrder(ctx: ProviderContext, maxNum: number): NumsQuestion {
-  const next = rnd(2) === 0;
-  if (next) {
-    // Leave room for a successor inside the band.
-    const n = pickTarget(ctx, 4, Math.max(1, maxNum - 1), maxNum - 1);
-    const answer = n + 1;
-    return {
-      op: "nums",
-      stage: 4,
-      n,
-      dir: "next",
-      options: threeOptions(answer, [], maxNum).map(String),
-      answer: String(answer),
-    };
-  }
-  const n = pickTarget(ctx, 4, maxNum, maxNum);
+/** Stage 4 — order: which number comes after this one. */
+function genOrder(ctx: ProviderContext, maxNum: number): NumsQuestion {
+  // Leave room for a successor inside the band.
+  const n = pickTarget(ctx, 4, Math.max(1, maxNum - 1), maxNum - 1);
+  const answer = n + 1;
   return {
     op: "nums",
     stage: 4,
     n,
-    dir: "toNumeral",
-    options: threeOptions(n, [], maxNum).map(String),
-    answer: String(n),
+    dir: "next",
+    options: threeOptions(answer, [], maxNum).map(String),
+    answer: String(answer),
   };
 }
 
@@ -197,11 +188,11 @@ export const numsProvider: StageProvider = {
       case 3:
         return genNumeralToQuantity(ctx, maxNum);
       case 4:
-        return genNameOrOrder(ctx, maxNum);
+        return genOrder(ctx, maxNum);
       case 5:
         return genTensAndHundreds(ctx, maxNum);
       default:
-        return genHowMany(ctx, maxNum);
+        return genRecogniseNumeral(ctx, maxNum);
     }
   },
 
@@ -214,11 +205,12 @@ export const numsProvider: StageProvider = {
     const qq = q as NumsQuestion;
     const toNumeral = qq.dir !== "toQuantity";
     if (qq.stage === 1) {
+      // The number is only spoken; printing it would make the choice a match.
       return {
-        prompt: qq.answer,
-        hint: "איזו קבוצה כמו זו?",
+        prompt: "👂",
+        hint: "איזה מספר שמעתם?",
         options: qq.options as string[],
-        variant: "answerGroup",
+        variant: "answerFind",
       };
     }
     if (qq.dir === "next") {
@@ -239,7 +231,6 @@ export const numsProvider: StageProvider = {
 
   speak(q: Question): StageSpeak {
     const qq = q as NumsQuestion;
-    if (qq.stage === 1) return { he: "איזו קבוצה כמו זו?" };
     if (qq.dir === "next") return { he: `${hebNumber(qq.n)}, ואיזה מספר בא אחרי?` };
     if (qq.dir === "toQuantity") return { he: `מצאו ${hebNumber(qq.n)}` };
     // Counting stages must not read the answer out loud.

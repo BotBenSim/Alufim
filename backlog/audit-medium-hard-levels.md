@@ -19,10 +19,10 @@ related:
 ## Problem / opportunity
 
 Most hands-on play and tuning so far has focused on **easy**. Medium and hard bands exist
-in the factory curriculum (add, sub, find, eng) and parents can select them, but they have
+in the factory curriculum for every game and parents can select them, but they have
 not been systematically played as a child would. Gaps may include: jumps that are too
 harsh, bands that feel same-y as easy, bad option ranges, eng vocab length that is
-unreadable, find kinds that appear too early/late, or visual modes that skip the CRA
+unreadable, ladder stages that start on the wrong rung, or visual modes that skip the CRA
 scaffold.
 
 Without a deliberate pass, “בינוני / קשה” risks being a label that does not actually
@@ -32,7 +32,7 @@ right-size challenge.
 
 A focused **curriculum playtest + fix pass** for every learning game at medium and hard:
 
-1. Play each game (add, sub, find, eng) on medium and hard for several blocks of steps.
+1. Play each game on medium and hard for several blocks of steps.
 2. Note where questions feel too easy, too hard, confusing, or broken (speech, options,
    visuals, pacing).
 3. Adjust factory bands / params / visuals in `GAME_DIFFICULTY` (and any provider quirks)

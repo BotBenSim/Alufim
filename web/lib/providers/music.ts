@@ -2,12 +2,11 @@ import { diffParams } from "@/lib/difficulty";
 import {
   DIATONIC_SOLFA,
   MUSIC_BANDS,
-  MUSIC_DOWN,
+  MUSIC_CHORD_DEGREES,
   MUSIC_HAPPY,
   MUSIC_PHRASES,
   MUSIC_SAD,
   MUSIC_TONICS,
-  MUSIC_UP,
   PENTATONIC_SOLFA,
   SOLFA_HE,
   SOLFA_KEY_GLYPH,
@@ -47,7 +46,11 @@ export type MusicQuestion = Question & {
   tones: number[];
   /** Ready-to-play schedule — the host plays this and needs to know nothing else. */
   play: PlayNote[];
-  /** A reference do was played first. Early bands only; fades with `hint`. */
+  /**
+   * A reference do was played first. It fades with `hint` on the rungs that only
+   * lean on it, and is permanent at stage 2, where the question is which chord
+   * of *this* key sounded and so has no meaning without the key.
+   */
   anchor: boolean;
   /** Whether render may show its supporting line. */
   showHint: boolean;
@@ -94,39 +97,15 @@ function phraseLabel(solfa: readonly Solfa[]): string {
   return solfa.map((s) => SOLFA_HE[s]).join("־");
 }
 
-/** Stage 1 — two tones; was the second higher or lower? */
-function genHighOrLow(ctx: ProviderContext, band: MusicBand): MusicQuestion {
-  const set = keySet(band);
-  const pairs: Solfa[][] = [];
-  for (const a of set) for (const b of set) if (a !== b) pairs.push([a, b]);
-  const pair = fresh(pairs, ctx, (p) => itemKey(1, p));
-
-  const { id, tonic } = pickKey();
-  const tones = pair.map((s) => solfaFreq(tonic, s));
-  const up = tones[1] > tones[0];
-  return {
-    op: "music",
-    stage: 1,
-    solfa: pair,
-    keyId: id,
-    tonic,
-    tones,
-    play: melodyPlan(tones),
-    anchor: false,
-    showHint: band.hint === true,
-    options: [MUSIC_UP, MUSIC_DOWN],
-    answer: up ? MUSIC_UP : MUSIC_DOWN,
-  };
-}
-
 /**
- * Stages 2 and 3 — one note plays and the child picks it: at stage 2 as a key on
- * the instrument, at stage 3 by its movable-do name. Same ear, one less support.
+ * Stages 3 and 4 — one note plays and the child picks it: at stage 3 as a key on
+ * the instrument, at stage 4 by its movable-do name. Same ear, one less support.
+ * These come after the chord rungs so the game opens on what the parent asked for.
  */
 function genPickNote(
   ctx: ProviderContext,
   band: MusicBand,
-  stage: 2 | 3
+  stage: 3 | 4
 ): MusicQuestion {
   const set = keySet(band);
   const target = fresh(set, ctx, (s) => itemKey(stage, [s]));
@@ -138,7 +117,7 @@ function genPickNote(
   const anchor = band.hint === true;
   const tones = anchor ? [tonic, targetHz] : [targetHz];
 
-  const label = stage === 2 ? (s: Solfa) => SOLFA_KEY_GLYPH[s] : (s: Solfa) => SOLFA_HE[s];
+  const label = stage === 3 ? (s: Solfa) => SOLFA_KEY_GLYPH[s] : (s: Solfa) => SOLFA_HE[s];
   const others = shuffle(set.filter((s) => s !== target)).slice(0, 2);
   return {
     op: "music",
@@ -152,6 +131,34 @@ function genPickNote(
     showHint: band.hint === true,
     options: shuffle([target, ...others]).map(label),
     answer: label(target),
+  };
+}
+
+/**
+ * Stage 1 — one triad; happy or sad? The shape moves, the feeling does not.
+ * First question of the game: a chord, not a single note.
+ */
+function genHappyOrSad(ctx: ProviderContext, band: MusicBand): MusicQuestion {
+  const set = keySet(band);
+  const qualities: TriadQuality[] = ["major", "minor"];
+  const items = set.flatMap((root) => qualities.map((quality) => ({ root, quality })));
+  const item = fresh(items, ctx, (i) => itemKey(1, [i.root], i.quality));
+
+  const { id, tonic } = pickKey();
+  const tones = triadFreqs(solfaFreq(tonic, item.root), item.quality);
+  return {
+    op: "music",
+    stage: 1,
+    solfa: [item.root],
+    quality: item.quality,
+    keyId: id,
+    tonic,
+    tones,
+    play: chordPlan(tones),
+    anchor: false,
+    showHint: band.hint === true,
+    options: [MUSIC_HAPPY, MUSIC_SAD],
+    answer: item.quality === "major" ? MUSIC_HAPPY : MUSIC_SAD,
   };
 }
 
@@ -180,7 +187,7 @@ function phraseDecoys(target: readonly Solfa[], pool: Solfa[][], set: Solfa[]): 
   return out.slice(0, 2);
 }
 
-/** Stage 4 — a short phrase plays; pick the phrase that matches. */
+/** Stage 5 — a short phrase plays; pick the phrase that matches. */
 function genEchoPhrase(ctx: ProviderContext, band: MusicBand): MusicQuestion {
   const set = keySet(band);
   const len = Math.max(2, Math.min(4, band.len ?? 2));
@@ -188,7 +195,7 @@ function genEchoPhrase(ctx: ProviderContext, band: MusicBand): MusicQuestion {
   const atLen = inSet.filter((p) => p.solfa.length === len);
   const pool = atLen.length ? atLen : inSet;
 
-  const phrase = fresh([...pool], ctx, (p) => itemKey(4, p.solfa));
+  const phrase = fresh([...pool], ctx, (p) => itemKey(5, p.solfa));
   const target = [...phrase.solfa];
   const { id, tonic } = pickKey();
 
@@ -200,7 +207,7 @@ function genEchoPhrase(ctx: ProviderContext, band: MusicBand): MusicQuestion {
   const decoys = phraseDecoys(target, others, set);
   return {
     op: "music",
-    stage: 4,
+    stage: 5,
     solfa: target,
     keyId: id,
     tonic,
@@ -213,45 +220,54 @@ function genEchoPhrase(ctx: ProviderContext, band: MusicBand): MusicQuestion {
   };
 }
 
-/** Stage 5 — one triad; happy or sad? The shape moves, the feeling does not. */
-function genHappyOrSad(ctx: ProviderContext, band: MusicBand): MusicQuestion {
-  const set = keySet(band);
-  const qualities: TriadQuality[] = ["major", "minor"];
-  const items = set.flatMap((root) => qualities.map((quality) => ({ root, quality })));
-  const item = fresh(items, ctx, (i) => itemKey(5, [i.root], i.quality));
-
+/**
+ * Stage 2 — one of the three chords of the key sounds; which one was it? The
+ * roots are scale degrees, so the triads are built by interval off the key's own
+ * do and the whole rung transposes for free.
+ */
+function genWhichChord(ctx: ProviderContext, band: MusicBand): MusicQuestion {
+  const degrees = [...MUSIC_CHORD_DEGREES];
+  const root = fresh(degrees, ctx, (d) => itemKey(2, [d], "major"));
   const { id, tonic } = pickKey();
-  const tones = triadFreqs(solfaFreq(tonic, item.root), item.quality);
+
+  // Unlike every other rung, do is not a scaffold here: "which chord of the key"
+  // is unanswerable until the key has been stated, so the anchor never fades.
+  const triad = triadFreqs(solfaFreq(tonic, root), "major");
   return {
     op: "music",
-    stage: 5,
-    solfa: [item.root],
-    quality: item.quality,
+    stage: 2,
+    solfa: [root],
+    quality: "major",
     keyId: id,
     tonic,
-    tones,
-    play: chordPlan(tones),
-    anchor: false,
+    tones: [tonic, ...triad],
+    play: [
+      ...melodyPlan([tonic]),
+      ...chordPlan(triad, { startMs: MELODY_NOTE_MS + ANCHOR_PAUSE_MS }),
+    ],
+    anchor: true,
     showHint: band.hint === true,
-    options: [MUSIC_HAPPY, MUSIC_SAD],
-    answer: item.quality === "major" ? MUSIC_HAPPY : MUSIC_SAD,
+    // Left in scale order rather than shuffled: like the key glyphs, the three
+    // chords keep one fixed slot each so the map is never relearned.
+    options: degrees.map((d) => SOLFA_HE[d]),
+    answer: SOLFA_HE[root],
   };
 }
 
 const PROMPT: Record<number, string> = {
-  1: "הצליל השני עלה או ירד?",
-  2: "איזה מקש שמעתם?",
-  3: "מה שם הצליל?",
-  4: "איזה לחן שמעתם?",
-  5: "הצליל הזה שמח או עצוב?",
+  1: "הצליל הזה שמח או עצוב?",
+  2: "איזה אקורד שמעתם?",
+  3: "איזה מקש שמעתם?",
+  4: "מה שם הצליל?",
+  5: "איזה לחן שמעתם?",
 };
 
 const SAY: Record<number, string> = {
-  1: "הקשיבו לשני הצלילים. השני עלה או ירד?",
-  2: "הקשיבו. איזה מקש שמעתם?",
-  3: "הקשיבו. מה שם הצליל?",
-  4: "הקשיבו ללחן. איזה לחן זה?",
-  5: "הקשיבו. שמח או עצוב?",
+  1: "הקשיבו. שמח או עצוב?",
+  2: "הקשיבו לאקורד. איזה אקורד זה?",
+  3: "הקשיבו. איזה מקש שמעתם?",
+  4: "הקשיבו. מה שם הצליל?",
+  5: "הקשיבו ללחן. איזה לחן זה?",
 };
 
 export const musicProvider: StageProvider = {
@@ -261,15 +277,15 @@ export const musicProvider: StageProvider = {
     const band = diffParams<MusicBand>(ctx.curriculum, ctx.level, ctx.step);
     switch (band.stage ?? 1) {
       case 2:
-        return genPickNote(ctx, band, 2);
+        return genWhichChord(ctx, band);
       case 3:
         return genPickNote(ctx, band, 3);
       case 4:
-        return genEchoPhrase(ctx, band);
+        return genPickNote(ctx, band, 4);
       case 5:
-        return genHappyOrSad(ctx, band);
+        return genEchoPhrase(ctx, band);
       default:
-        return genHighOrLow(ctx, band);
+        return genHappyOrSad(ctx, band);
     }
   },
 
@@ -280,7 +296,7 @@ export const musicProvider: StageProvider = {
 
   render(q: Question): StageRender {
     const qq = q as MusicQuestion;
-    const emojiOptions = qq.stage === 1 || qq.stage === 5;
+    const emojiOptions = qq.stage === 1;
     return {
       prompt: PROMPT[qq.stage] ?? PROMPT[1],
       hint: musicHint(qq),
@@ -300,7 +316,6 @@ export const musicProvider: StageProvider = {
 function musicHint(q: MusicQuestion): string | undefined {
   if (!q.showHint) return undefined;
   if (q.anchor) return "הצליל הראשון הוא דו";
-  if (q.stage === 1) return `${MUSIC_UP} עלה · ${MUSIC_DOWN} ירד`;
-  if (q.stage === 5) return `${MUSIC_HAPPY} שמח · ${MUSIC_SAD} עצוב`;
+  if (q.stage === 1) return `${MUSIC_HAPPY} שמח · ${MUSIC_SAD} עצוב`;
   return undefined;
 }

@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { KidButton } from "@/design-system";
 import { HEB_NUM } from "@/data/hebrew";
-import { findCatLabel } from "@/data/find";
 import { AnswerGlyphView } from "@/components/game/AnswerGlyphView";
 import { addRenderMeta, type AddQuestion } from "@/lib/providers/add";
 import { subRenderMeta, type SubQuestion } from "@/lib/providers/sub";
@@ -183,7 +182,7 @@ export function QuestionView({
       if (meta.variant === "answerGroup") {
         // Sets of emoji need the wrapping button; the label is the answer.
         return {
-          kind: "findGroup" as const,
+          kind: "pickGroup" as const,
           prompt: meta.prompt,
           hint: meta.hint,
           options: meta.options.map((o) => ({ value: o, label: o })),
@@ -191,90 +190,11 @@ export function QuestionView({
         };
       }
       return {
-        kind: "find" as const,
+        kind: "pick" as const,
         prompt: meta.prompt,
         hint: meta.hint,
         options: meta.options,
         variant: meta.variant,
-      };
-    }
-
-    if (q.op === "find") {
-      const fq = q as unknown as Record<string, unknown> & { kind: string; answer: unknown };
-      const pointer = "👆";
-
-      if (fq.kind === "num") {
-        const answer = fq.answer as number;
-        const maxNum = (fq.maxNum as number) || Math.max(5, answer);
-        const raw = (fq as { options?: number[] }).options;
-        const options = (raw?.length ? raw : numberOptions(answer, maxNum)).map(String);
-        return {
-          kind: "find" as const,
-          prompt: `מצאו את המספר ${HEB_NUM[answer] || answer}`,
-          hint: pointer,
-          options,
-          variant: "answerFind" as const,
-        };
-      }
-      if (fq.kind === "letter") {
-        const item = fq.item as { name: string; l: string };
-        return {
-          kind: "find" as const,
-          prompt: `מצאו את האות ${item.name}`,
-          hint: pointer,
-          options: (fq.options as { l: string }[]).map((o) => o.l),
-          variant: "answerFind" as const,
-        };
-      }
-      if (fq.kind === "phon") {
-        const item = fq.item as { l: string; emoji: string };
-        return {
-          kind: "find" as const,
-          prompt: `מה מתחיל ב־ ${item.l}`,
-          hint: "איזה מתחיל בּצליל הזה?",
-          options: (fq.options as { emoji: string }[]).map((o) => o.emoji),
-          variant: "answerEng" as const,
-        };
-      }
-      if (fq.kind === "more") {
-        const opts = fq.options as { count: number; em: string }[];
-        return {
-          kind: "findGroup" as const,
-          prompt: "מצאו את הקבוצה עם הכי הרבה",
-          hint: pointer,
-          options: opts.map((o) => ({
-            value: String(o.count),
-            label: repeatStr(o.em, o.count),
-          })),
-          variant: "answerGroup" as const,
-        };
-      }
-      if (fq.kind === "bignum") {
-        return {
-          kind: "find" as const,
-          prompt: "איזה מספר גדול יותר?",
-          hint: pointer,
-          options: (fq.options as number[]).map(String),
-          variant: "answerFind" as const,
-        };
-      }
-      if (fq.kind === "reason") {
-        return {
-          kind: "find" as const,
-          prompt: fq.prompt as string,
-          hint: pointer,
-          options: fq.options as string[],
-          variant: "answerEng" as const,
-        };
-      }
-      const cat = fq.cat as string;
-      const item = fq.item as { he: string; emoji: string };
-      return {
-        kind: "find" as const,
-        prompt: findCatLabel(cat, item.he),
-        hint: pointer,
-        options: (fq.options as { emoji: string }[]).map((o) => o.emoji),
-        variant: "answerEng" as const,
       };
     }
 
@@ -456,7 +376,7 @@ export function QuestionView({
           </>
         )}
 
-        {(choiceProps.kind === "find" || choiceProps.kind === "findGroup") && (
+        {(choiceProps.kind === "pick" || choiceProps.kind === "pickGroup") && (
           <>
             <div className="findprompt text-center text-[clamp(30px,7vw,56px)] font-extrabold text-heading">
               {"prompt" in choiceProps ? choiceProps.prompt : ""}
@@ -471,7 +391,7 @@ export function QuestionView({
 
         <div id="answers" className="flex flex-wrap justify-center gap-[clamp(12px,3vw,26px)]">
           {"options" in choiceProps &&
-            (choiceProps.kind === "findGroup"
+            (choiceProps.kind === "pickGroup"
               ? (choiceProps.options as { value: string; label: string }[]).map((o) => (
                   <KidButton
                     key={o.value}

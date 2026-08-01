@@ -10,12 +10,16 @@ import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
  * Content only. Frequencies are never written down here beyond the seed keys —
  * `lib/audio/musicTones.ts` derives them, so a new key is a parameter.
  */
+/**
+ * Chords first. A parent opening the game for a child who "wants to learn chords"
+ * should meet a chord on the first question, not after a run of single notes.
+ */
 export const MUSIC_STAGES = [
-  { stage: 1, label: "גבוה או נמוך" },
-  { stage: 2, label: "איזה צליל שמעתם" },
-  { stage: 3, label: "שם הצליל" },
-  { stage: 4, label: "חזרו על הלחן" },
-  { stage: 5, label: "שמח או עצוב" },
+  { stage: 1, label: "שמח או עצוב" },
+  { stage: 2, label: "איזה אקורד שמעתם" },
+  { stage: 3, label: "איזה מקש שמעתם" },
+  { stage: 4, label: "שם הצליל" },
+  { stage: 5, label: "חזרו על הלחן" },
 ] as const;
 
 /** Kodály's pentatonic core — no combination of these can sound wrong (Orff). */
@@ -58,12 +62,19 @@ export const SOLFA_KEY_GLYPH: Record<Solfa, string> = {
   ti: "▇",
 };
 
-/** Answer labels. Kept as data so the tests and the provider agree on them. */
-export const MUSIC_UP = "⬆️";
-export const MUSIC_DOWN = "⬇️";
-/** "Happy / sad", never מז'ור/מינור — the feeling comes years before the word. */
+/**
+ * Answer labels. Kept as data so the tests and the provider agree on them.
+ * "Happy / sad", never מז'ור/מינור — the feeling comes years before the word.
+ */
 export const MUSIC_HAPPY = "😄";
 export const MUSIC_SAD = "😢";
+
+/**
+ * The three chords the ear meets first: the I, IV and V triads, named by the
+ * scale degree they sit on. Degrees, not chord letters — the same three shapes
+ * are דו/פה/סול in every key, so the child learns one map instead of twelve.
+ */
+export const MUSIC_CHORD_DEGREES: readonly Solfa[] = ["do", "fa", "sol"];
 
 /**
  * Seed keys, as semitones from concert A. Every question is transposed to one of
@@ -124,24 +135,29 @@ export type MusicBand = {
   notes?: number;
   /** Phrase length at stage 4. Length is the knob, never speed. */
   len?: number;
-  /** Stage 1/5: label the buttons. Stages 2–4: play do first as a reference. */
+  /** Stage 1: label happy/sad. Stages 3/4/5: play do first as a reference. */
   hint?: boolean;
 };
 
+/**
+ * Easy opens on a chord and stays on chords for two bands, so a child who never
+ * leaves the default level still learns the two chord feelings and then the
+ * three chord names. Single notes and phrases come after.
+ */
 export const MUSIC_BANDS: Record<DifficultyLevel, DifficultyBand[]> = {
   easy: [
     { stage: 1, notes: 5, hint: true },
-    { stage: 2, notes: 5, hint: true },
+    { stage: 2, notes: 5 },
     { stage: 3, notes: 5 },
   ],
   medium: [
     { stage: 2, notes: 5, hint: true },
-    { stage: 3, notes: 5 },
-    { stage: 4, notes: 5, len: 2 },
+    { stage: 3, notes: 5, hint: true },
+    { stage: 4, notes: 5 },
   ],
   hard: [
-    { stage: 3, notes: 7 },
-    { stage: 4, notes: 7, len: 3 },
-    { stage: 5, notes: 7 },
+    { stage: 3, notes: 7, hint: true },
+    { stage: 4, notes: 7 },
+    { stage: 5, notes: 7, len: 3 },
   ],
 };

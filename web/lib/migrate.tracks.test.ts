@@ -4,8 +4,9 @@ import { migrateProfile, newProfile, parseStoredState, STATE_KEY } from "./migra
 import type { Profile } from "./types";
 
 /**
- * A save written before the Hebrew/English/music tracks existed: four games, and
- * a hand-tuned add curriculum the parent must not lose.
+ * A save written before the Hebrew/English/music tracks existed: four games —
+ * including "find", which has since been removed — and a hand-tuned add
+ * curriculum the parent must not lose.
  */
 function legacyProfile(): Profile {
   const p = newProfile("איתן", "🙂", "boy");
@@ -15,7 +16,7 @@ function legacyProfile(): Profile {
   return {
     ...p,
     games: {
-      find: p.games.find,
+      find: { enabled: true, level: "easy", curriculum: { stepsPerBlock: 6, bands: {} } },
       add: { ...p.games.add, level: "hard", curriculum: tuned },
       sub: p.games.sub,
       eng: { ...p.games.eng, enabled: false },
@@ -41,6 +42,12 @@ describe("migrating a save from before the tracks shipped", () => {
       expect(p.games[gid].level).toBe("easy");
       expect(p.games[gid].curriculum.bands.easy.length).toBeGreaterThan(0);
     }
+  });
+
+  it("drops the removed מצא את game instead of carrying it forever", () => {
+    const p = migrateProfile(legacyProfile());
+    expect(Object.keys(p.games)).not.toContain("find");
+    expect(Object.keys(p.games).sort()).toEqual([...GAME_ORDER].sort());
   });
 
   it("covers every game the home screen can list", () => {

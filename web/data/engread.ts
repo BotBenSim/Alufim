@@ -5,15 +5,22 @@ import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
  * aurally similar letters kept out of the same set. See
  * knowledge/educational/track-skill-ladders.md.
  *
+ * The ladder starts at sound → letter, not at an ear-only rung: a letter is on
+ * screen from the very first question. Sound-before-symbol still holds — the
+ * child hears the phoneme and the letter is only its label — but
+ * knowledge/educational/sound-before-symbol.md warns against letting "sound
+ * first" become "sound only", and an opening band with no letter in it read to
+ * a parent as a game that never got to the reading.
+ *
  * Emoji match `data/vocab.ts` wherever the two games name the same thing, so a
  * child meets one picture per word across the whole app.
  */
 export const ENGREAD_STAGES = [
-  { stage: 1, label: "same first sound" },
-  { stage: 2, label: "sound → letter" },
-  { stage: 3, label: "letter → sound" },
-  { stage: 4, label: "blend a word" },
-  { stage: 5, label: "read a word" },
+  { stage: 1, label: "sound → letter" },
+  { stage: 2, label: "letter → sound" },
+  { stage: 3, label: "blend a word" },
+  { stage: 4, label: "read a word" },
+  { stage: 5, label: "picture → word" },
 ] as const;
 
 /** Standard first phase of a synthetic-phonics progression. */
@@ -87,14 +94,14 @@ export type EngPic = {
   emoji: string;
   /** First grapheme of the English word. */
   l: string;
-  /** First phoneme — what stages 1 and 3 actually compare. */
+  /** First phoneme — what rung 2 actually compares. */
   sound: string;
 };
 
 /**
  * Keyword pictures, at least one per letter in PHONICS_ORDER. Every word starts
  * with the plain sound of its first letter — no digraphs, no soft `c`/`g`, no
- * long vowels — because stages 1–3 ask the child to hear exactly that sound.
+ * long vowels — because rungs 1–2 turn on exactly that sound.
  */
 export const ENGREAD_PICS: readonly EngPic[] = [
   { en: "sun", he: "שמש", emoji: "☀️", l: "s", sound: "s" },
@@ -185,14 +192,16 @@ export const ENGREAD_PICS: readonly EngPic[] = [
 export type EngCvc = { en: string; he: string; emoji: string };
 
 /**
- * Decodable CVC words for stages 4–5: three letters, all of them from
+ * Decodable CVC words for rungs 3–5: three letters, all of them from
  * PHONICS_ORDER, every grapheme saying its plain sound. No digraphs, no silent
  * letters, no irregular spellings — a child who knows the letters can read
  * every word here without being told it.
  *
  * The rime families (-at, -an, -en, -og, -ug, …) are deliberate: they let a
  * question offer near-miss distractors, so the child has to decode the onset
- * instead of recognising a shape.
+ * instead of recognising a shape. The same-onset near misses (cat/can,
+ * pan/pin, bag/bug, net/nut) do the mirror job at rung 5, where the child picks
+ * a spelling and must therefore read past the first letter.
  */
 export const ENGREAD_CVC: readonly EngCvc[] = [
   { en: "cat", he: "חתול", emoji: "🐱" },
@@ -239,36 +248,36 @@ export const ENGREAD_CVC: readonly EngCvc[] = [
 ];
 
 /**
- * Hebrew chrome, one row per stage — the UI speaks Hebrew, the content is
- * English. Support thins as the stage rises
+ * Hebrew chrome, one row per rung — the UI speaks Hebrew, the content is
+ * English. Support thins as the rung rises
  * (knowledge/educational/faded-scaffold-ladder.md):
  *
- * | stage | on screen | spoken |
+ * | rung | on screen | spoken |
  * | --- | --- | --- |
- * | 1 | keyword picture + full Hebrew question | Hebrew question + the English word |
- * | 2 | Hebrew question + mnemonic picture | Hebrew question + the phoneme |
- * | 3 | the letter + short Hebrew hint | Hebrew hint only — the sound is the child's job |
- * | 4 | the split word + a pointer | short Hebrew cue + the two parts |
- * | 5 | the word, nothing else | short Hebrew cue; the word is never spoken first |
+ * | 1 | Hebrew question + mnemonic picture, three letters | Hebrew question + the phoneme |
+ * | 2 | the letter + short Hebrew hint, three pictures | Hebrew hint only — the sound is the child's job |
+ * | 3 | the split word + a pointer, three words | short Hebrew cue + the two parts |
+ * | 4 | the word, nothing else, three pictures | short Hebrew cue; the word is never spoken first |
+ * | 5 | one picture + short Hebrew cue, three spellings | short Hebrew cue only; no word is ever said |
  */
 export const ENGREAD_COPY: Record<
   number,
   { prompt?: string; hint?: string; he?: string }
 > = {
   1: {
-    hint: "איזו תמונה מתחילה באותו צליל?",
-    he: "שמעו את המילה. איזו תמונה מתחילה באותו צליל?",
-  },
-  2: {
     prompt: "איזו אות עושה את הצליל הזה?",
     he: "איזו אות עושה את הצליל הזה?",
   },
-  3: {
+  2: {
     hint: "איזו תמונה מתחילה באות הזאת?",
     he: "איזו תמונה מתחילה באות הזאת?",
   },
-  4: { hint: "👆", he: "חברו את הצלילים למילה" },
-  5: { he: "קראו את המילה ובחרו תמונה" },
+  3: { hint: "👆", he: "חברו את הצלילים למילה" },
+  4: { he: "קראו את המילה ובחרו תמונה" },
+  5: {
+    hint: "איזו מילה מתאימה לתמונה?",
+    he: "איזו מילה מתאימה לתמונה?",
+  },
 };
 
 export function engSound(letter: string): EngSound | undefined {
@@ -294,6 +303,12 @@ function stageBands(stages: readonly number[]): DifficultyBand[] {
   return stages.map((stage) => ({ stage }));
 }
 
+/**
+ * A saved profile keeps only the stage number, so shifting the content down one
+ * rung moves a returning player down one rung with it. That is the intended
+ * outcome — every old stage still exists, one number lower — and it needs no
+ * migration (knowledge/technical/state-persistence.md).
+ */
 export const ENGREAD_BANDS: Record<DifficultyLevel, DifficultyBand[]> = {
   easy: stageBands([1, 2, 3]),
   medium: stageBands([2, 3, 4]),

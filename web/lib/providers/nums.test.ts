@@ -54,7 +54,7 @@ describe("numsProvider", () => {
   });
 
   it("stays inside the band", () => {
-    for (const stage of [2, 3, 4]) {
+    for (const stage of [1, 2, 3, 4]) {
       for (const maxNum of [5, 10, 20]) {
         const curriculum = atStage(stage, maxNum);
         for (let i = 0; i < 60; i++) {
@@ -66,28 +66,49 @@ describe("numsProvider", () => {
     }
   });
 
-  it("shows no numeral at all in stage 1", () => {
-    const curriculum = atStage(1, 5);
-    for (let i = 0; i < 60; i++) {
-      const q = numsProvider.generate(ctx({ curriculum })) as NumsQuestion;
-      const shown = [numsProvider.render(q).prompt, ...(q.options as string[])].join("");
-      expect(shown).not.toMatch(/[0-9]/);
+  it("opens on the numeral itself: three digits shown, the number spoken", () => {
+    for (const maxNum of [5, 10, 20]) {
+      const curriculum = atStage(1, maxNum);
+      for (let i = 0; i < 60; i++) {
+        const q = numsProvider.generate(ctx({ curriculum })) as NumsQuestion;
+        const r = numsProvider.render(q);
+        expect(r.variant).toBe("answerFind");
+        expect(r.options).toHaveLength(3);
+        for (const o of r.options) expect(o).toMatch(/^\d+$/);
+        expect(r.options).toContain(String(q.n));
+        // Nothing else on screen — the digit is heard, not read off the card.
+        expect(r.prompt).not.toMatch(/[0-9]/);
+        expect(numsProvider.speak(q).he).toContain(hebNumber(q.n));
+      }
     }
   });
 
-  it("never draws more than ten loose items in one option", () => {
-    for (const stage of [1, 3]) {
+  it("never prints the numeral on the card while the child is counting", () => {
+    for (const stage of [2, 5]) {
+      const curriculum = atStage(stage, stage === 5 ? 99 : 10);
+      for (let i = 0; i < 60; i++) {
+        const q = numsProvider.generate(ctx({ curriculum })) as NumsQuestion;
+        if (!q.prompt) continue;
+        expect(numsProvider.render(q).prompt).not.toMatch(/[0-9]/);
+      }
+    }
+  });
+
+  it("never draws more than ten loose items in one place", () => {
+    for (const stage of [2, 3, 5]) {
       const curriculum = atStage(stage, 100);
       for (let i = 0; i < 60; i++) {
         const q = numsProvider.generate(ctx({ curriculum })) as NumsQuestion;
-        for (const o of q.options as string[]) {
-          expect([...o].filter((c) => c === "🍎").length).toBeLessThanOrEqual(MAX_DRAWN);
+        const r = numsProvider.render(q);
+        for (const s of [r.prompt, ...r.options]) {
+          expect([...s].filter((c) => c === "🍎").length).toBeLessThanOrEqual(MAX_DRAWN);
         }
       }
     }
   });
 
   it("does not say the answer out loud while the child is counting", () => {
+    // Stage 1 is excluded on purpose: saying the number is the whole rung.
     for (const stage of [2, 5]) {
       const curriculum = atStage(stage, stage === 5 ? 99 : 10);
       for (let i = 0; i < 60; i++) {
@@ -100,16 +121,14 @@ describe("numsProvider", () => {
     }
   });
 
-  it("asks for the successor in the order questions", () => {
+  it("asks for the successor at stage 4", () => {
     const curriculum = atStage(4, 20);
-    let seen = 0;
     for (let i = 0; i < 200; i++) {
       const q = numsProvider.generate(ctx({ curriculum })) as NumsQuestion;
-      if (q.dir !== "next") continue;
-      seen++;
+      expect(q.dir).toBe("next");
       expect(q.answer).toBe(String(q.n + 1));
+      expect(q.options as string[]).toContain(String(q.n + 1));
     }
-    expect(seen).toBeGreaterThan(0);
   });
 
   it("teaches 100 against 10 and 1000, not against 99", () => {
@@ -160,7 +179,7 @@ describe("the ladder a child actually walks", () => {
     return seen;
   }
 
-  it("starts easy at matching quantities and never shows a numeral first", () => {
+  it("starts easy on recognising the numeral", () => {
     expect(stagesOverARun("easy")[0]).toBe(1);
   });
 
@@ -168,6 +187,22 @@ describe("the ladder a child actually walks", () => {
     expect(stagesOverARun("easy")).toEqual([1, 2, 3]);
     expect(stagesOverARun("medium")).toEqual([2, 3, 4]);
     expect(stagesOverARun("hard")).toEqual([3, 4, 5]);
+  });
+
+  it("shows a numeral or a quantity from the very first question, at every level", () => {
+    const curriculum = defaultCurriculum("nums");
+    const perBand = curriculum.stepsPerBlock ?? 6;
+    for (const level of ["easy", "medium", "hard"] as DifficultyLevel[]) {
+      for (let band = 0; band < curriculum.bands[level].length; band++) {
+        const step = band * perBand + 1;
+        for (let i = 0; i < 40; i++) {
+          const q = numsProvider.generate(ctx({ curriculum, level, step })) as NumsQuestion;
+          const r = numsProvider.render(q);
+          const shown = [r.prompt, ...r.options].join("");
+          expect(shown).toMatch(new RegExp(`[0-9]|🍎|${TEN_GLYPH}`, "u"));
+        }
+      }
+    }
   });
 });
 

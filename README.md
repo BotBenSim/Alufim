@@ -1,7 +1,8 @@
 # Alufim (אלופים)
 
-A Pokémon-style educational game for kids: raise an animal, earn XP through math, English,
-and "find the..." games, and evolve it. Hebrew, RTL, audio-first, and playable offline.
+A Pokémon-style educational game for kids: raise an animal, earn XP through numbers, math,
+Hebrew and English reading and music, and evolve it. Hebrew, RTL, audio-first, and playable
+offline.
 
 The app is a Next.js + React + TypeScript project in [`web/`](web/).
 

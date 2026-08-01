@@ -5,12 +5,15 @@ import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
  * Hebrew reading ladder. One band per stage — see
  * knowledge/educational/hebrew-reading-sequence.md (letters → nikud → syllable)
  * and knowledge/educational/track-skill-ladders.md for the stage definitions.
+ *
+ * Every rung puts a Hebrew glyph on screen: the ladder starts at the letter, not
+ * at an ear-only sound-matching game.
  */
 export const HEBREAD_STAGES = [
-  { stage: 1, label: "אותו צליל בהתחלה" },
-  { stage: 2, label: "צליל → אות" },
-  { stage: 3, label: "אות → צליל" },
-  { stage: 4, label: "אות + ניקוד = הברה" },
+  { stage: 1, label: "צליל → אות" },
+  { stage: 2, label: "אות → תמונה" },
+  { stage: 3, label: "שומעים הברה" },
+  { stage: 4, label: "קוראים הברה" },
   { stage: 5, label: "מילה שלמה" },
 ] as const;
 
@@ -58,8 +61,8 @@ export const NIKUD: NikudMark[] = [
 ];
 
 /**
- * Letters used to build syllables at stage 4. Weak/silent onsets (א ע ה ו) are
- * left out — a child cannot hear the difference between אַ and עַ.
+ * Letters used to build syllables at stages 3–4. Weak/silent onsets (א ע ה ו)
+ * are left out — a child cannot hear the difference between אַ and עַ.
  */
 export const HEBREAD_SYLLABLE_LETTERS = [
   "ב", "מ", "ש", "ל", "ת", "ס", "ד", "ג",
@@ -84,8 +87,9 @@ export type HebPicture = { he: string; emoji: string; l: string };
 
 /**
  * Second (and third) picture per letter. `FIND_PHON` already carries one word
- * for each of the 22 letters; stage 1 needs at least two per letter so the
- * spoken cue word is never the picture the child taps.
+ * for each of the 22 letters; a letter needs several so the spoken example word
+ * at stage 1 varies between questions and the child learns the letter rather
+ * than one fixed word-picture pair.
  */
 const HEBREAD_EXTRA_PICTURES: HebPicture[] = [
   { he: "אוטובוס", emoji: "🚌", l: "א" },
@@ -145,11 +149,6 @@ export const PICTURES_BY_LETTER: Record<string, HebPicture[]> = HEBREAD_PICTURES
   {} as Record<string, HebPicture[]>
 );
 
-/** Letters that have at least two pictures, so stage 1 can cue with one and answer with another. */
-export const HEBREAD_PICTURE_LETTERS = Object.keys(PICTURES_BY_LETTER).filter(
-  (l) => PICTURES_BY_LETTER[l].length >= 2
-);
-
 export type HebWord = {
   /** Pointed form, shown to the child. */
   he: string;
@@ -169,6 +168,7 @@ export type HebWord = {
 /**
  * Two-syllable pointed words for stages 4–5. Open-syllable words (סַבָּא) are
  * flagged so a run can start with them before closed syllables arrive.
+ * Stage 4 reads only their first syllable; stage 5 reads the whole word.
  */
 export const HEBREAD_WORDS: HebWord[] = [
   { he: "סַבָּא", plain: "סבא", emoji: "👴", syl: "סַ", letter: "ס", nik: 0, open: true },
@@ -205,13 +205,11 @@ export const HEBREAD_WORDS: HebWord[] = [
   { he: "יַלְדָּה", plain: "ילדה", emoji: "👧", syl: "יַ", letter: "י", nik: 0, open: false },
 ];
 
-/** Child-facing lines. Hints exist at stages 1–3 and are gone by 4–5. */
+/** Child-facing lines. Hints exist at stages 1–2 and are gone by 3–5. */
 export const HEBREAD_TEXT = {
-  sameSoundHint: "מה מתחיל באותו צליל?",
   letterHint: (word: string) => `${word} — באיזו אות מתחילה?`,
   pictureHint: "איזו תמונה מתחילה באות הזאת?",
   heardPrompt: "מה שמעתם?",
-  sameSoundSay: (word: string) => `${word}. מה מתחיל באותו צליל?`,
   letterSay: (name: string, word: string) => `${name}. כמו ${word}. איזו אות זו?`,
   pictureSay: "איזו תמונה מתחילה באות שרואים?",
   hearSylSay: (syl: string) => `${syl}. איזו הברה שמעתם?`,

@@ -2,15 +2,16 @@ import { HEB_NUM } from "@/data/hebrew";
 import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
 
 /**
- * Numbers ladder — quantity before symbol, the counting equivalent of
- * knowledge/educational/sound-before-symbol.md. A child meets "five of them"
- * before the shape "5", and tens-and-ones before the shape "100".
+ * Numbers ladder — the numeral is on screen from the very first question. Rung 1
+ * is the most direct question there is: hear "חמש", press 5. Only once the shape
+ * is known do we tie it to an amount in both directions, then to order, then to
+ * tens-and-ones.
  */
 export const NUMS_STAGES = [
-  { stage: 1, label: "כמה יש" },
+  { stage: 1, label: "זיהוי ספרה" },
   { stage: 2, label: "כמות → ספרה" },
   { stage: 3, label: "ספרה → כמות" },
-  { stage: 4, label: "שם המספר וסדר" },
+  { stage: 4, label: "סדר המספרים" },
   { stage: 5, label: "עשרות ומאות" },
 ] as const;
 

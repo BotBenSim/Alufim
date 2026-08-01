@@ -62,21 +62,19 @@ teaches a method, not just facts.
 
 ## What shipped
 
-Stages 1–5 exist in all three tracks, as three ordinary games (`hebread`, `engread`, `music`) rather
-than as the track/skill model in [curriculum-tracks](../technical/curriculum-tracks.md), which is
-still only proposed. Stages 6 (produce) and 7 (fluency) are not built.
+Stages 1–5 exist in all three tracks (plus a separate `nums` ladder), as ordinary games rather than
+as the track/skill model in [curriculum-tracks](../technical/curriculum-tracks.md), which is still
+only proposed. Stages 6 (produce) and 7 (fluency) are not built.
 
-Two places where the shipped ladder departs from the table above:
+Where the shipped ladders depart from the planning table above — on purpose, after playtesting:
 
-- **Music has no rhythm strand yet.** The plan called for rhythm first, since it develops before
-  melody; what shipped is the pitch strand only (higher/lower → which key → solfège name → echo a
-  phrase → major vs minor). Rhythm is the obvious next addition and would serve the youngest players
-  better than anything currently in the track.
-- **Music stage 5 is major vs minor, not notation.** Chords are generated as movable shapes from a
-  root, so a chord is one rule rather than a table of 24. Staff notation is unbuilt.
-
-Each track's step 1 is genuinely ear-only: no letter, note name or written symbol reaches the screen
-until stage 2, which is the whole point of [sound-before-symbol](sound-before-symbol.md).
+- **No ear-only opener.** Hebrew and English put a letter on screen from stage 1 (sound → letter).
+  An opening band with only pictures read to a parent as a game that never got to reading.
+- **Music opens on chords.** Stage 1 is happy/sad (major vs minor), stage 2 is which of I/IV/V
+  sounded; single notes and phrases come after. Chords are movable shapes from a root, not a table
+  of 24. Staff notation and a rhythm strand are still unbuilt.
+- **Numbers opens on digit recognition** (hear "חמש", press `5`), not on matching piles — see
+  [number-sense-ladder](number-sense-ladder.md).
 
 ## Watch-outs
 

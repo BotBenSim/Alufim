@@ -56,3 +56,4 @@ Off-ramps: `rejected`, `superseded`.
 | [animal-epic-boss-steps-and-skills](animal-epic-boss-steps-and-skills.md) | Growth steps as boss moments; each game grants a move | proposed | SDT competence + goal-gradient + interleaving |
 | [hebrew-writing-game](hebrew-writing-game.md) | Hebrew writing game (trace/build letters) | proposed | Grapho-motor letter learning + faded scaffolding |
 | [music-ear-and-chords-game](music-ear-and-chords-game.md) | Music game: sound-before-symbol ladder, pitch strand shipped (stages 1-5) | accepted | Sound before symbol (Kodály/Gordon) + landmark/intervallic reading |
+| [reasoning-and-comparison-games](reasoning-and-comparison-games.md) | Re-home categorisation and magnitude comparison after מצא את was deleted | proposed | Prototype theory (Rosch) + magnitude comparison as number sense |

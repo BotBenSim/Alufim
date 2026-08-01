@@ -5,7 +5,6 @@ export type GameId =
   | "mul"
   | "div"
   | "nums"
-  | "find"
   | "eng"
   | "hebread"
   | "engread"
@@ -106,7 +105,7 @@ export type ScreenId =
   | "game";
 
 export type Question = Record<string, unknown> & {
-  op: GameId | "find";
+  op: GameId;
   answer: unknown;
 };
 

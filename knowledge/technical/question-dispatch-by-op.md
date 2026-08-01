@@ -23,7 +23,7 @@ on it to pick per-game rendering and speech.
 
 ```ts
 // web/lib/types.ts
-type Question = Record<string, unknown> & { op: GameId | "find"; answer: unknown };
+type Question = Record<string, unknown> & { op: GameId; answer: unknown };
 
 // web/lib/speakPrompt.ts
 switch (q.op) {

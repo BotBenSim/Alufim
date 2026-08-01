@@ -23,8 +23,10 @@ is **not** the English phonics sequence:
 Two ordering rules apply throughout: never introduce visually similar letters in the same set, and
 never teach letter names and vowel sounds at the same time.
 
-Today only step 1 is present, inside the מצא את game (`FIND_LETTERS`, `FIND_PHON` in
-[`web/data/find.ts`](../../web/data/find.ts)). This decision governs the
+Steps 1–4 now ship as the קריאה בעברית ladder ([track-skill-ladders](track-skill-ladders.md)),
+which reads its letter tables (`FIND_LETTERS`, `FIND_PHON`, `LETTER_CONFUSE`) from
+[`web/data/find.ts`](../../web/data/find.ts) — a data module that outlived the מצא את game it
+was written for. This decision governs the
 [hebrew-writing-game](../../backlog/hebrew-writing-game.md) proposal and any future reading feature.
 
 ## Why it helps the child
