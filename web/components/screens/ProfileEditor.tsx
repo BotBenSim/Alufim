@@ -22,6 +22,7 @@ import { PHOTOS } from "@/data/photos";
 import {
   clampCurriculum,
   defaultCurriculum,
+  isMathGame,
   MATH_VISUAL_OPTIONS,
   MAX_BAND_COUNT,
   normalizeMathVisual,
@@ -84,9 +85,35 @@ const SECTIONS: { id: SettingsSection; label: string; existingOnly?: boolean }[]
   { id: "advanced", label: "מתקדם", existingOnly: true },
 ];
 
+/** What each math visual looks like, per game, for the settings legend. */
+const VISUAL_EXAMPLES: Record<string, { name: string; example: string }[]> = {
+  add: [
+    { name: "ספירה", example: "🍎🍎 + 🍎🍎🍎" },
+    { name: "מעורב", example: "2 + 🍎🍎🍎" },
+    { name: "ספרות", example: "2 + 3" },
+  ],
+  sub: [
+    { name: "ספירה", example: "🍎🍎🍎🍎 − 🍎🍎" },
+    { name: "מעורב", example: "5 − 🍎🍎" },
+    { name: "ספרות", example: "5 − 2" },
+  ],
+  mul: [
+    { name: "ספירה", example: "[🍎🍎] [🍎🍎] [🍎🍎]" },
+    { name: "מעורב", example: "3 × [🍎🍎]" },
+    { name: "ספרות", example: "3 × 2" },
+  ],
+  div: [
+    { name: "ספירה", example: "[🍎🍎] [🍎🍎] [🍎🍎]" },
+    { name: "מעורב", example: "🍎🍎🍎🍎🍎🍎 ÷ 3" },
+    { name: "ספרות", example: "6 ÷ 3" },
+  ],
+};
+
 function emptyBand(gameId: GameId): DifficultyBand {
   if (gameId === "add") return { minSum: 2, maxSum: 8, visual: "fullCount" };
   if (gameId === "sub") return { minTop: 2, maxMin: 8, visual: "fullCount" };
+  if (gameId === "mul") return { minFactor: 1, maxFactor: 5, visual: "fullCount" };
+  if (gameId === "div") return { maxDivisor: 3, maxQuotient: 5, visual: "fullCount" };
   if (gameId === "find") return { maxNum: 5, qLo: 1, qHi: 4 };
   return { maxLen: 8 };
 }
@@ -450,33 +477,23 @@ export function ProfileEditor() {
                         {open && (
                           <div className="gameCurriculumPanel">
                             <p className="curriculumIntro">
-                              {gid === "add" || gid === "sub"
+                              {isMathGame(gid)
                                 ? "המשחק מחולק לקטעים. בכל קטע אפשר לקבוע את רמת הקושי (טווח המספרים) ואת התצוגה. אחרי מספר שלבים קבוע עוברים לקטע הבא — כך אפשר להתחיל פשוט ולהעלות בהדרגה."
                                 : "המשחק מחולק לקטעים. בכל קטע אפשר לקבוע את רמת הקושי. אחרי מספר שלבים קבוע עוברים לקטע הבא — כך אפשר להתחיל פשוט ולהעלות בהדרגה."}
                             </p>
 
-                            {(gid === "add" || gid === "sub") && (
+                            {isMathGame(gid) && (
                               <div className="visualLegend">
                                 <div className="visualLegendTitle">תצוגה</div>
                                 <div className="visualLegendRows">
-                                  <div className="visualLegendRow">
-                                    <span className="visualLegendName">ספירה</span>
-                                    <span className="visualLegendEx" dir="ltr">
-                                      {gid === "sub" ? "🍎🍎🍎🍎 − 🍎🍎" : "🍎🍎 + 🍎🍎🍎"}
-                                    </span>
-                                  </div>
-                                  <div className="visualLegendRow">
-                                    <span className="visualLegendName">מעורב</span>
-                                    <span className="visualLegendEx" dir="ltr">
-                                      {gid === "sub" ? "5 − 🍎🍎" : "2 + 🍎🍎🍎"}
-                                    </span>
-                                  </div>
-                                  <div className="visualLegendRow">
-                                    <span className="visualLegendName">ספרות</span>
-                                    <span className="visualLegendEx" dir="ltr">
-                                      {gid === "sub" ? "5 − 2" : "2 + 3"}
-                                    </span>
-                                  </div>
+                                  {VISUAL_EXAMPLES[gid].map((ex) => (
+                                    <div key={ex.name} className="visualLegendRow">
+                                      <span className="visualLegendName">{ex.name}</span>
+                                      <span className="visualLegendEx" dir="ltr">
+                                        {ex.example}
+                                      </span>
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
                             )}
@@ -587,6 +604,54 @@ export function ProfileEditor() {
                                           </>
                                         );
                                       })()}
+                                      {gid === "mul" && (() => {
+                                        const minFactor = Number(band.minFactor) || 1;
+                                        const maxFactor = Number(band.maxFactor) || 5;
+                                        return (
+                                          <>
+                                            <SettingsNumberField
+                                              label="כופל מינ׳"
+                                              value={minFactor}
+                                              min={1}
+                                              max={maxFactor - 1}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "minFactor", v)
+                                              }
+                                            />
+                                            <SettingsNumberField
+                                              label="כופל מקס׳"
+                                              value={maxFactor}
+                                              min={minFactor + 1}
+                                              max={20}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "maxFactor", v)
+                                              }
+                                            />
+                                          </>
+                                        );
+                                      })()}
+                                      {gid === "div" && (
+                                        <>
+                                          <SettingsNumberField
+                                            label="חברים מקס׳"
+                                            value={Number(band.maxDivisor) || 3}
+                                            min={2}
+                                            max={20}
+                                            onChange={(v) =>
+                                              updateBandField(gid, level, idx, "maxDivisor", v)
+                                            }
+                                          />
+                                          <SettingsNumberField
+                                            label="לכל אחד עד"
+                                            value={Number(band.maxQuotient) || 5}
+                                            min={1}
+                                            max={20}
+                                            onChange={(v) =>
+                                              updateBandField(gid, level, idx, "maxQuotient", v)
+                                            }
+                                          />
+                                        </>
+                                      )}
                                       {gid === "sub" && (() => {
                                         const minTop = Number(band.minTop) || 2;
                                         const maxMin = Number(band.maxMin) || 8;
@@ -660,7 +725,7 @@ export function ProfileEditor() {
                                         />
                                       )}
                                     </div>
-                                    {(gid === "add" || gid === "sub") && (
+                                    {isMathGame(gid) && (
                                       <PillControl
                                         className="bandVisualControl"
                                         options={MATH_VISUAL_OPTIONS}

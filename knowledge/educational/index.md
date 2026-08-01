@@ -39,6 +39,7 @@ numbers or studies.
 | [right-sized-difficulty](right-sized-difficulty.md) | Difficulty levels + rewards that rise with progress | Zone of Proximal Development + flow |
 | [parent-tuned-difficulty-bands](parent-tuned-difficulty-bands.md) | Parents can right-size bands per child | ZPD + scaffolding |
 | [math-visual-scaffold](math-visual-scaffold.md) | Add/sub bands: emoji → mixed → digits | CRA progression |
+| [multiplication-as-equal-groups](multiplication-as-equal-groups.md) | Multiplication as equal groups; division as fair sharing | CRA + equal-groups / partitive models |
 | [celebrate-progress](celebrate-progress.md) | Frequent wins; celebrate evolution | Immediate feedback + goal-gradient |
 | [choose-and-nurture-animal](choose-and-nurture-animal.md) | Pick and raise your own animal | Self-Determination Theory |
 | [audio-first](audio-first.md) | Spoken prompts + free replay for pre-readers | Cognitive load + emergent literacy |

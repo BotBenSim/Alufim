@@ -2,6 +2,8 @@ import { HEB_NUM } from "@/data/hebrew";
 import { findCatLabel, LETTER_NAME } from "@/data/find";
 import { addSpeakPrompt, type AddQuestion } from "@/lib/providers/add";
 import { subSpeakPrompt, type SubQuestion } from "@/lib/providers/sub";
+import { mulSpeakPrompt, type MulQuestion } from "@/lib/providers/mul";
+import { divSpeakPrompt, type DivQuestion } from "@/lib/providers/div";
 import type { EngQuestion, EngWord } from "@/lib/providers/eng";
 import { isStageGame, STAGE_PROVIDERS } from "@/lib/providers";
 import type { Question } from "@/lib/types";
@@ -23,6 +25,12 @@ export function speakQuestion(q: Question, speak: SpeakFn, speakEn: SpeakFn) {
       break;
     case "sub":
       speak(subSpeakPrompt(q as unknown as SubQuestion, HEB_NUM), true);
+      break;
+    case "mul":
+      speak(mulSpeakPrompt(q as unknown as MulQuestion, HEB_NUM), true);
+      break;
+    case "div":
+      speak(divSpeakPrompt(q as unknown as DivQuestion, HEB_NUM), true);
       break;
     case "eng": {
       const w = (q as unknown as EngQuestion).word;

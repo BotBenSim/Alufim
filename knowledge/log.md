@@ -10,6 +10,7 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-08-01 — shipped multiplication and division games: equal groups and fair sharing, no remainders, near-miss distractors — see [multiplication-as-equal-groups](educational/multiplication-as-equal-groups.md).
 - 2026-08-01 — shipped three learning tracks (Hebrew reading, English phonics, music ear-training), stages 1-5 each, as three games behind one shared stage contract — see [track-skill-ladders](educational/track-skill-ladders.md).
 - 2026-08-01 — shipped per-stage question counts (`counts[]`, 0 = skip) with a settings toggle per game — see [skill-mix-settings](technical/skill-mix-settings.md).
 - 2026-08-01 — lane-catch play-beat: three-lane falling-food catcher with a go/no-go "only food" rule, no penalty for catching junk — see [minigame-lane-catch](educational/minigame-lane-catch.md).

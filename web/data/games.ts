@@ -16,6 +16,20 @@ export const GAMES = {
     cardClass: "sub",
     provider: PROVIDERS.sub,
   },
+  mul: {
+    title: "כפל",
+    icon: "✖️",
+    subtitle: "קבוצות שוות",
+    cardClass: "add",
+    provider: PROVIDERS.mul,
+  },
+  div: {
+    title: "חילוק",
+    icon: "➗",
+    subtitle: "לחלק שווה בשווה",
+    cardClass: "sub",
+    provider: PROVIDERS.div,
+  },
   eng: {
     title: "אנגלית",
     icon: "🔤",
@@ -57,6 +71,8 @@ export const GAMES = {
 export const GAME_ORDER: GameId[] = [
   "add",
   "sub",
+  "mul",
+  "div",
   "hebread",
   "engread",
   "eng",

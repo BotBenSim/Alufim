@@ -12,6 +12,8 @@ import { bandForStepWithCounts, blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp
 
 type AddBlock = { minSum: number; maxSum: number; visual: MathVisual };
 type SubBlock = { minTop: number; maxMin: number; visual: MathVisual };
+type MulBlock = { minFactor: number; maxFactor: number; visual: MathVisual };
+type DivBlock = { maxDivisor: number; maxQuotient: number; visual: MathVisual };
 type FindBlock = {
   maxNum?: number;
   kinds?: string[];
@@ -43,11 +45,18 @@ export function mathVisualLabel(v: MathVisual): string {
 }
 
 /** Factory template — deep-copied into profiles on create / migrate / reset. */
+type AnyBlock =
+  | AddBlock
+  | SubBlock
+  | MulBlock
+  | DivBlock
+  | FindBlock
+  | EngBlock
+  | DifficultyBand;
+
 export const GAME_DIFFICULTY: Record<
   GameId,
-  Partial<
-    Record<DifficultyLevel, AddBlock[] | SubBlock[] | FindBlock[] | EngBlock[] | DifficultyBand[]>
-  >
+  Partial<Record<DifficultyLevel, AnyBlock[]>>
 > = {
   hebread: HEBREAD_BANDS,
   engread: ENGREAD_BANDS,
@@ -84,6 +93,40 @@ export const GAME_DIFFICULTY: Record<
       { minTop: 8, maxMin: 40, visual: "countOn" },
       { minTop: 40, maxMin: 80, visual: "numbers" },
       { minTop: 80, maxMin: 120, visual: "numbers" },
+    ],
+  },
+  mul: {
+    easy: [
+      { minFactor: 1, maxFactor: 3, visual: "fullCount" },
+      { minFactor: 2, maxFactor: 5, visual: "fullCount" },
+      { minFactor: 2, maxFactor: 5, visual: "countOn" },
+    ],
+    medium: [
+      { minFactor: 2, maxFactor: 5, visual: "fullCount" },
+      { minFactor: 2, maxFactor: 8, visual: "countOn" },
+      { minFactor: 2, maxFactor: 10, visual: "numbers" },
+    ],
+    hard: [
+      { minFactor: 2, maxFactor: 8, visual: "countOn" },
+      { minFactor: 2, maxFactor: 10, visual: "numbers" },
+      { minFactor: 3, maxFactor: 12, visual: "numbers" },
+    ],
+  },
+  div: {
+    easy: [
+      { maxDivisor: 2, maxQuotient: 4, visual: "fullCount" },
+      { maxDivisor: 3, maxQuotient: 5, visual: "fullCount" },
+      { maxDivisor: 4, maxQuotient: 5, visual: "countOn" },
+    ],
+    medium: [
+      { maxDivisor: 3, maxQuotient: 5, visual: "fullCount" },
+      { maxDivisor: 5, maxQuotient: 8, visual: "countOn" },
+      { maxDivisor: 8, maxQuotient: 10, visual: "numbers" },
+    ],
+    hard: [
+      { maxDivisor: 5, maxQuotient: 8, visual: "countOn" },
+      { maxDivisor: 8, maxQuotient: 10, visual: "numbers" },
+      { maxDivisor: 10, maxQuotient: 12, visual: "numbers" },
     ],
   },
   find: {
@@ -173,11 +216,18 @@ export function normalizeCounts(counts: unknown, slots: number): number[] | unde
   return out.some((n) => n > 0) ? out : undefined;
 }
 
+/** Games whose bands carry a `visual` (emoji → mixed → digits). */
+const MATH_GAMES = new Set<GameId>(["add", "sub", "mul", "div"]);
+
+export function isMathGame(gameId: GameId): boolean {
+  return MATH_GAMES.has(gameId);
+}
+
 function withDefaultVisuals(
   gameId: GameId,
   rows: DifficultyBand[]
 ): DifficultyBand[] {
-  if (gameId !== "add" && gameId !== "sub") return rows;
+  if (!isMathGame(gameId)) return rows;
   return rows.map((band, i) => ({
     ...band,
     visual: normalizeMathVisual(band.visual, i),
@@ -186,7 +236,7 @@ function withDefaultVisuals(
 
 function cloneBands(
   gameId: GameId,
-  rows: AddBlock[] | SubBlock[] | FindBlock[] | EngBlock[] | DifficultyBand[] | undefined
+  rows: AnyBlock[] | undefined
 ): DifficultyBand[] {
   const cloned = JSON.parse(JSON.stringify(rows ?? [{}])) as DifficultyBand[];
   return withDefaultVisuals(gameId, cloned);
@@ -320,6 +370,26 @@ function clampBand(
       visual: normalizeMathVisual(next.visual, bandIndex),
     };
   }
+  if (gameId === "mul") {
+    let minFactor = clampNum(next.minFactor, 1, 20, 1);
+    let maxFactor = clampNum(next.maxFactor, 1, 20, 5);
+    if (maxFactor <= minFactor) maxFactor = Math.min(20, minFactor + 1);
+    if (maxFactor <= minFactor) minFactor = Math.max(1, maxFactor - 1);
+    return {
+      ...next,
+      minFactor,
+      maxFactor,
+      visual: normalizeMathVisual(next.visual, bandIndex),
+    };
+  }
+  if (gameId === "div") {
+    return {
+      ...next,
+      maxDivisor: clampNum(next.maxDivisor, 2, 20, 3),
+      maxQuotient: clampNum(next.maxQuotient, 1, 20, 5),
+      visual: normalizeMathVisual(next.visual, bandIndex),
+    };
+  }
   if (gameId === "find") {
     let qLo = next.qLo != null ? clampNum(next.qLo, 1, 20, 1) : next.qLo;
     let qHi = next.qHi != null ? clampNum(next.qHi, 1, 20, 4) : next.qHi;
@@ -354,6 +424,14 @@ export function curriculumSummary(
   if (gameId === "sub") {
     const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
     return `התחלה: מספרים ${band.minTop ?? "?"}–${band.maxMin ?? "?"} · ${vis}`;
+  }
+  if (gameId === "mul") {
+    const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
+    return `התחלה: כופלים ${band.minFactor ?? "?"}–${band.maxFactor ?? "?"} · ${vis}`;
+  }
+  if (gameId === "div") {
+    const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
+    return `התחלה: עד ${band.maxDivisor ?? "?"} חברים · ${vis}`;
   }
   if (gameId === "find") {
     return `התחלה: עד ${band.maxNum ?? "?"}`;

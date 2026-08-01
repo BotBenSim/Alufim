@@ -1,6 +1,8 @@
 import type { GameId, Provider } from "@/lib/types";
 import { addProvider } from "./add";
 import { subProvider } from "./sub";
+import { mulProvider } from "./mul";
+import { divProvider } from "./div";
 import { engProvider } from "./eng";
 import { findProvider } from "./find";
 import { hebreadProvider } from "./hebread";
@@ -27,6 +29,8 @@ export function isStageGame(op: unknown): op is StageGameId {
 export const PROVIDERS: Record<GameId, Provider> = {
   add: addProvider,
   sub: subProvider,
+  mul: mulProvider,
+  div: divProvider,
   eng: engProvider,
   find: findProvider,
   ...STAGE_PROVIDERS,

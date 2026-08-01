@@ -2,6 +2,8 @@ export type DifficultyLevel = "easy" | "medium" | "hard";
 export type GameId =
   | "add"
   | "sub"
+  | "mul"
+  | "div"
   | "find"
   | "eng"
   | "hebread"
