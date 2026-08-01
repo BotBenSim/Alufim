@@ -1,7 +1,7 @@
 ---
 id: track-skill-ladders
 title: One seven-stage ladder, filled in three times (Hebrew, English, music)
-status: proposed
+status: accepted
 date: 2026-08-01
 tags: [educational, literacy, hebrew, english, music, curriculum]
 theory: Sound before symbol + systematic cumulative sequence (synthetic phonics) applied identically to all three symbol systems
@@ -59,6 +59,24 @@ teaches a method, not just facts.
 - English needs digraphs and irregular words, which have no Hebrew equivalent.
 - Music has a time dimension. Rhythm is a whole parallel strand with no reading counterpart, and it
   is the easiest entry point in any of the three tracks.
+
+## What shipped
+
+Stages 1–5 exist in all three tracks, as three ordinary games (`hebread`, `engread`, `music`) rather
+than as the track/skill model in [curriculum-tracks](../technical/curriculum-tracks.md), which is
+still only proposed. Stages 6 (produce) and 7 (fluency) are not built.
+
+Two places where the shipped ladder departs from the table above:
+
+- **Music has no rhythm strand yet.** The plan called for rhythm first, since it develops before
+  melody; what shipped is the pitch strand only (higher/lower → which key → solfège name → echo a
+  phrase → major vs minor). Rhythm is the obvious next addition and would serve the youngest players
+  better than anything currently in the track.
+- **Music stage 5 is major vs minor, not notation.** Chords are generated as movable shapes from a
+  root, so a chord is one rule rather than a table of 24. Staff notation is unbuilt.
+
+Each track's step 1 is genuinely ear-only: no letter, note name or written symbol reaches the screen
+until stage 2, which is the whole point of [sound-before-symbol](sound-before-symbol.md).
 
 ## Watch-outs
 

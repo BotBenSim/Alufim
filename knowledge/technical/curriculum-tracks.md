@@ -12,6 +12,13 @@ related: [game-provider-pattern, per-profile-curriculum, sound-before-symbol, fa
 
 ## Context
 
+> **Status note (2026-08-01).** The three tracks shipped *without* this layer — Hebrew, English and
+> music are three ordinary `GameId`s, each a five-stage ladder driven by a `stage` field on the
+> difficulty band ([skill-mix-settings](skill-mix-settings.md),
+> [track-skill-ladders](../educational/track-skill-ladders.md)). That was enough for stages 1–5. This
+> proposal is what stages 6–7 and a fourth track would need; revisit it then, with the benefit of
+> three real ladders to generalize from rather than a guess.
+
 Today one `GameId` = one card = one provider = one mechanic (add, sub, eng, find). Difficulty is a
 parent-set `level` plus three in-run `bands`, so a card holds at most ~9 slots of progression.
 

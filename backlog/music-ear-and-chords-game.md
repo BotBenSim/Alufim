@@ -1,7 +1,7 @@
 ---
 id: music-ear-and-chords-game
 title: Music game — sound before symbol, on a vertical pentatonic instrument
-status: proposed
+status: accepted
 date: 2026-08-01
 tags: [backlog, educational, music, audio, listening, literacy]
 theory: Sound before symbol (Pestalozzi → Kodály inner hearing → Gordon audiation) + systematic cumulative sequence (the phonics parallel) + landmark/intervallic reading

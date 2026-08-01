@@ -55,7 +55,7 @@ numbers or studies.
 | [sound-before-symbol](sound-before-symbol.md) | Teach the sound first; the symbol names a known sound | Pestalozzi → Kodály → Gordon (audiation) |
 | [faded-scaffold-ladder](faded-scaffold-ladder.md) | Every support has a band where it disappears | Faded scaffolding / expertise reversal |
 | [hebrew-reading-sequence](hebrew-reading-sequence.md) | Hebrew: letters → nikud → syllable, not English phonics | Acrophonic letter names + body-coda blending |
-| [track-skill-ladders](track-skill-ladders.md) | One 7-stage ladder, filled in for Hebrew / English / music | Sound before symbol + cumulative sequence |
+| [track-skill-ladders](track-skill-ladders.md) | One 7-stage ladder, filled in for Hebrew / English / music (1-5 shipped) | Sound before symbol + cumulative sequence |
 
 Superseded stubs (removed from product): [minigame-tap-collect](minigame-tap-collect.md),
 [minigame-catch](minigame-catch.md), [minigame-meter-burst](minigame-meter-burst.md).
