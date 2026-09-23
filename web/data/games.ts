@@ -67,15 +67,12 @@ export const GAMES = {
   },
 } as const;
 
-/** One flat list, ordered so games from the same subject sit next to each other. */
-export const GAME_ORDER: GameId[] = [
-  "nums",
-  "add",
-  "sub",
-  "mul",
-  "div",
-  "hebread",
-  "engread",
-  "eng",
-  "music",
+/** Home-screen groups, by subject. Order here is the order everywhere. */
+export const GAME_GROUPS: { id: string; title: string; icon: string; games: GameId[] }[] = [
+  { id: "math", title: "חשבון", icon: "🔢", games: ["nums", "add", "sub", "mul", "div"] },
+  { id: "reading", title: "קריאה ושפה", icon: "📖", games: ["hebread", "engread", "eng"] },
+  { id: "music", title: "מוזיקה", icon: "🎵", games: ["music"] },
 ];
+
+/** One flat list, ordered so games from the same subject sit next to each other. */
+export const GAME_ORDER: GameId[] = GAME_GROUPS.flatMap((g) => g.games);
