@@ -48,8 +48,11 @@
   }
 
   body {
-    @apply bg-gradient-to-b from-sky via-sky-mid to-sky-light text-foreground;
-    font-family: -apple-system, "Arial Hebrew", "Helvetica Neue", Arial, sans-serif;
+    @apply text-foreground;
+    background: linear-gradient(180deg, #8ED3FF 0%, #BFE6FF 45%, #EAF6FF 100%);
+    font-family: var(--font-fredoka), -apple-system, "Arial Hebrew", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -58,6 +61,25 @@
 }
 
 @layer utilities {
+  /* Frosted surface used by chips, headers and group panels. */
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+  }
+  .shadow-soft {
+    box-shadow:
+      0 2px 0 rgba(35, 53, 84, 0.06),
+      0 14px 28px -12px rgba(35, 53, 84, 0.3);
+  }
+  .text-brand-gradient {
+    background: linear-gradient(180deg, #ffb238 10%, #ff6a3d 60%, #f0357f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 3px 0 #fff) drop-shadow(0 8px 14px rgba(240, 53, 127, 0.28));
+  }
   .text-shadow-brand {
     text-shadow:
       -2px -2px 0 #fff,
@@ -90,8 +112,7 @@
   left: 0;
   background: #fff;
   border-radius: 50px;
-  opacity: 0.95;
-  box-shadow: 0 8px 16px rgba(60, 90, 120, 0.1);
+  opacity: 0.75;
 }
 .skyCloud::before,
 .skyCloud::after {
@@ -125,31 +146,6 @@
 .sc8::before { width: 30px; height: 30px; top: -14px; left: 10px; }
 .sc8::after { width: 22px; height: 22px; top: -10px; left: 34px; }
 
-.tree {
-  position: absolute;
-  width: 108px;
-  height: 108px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 42%, #67c53f, #3f9a27);
-  box-shadow: -46px 24px 0 -14px #4fae30, 46px 24px 0 -14px #4fae30;
-}
-.tree::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 76%;
-  transform: translateX(-50%);
-  width: 22px;
-  height: 92px;
-  background: linear-gradient(90deg, #9a6433, #7a4e26);
-  border-radius: 6px;
-  z-index: -1;
-}
-/* Trees sit on the grass hill — positioned from .ground container (vanilla) */
-.ground .tree.t1 { left: 5%; bottom: 58%; transform: scale(1.35); }
-.ground .tree.t2 { left: 23%; bottom: 54%; transform: scale(0.95); }
-.ground .tree.t3 { right: 8%; bottom: 58%; transform: scale(1.5); }
-.ground .tree.t4 { right: 29%; bottom: 52%; transform: scale(0.85); }
 
 .group span.x::after {
   content: "";
@@ -320,9 +316,13 @@
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  background: rgba(255, 255, 255, 0.94);
-  border-radius: 28px;
-  box-shadow: 0 14px 36px rgba(29, 78, 122, 0.18);
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 24px 48px -16px rgba(35, 53, 84, 0.28),
+    0 4px 12px rgba(35, 53, 84, 0.08);
   direction: rtl;
 }
 .panel--surface {

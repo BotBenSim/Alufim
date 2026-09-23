@@ -21,7 +21,7 @@ export function ProfileCard({ profile, selected, onSelect, onEdit }: ProfileCard
           <img
             src={profile.avatar}
             alt=""
-            className="face aspect-square w-[66%] min-h-0 flex-1 rounded-full border-[3px] border-[#CDE7FB] object-cover shadow-md"
+            className="face aspect-square w-[66%] min-h-0 flex-1 rounded-full object-cover ring-4 ring-[#EAF4FF]"
           />
         ) : (
           <CardBig>{profile.avatar || "🙂"}</CardBig>
@@ -61,7 +61,11 @@ export function AddProfileCard({ onClick }: { onClick: () => void }) {
   return (
     <div className="profileHolder flex w-full">
       <Card variant="addProfile" onClick={onClick}>
-        <CardBig>➕</CardBig>
+        <CardBig>
+          <span className="flex h-[58%] aspect-square items-center justify-center rounded-full bg-white/80 text-[clamp(30px,8vw,44px)] font-bold leading-none text-[#FF7A45] shadow-soft">
+            +
+          </span>
+        </CardBig>
         <span className="shrink-0">פרופיל חדש</span>
       </Card>
     </div>

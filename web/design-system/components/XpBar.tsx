@@ -13,21 +13,21 @@ export function XpBar({ className, pct, label, gainFlash, ...props }: XpBarProps
     <div className={cn("relative w-full", className)} {...props}>
       <div
         className={cn(
-          "xpBar relative h-6 overflow-hidden rounded-[14px] bg-[#E2ECF5] shadow-[inset_0_2px_5px_rgba(0,0,0,.12)]",
+          "xpBar relative h-6 overflow-hidden rounded-full bg-[#E6EEF7] shadow-[inset_0_2px_4px_rgba(35,53,84,.12)]",
           gainFlash && "gain"
         )}
         style={gainFlash ? { ["--xp-gain" as string]: xpGainColor(gainFlash) } : undefined}
       >
         <div
           className={cn(
-            "xpFill absolute inset-y-0 left-0 rounded-[14px] bg-gradient-to-r from-[#58C26E] to-[#2E9E5B] transition-[width] duration-500",
+            "xpFill absolute inset-y-0 left-0 rounded-full bg-gradient-to-b from-[#6EE08A] to-[#2FB45A] shadow-[inset_0_3px_0_rgba(255,255,255,.4)] transition-[width] duration-500",
             gainFlash && "gain"
           )}
           style={{ width: `${pct}%` }}
         />
         <div
           className={cn(
-            "xpText absolute inset-0 flex items-center justify-center text-[13px] font-extrabold text-heading [direction:ltr]",
+            "xpText absolute inset-0 flex items-center justify-center text-[13px] font-semibold text-heading [direction:ltr]",
             gainFlash && "tick"
           )}
         >

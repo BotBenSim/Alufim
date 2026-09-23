@@ -55,6 +55,9 @@ const config: Config = {
         card: tokens.radii.card,
         panel: tokens.radii.panel,
       },
+      fontFamily: {
+        sans: ["var(--font-fredoka)", "-apple-system", "Arial Hebrew", "sans-serif"],
+      },
       fontSize: {
         brand: tokens.font.brand,
         card: tokens.font.card,

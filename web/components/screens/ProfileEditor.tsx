@@ -312,7 +312,7 @@ export function ProfileEditor() {
       scroll
       contentClassName="gap-4 w-full max-w-[960px] px-4"
     >
-      <Brand className="text-[clamp(28px,5vw,44px)] text-heading">Alufim</Brand>
+      <Brand className="text-[clamp(32px,6vw,48px)]">Alufim</Brand>
 
       <Panel variant="shell">
         <aside className="settingsSidebar">
