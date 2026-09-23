@@ -8,8 +8,8 @@ export const tokens = {
     ground: "#8FD957",
     groundMid: "#6FC23E",
     groundDark: "#57AC2C",
-    heading: "#1D4E7A",
-    panelText: "#1D4E7A",
+    heading: "#233554",
+    panelText: "#233554",
   },
   radii: {
     card: "28px",

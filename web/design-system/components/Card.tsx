@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /** Shared shell for home-screen picker cards (profile / character / game) */
 const pickerShell =
-  "box-border flex flex-col items-center justify-end gap-1 bg-white text-heading rounded-[20px] aspect-square w-full border-[3px] border-transparent px-1.5 pb-2 pt-1.5 font-bold cursor-pointer shadow-[0_5px_0_rgba(60,90,120,.10),0_10px_18px_rgba(60,90,120,.12)] text-[clamp(12px,2.4vw,15px)] leading-tight transition-[transform,box-shadow,border-color] active:scale-[0.94] active:translate-y-1";
+  "box-border flex flex-col items-center justify-end gap-1.5 bg-white text-heading rounded-[26px] aspect-square w-full border-[3px] border-white px-1.5 pb-2.5 pt-2 font-semibold cursor-pointer shadow-soft text-[clamp(13px,2.6vw,16px)] leading-tight transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 active:scale-[0.95] active:translate-y-0.5";
 
 const cardVariants = cva("", {
   variants: {
@@ -17,10 +17,10 @@ const cardVariants = cva("", {
       eng: "flex flex-col items-center justify-end gap-1 rounded-[20px] aspect-square w-full border-none font-bold text-white cursor-pointer bg-gradient-to-br from-[#F783AC] to-[#D6336C] shadow-card px-1.5 pb-2 pt-1.5 active:scale-[0.94] active:translate-y-1",
       find: "flex flex-col items-center justify-end gap-1 rounded-[20px] aspect-square w-full border-none font-bold text-white cursor-pointer bg-gradient-to-br from-[#FFB454] to-[#F76707] shadow-card px-1.5 pb-2 pt-1.5 active:scale-[0.94] active:translate-y-1",
       addProfile:
-        "box-border flex flex-col items-center justify-end gap-1 bg-white/60 text-[#2F6B9E] border-[3px] border-dashed border-[#9BB7D4] shadow-none font-extrabold rounded-[20px] aspect-square w-full px-1.5 pb-2 pt-1.5 cursor-pointer active:scale-[0.94] active:translate-y-1",
+        "box-border flex flex-col items-center justify-end gap-1.5 bg-white/40 text-heading/80 border-[3px] border-dashed border-white shadow-none font-semibold rounded-[26px] aspect-square w-full px-1.5 pb-2.5 pt-2 cursor-pointer backdrop-blur-md transition-colors hover:bg-white/60 active:scale-[0.95]",
     },
     selected: {
-      true: "border-[#2E9E5B]",
+      true: "border-[#FF7A45] ring-4 ring-[#FF7A45]/25 -translate-y-1",
       false: "",
     },
     locked: {

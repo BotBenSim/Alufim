@@ -3,7 +3,7 @@ id: product-index
 title: Product - UX and Product Decisions
 type: manifest
 format: OKF/1.0
-updated: 2026-07-22
+updated: 2026-09-24
 tags: [product, ux, manifest]
 ---
 
@@ -28,3 +28,4 @@ sections: **Problem -> Decision -> User impact -> Trade-offs -> Signals to watch
 | [settings-sidebar](settings-sidebar.md) | Profile settings: sidebar + child avatar | accepted |
 | [player-gender-accent](player-gender-accent.md) | Boy/girl accent for question buttons | accepted |
 | [target-age-range](target-age-range.md) | Audience is 3–8; features span the whole range | accepted |
+| [modern-visual-style](modern-visual-style.md) | Rounded font, soft scene, candy buttons, subject-coloured game tiles | accepted |

@@ -77,8 +77,8 @@ export function Brand({ className, ...props }: HTMLAttributes<HTMLHeadingElement
   return (
     <h1
       className={cn(
-        "text-brand font-black tracking-wide leading-none text-brand",
-        "text-shadow-brand",
+        "text-[clamp(56px,14vw,92px)] font-bold tracking-tight leading-none pb-1",
+        "text-brand-gradient",
         className
       )}
       {...props}

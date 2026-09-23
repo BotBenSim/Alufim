@@ -189,16 +189,16 @@ export function GameScreen() {
     <>
       <div
         id="topbar"
-        className="relative z-[3] flex items-center gap-3 px-3 py-2.5 [direction:rtl]"
+        className="relative z-[3] mx-auto flex w-[min(94vw,520px)] items-center gap-2.5 py-3 [direction:rtl]"
       >
-        <Badge className="badge min-w-0 flex-1 overflow-hidden px-2.5 text-[clamp(14px,3.6vw,18px)]">
-          <AvatarFace avatar={profile.avatar} size={22} className="shrink-0" />
+        <Badge className="badge min-w-0 max-w-[45%] overflow-hidden py-1.5 pe-4 ps-1.5 text-[clamp(14px,3.6vw,18px)]">
+          <AvatarFace avatar={profile.avatar} size={30} className="shrink-0" />
           <span className="truncate">{profile.name}</span>
         </Badge>
         <Badge variant="step" className="shrink-0 px-2.5 text-[clamp(14px,3.6vw,18px)]">
           שלב {run.step}
         </Badge>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="ms-auto flex shrink-0 items-center gap-2">
           <KidButton variant="top" id="homeBtn" className="shrink-0" onClick={handleHome}>
             🏠
           </KidButton>
@@ -206,12 +206,12 @@ export function GameScreen() {
             type="button"
             id="restartBtn"
             aria-label="התחילו מחדש"
-            className="inline-flex items-center justify-center rounded-[18px] border-none bg-[#FF6B6B] px-3 py-2 text-white shadow-[0_4px_0_#C94A4A] active:translate-y-0.5"
+            className="glass inline-flex h-11 w-11 items-center justify-center rounded-full text-[#F0508F] shadow-soft transition-transform active:translate-y-0.5"
             onClick={restartGame}
           >
             <svg
-              width="22"
-              height="22"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               aria-hidden
@@ -262,7 +262,7 @@ export function GameScreen() {
           {!minigameOverlay && (
             <div
               id="feedback"
-              className="min-h-[34px] text-center text-[clamp(19px,3.6vw,28px)] font-bold text-heading"
+              className="min-h-[34px] text-center text-[clamp(20px,3.8vw,28px)] font-semibold text-heading"
             >
               {feedback}
             </div>
@@ -271,7 +271,7 @@ export function GameScreen() {
       </div>
 
       {showMission && run.mission && (
-        <div id="ovMission" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-[rgba(20,40,70,.45)] backdrop-blur-[3px]">
+        <div id="ovMission" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-[rgba(35,53,84,.35)] backdrop-blur-md">
           <div className="panel flex max-w-[86%] flex-col items-center gap-4 rounded-panel bg-white p-7 text-center shadow-panel animate-[pop_0.35s]">
             <div id="missionPrompt" className="text-[clamp(24px,5.5vw,40px)] text-heading">
               {run.mission.prompt}
@@ -298,7 +298,7 @@ export function GameScreen() {
       {collectionOverlay && (() => {
         const unlocked = characterById(collectionOverlay.characterId);
         return (
-          <div id="ovCollection" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-[rgba(20,40,70,.45)] backdrop-blur-[3px]">
+          <div id="ovCollection" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-[rgba(35,53,84,.35)] backdrop-blur-md">
             <div className="panel flex max-w-[86%] flex-col items-center gap-4 rounded-panel bg-white p-7 text-center shadow-panel">
               <h2 className="text-[clamp(24px,5vw,38px)] text-heading">🎉 נפתחה חיה חדשה!</h2>
               {unlocked && <CharacterArt art={unlocked.forms[0]} size={120} />}

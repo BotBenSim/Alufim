@@ -2,7 +2,7 @@
 id: log
 title: Decision Log
 type: log
-updated: 2026-08-01
+updated: 2026-09-24
 tags: [log, changelog]
 ---
 
@@ -10,6 +10,7 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-09-24 — visual refresh: Fredoka font, soft sky-and-hills scene, frosted surfaces, candy 3D buttons, and home game tiles grouped by subject with a colour per subject and a bold glyph per game — see [modern-visual-style](product/modern-visual-style.md).
 - 2026-08-01 — numbers stage 4 is now "which is bigger" (three piles or three numerals); README marks the six newer games as WIP / quality not approved and notes the i18n plan is designed but not implemented.
 - 2026-08-01 — reworked the four ladders so they open on what the parent asked for: numbers on digit recognition (not matching piles), Hebrew/English on letters (not ear-only sound matching), music on chords (happy/sad, then I/IV/V) — see [number-sense-ladder](educational/number-sense-ladder.md), [track-skill-ladders](educational/track-skill-ladders.md).
 - 2026-08-01 — removed the מצא את game: five of its seven question kinds were superseded by the numbers and reading ladders, and a random kind per question made none of them practisable. Categorisation and magnitude comparison left with it and are queued in [reasoning-and-comparison-games](../backlog/reasoning-and-comparison-games.md); `web/data/find.ts` survives as shared vocabulary and letter data. Old saves are pruned of the `find` key on load — see [game-variety](educational/game-variety.md).

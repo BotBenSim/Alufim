@@ -208,7 +208,7 @@ export function QuestionView({
       id="questionCard"
       className={cn(
         PLAY_CARD_STAGE_CLASS,
-        "relative flex flex-col bg-white/90 px-4 pb-3.5 pt-2.5 shadow-[0_8px_22px_rgba(29,78,122,.18)]"
+        "relative flex flex-col border border-white bg-white/95 px-4 pb-5 pt-3 shadow-[0_24px_48px_-16px_rgba(35,53,84,.3),0_4px_12px_rgba(35,53,84,.06)]"
       )}
     >
       {/* Own row + opaque strip so emoji content can never paint over the speaker */}
@@ -234,7 +234,7 @@ export function QuestionView({
 
       {/* Scrollport below the speaker — tall prompts scroll instead of covering the button */}
       <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-        <div className="flex min-h-full flex-col items-center justify-center gap-2 py-1">
+        <div className="flex min-h-full flex-col items-center justify-center gap-3 px-3 pb-5 pt-1">
         {choiceProps.kind === "math" && (
           <>
             {choiceProps.visual !== "numbers" && (

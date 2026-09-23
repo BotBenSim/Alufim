@@ -11,7 +11,7 @@ export const PLAY_COLUMN_CLASS = "flex w-[min(94vw,520px)] flex-col items-stretc
 
 /** Shared play-card footprint (question + minigame stage). */
 export const PLAY_CARD_STAGE_CLASS =
-  "relative min-h-[min(42vh,360px)] w-full overflow-hidden rounded-[26px]";
+  "relative min-h-[min(42vh,360px)] w-full overflow-hidden rounded-[32px]";
 
 type GamePlayPanelProps = {
   run: RunState;
@@ -44,11 +44,11 @@ export function GamePlayPanel({
     <div id="gamePanel" className={PLAY_COLUMN_CLASS}>
       <div
         id="runHeader"
-        className="flex w-full items-center gap-3 rounded-[22px] bg-white/90 px-3.5 py-2 shadow-[0_6px_16px_rgba(29,78,122,.16)]"
+        className="glass flex w-full items-center gap-3 rounded-[26px] px-3.5 py-2 shadow-soft"
       >
         <CharacterArt art={formArt} size={56} className="shrink-0" />
         <div className="runInfo relative flex min-w-0 flex-1 flex-col gap-1">
-          <div className="runName truncate text-[clamp(15px,3vw,20px)] font-extrabold text-heading [direction:rtl]">
+          <div className="runName truncate text-[clamp(16px,3.2vw,20px)] font-semibold text-heading [direction:rtl]">
             {run.character.he}
           </div>
           <XpBar pct={xp.pct} label={xp.label} gainFlash={xpGainFlash} />
