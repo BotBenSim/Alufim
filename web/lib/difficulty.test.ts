@@ -8,11 +8,12 @@ import {
   effectiveLevel,
   ensureCurriculum,
   GAME_DIFFICULTY,
+  normalizeCounts,
   normalizeMathVisual,
 } from "./difficulty";
 import { migrateProfile, newProfile } from "./migrate";
 import { addRenderMeta } from "./providers/add";
-import { blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
+import { bandForStepWithCounts, blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
 import type { Profile } from "./types";
 
 describe("diffParams", () => {
@@ -90,6 +91,52 @@ describe("math visual per band", () => {
     );
     expect(meta.visual).toBe("numbers");
     expect(normalizeMathVisual("nope")).toBe("fullCount");
+  });
+});
+
+describe("per-band counts", () => {
+  it("walks bands by count instead of the uniform ramp", () => {
+    const cur = { ...defaultCurriculum("add"), counts: [2, 3, 1] };
+    // 2 of band 0, then 3 of band 1, then 1 of band 2
+    expect(diffParams(cur, "easy", 1)).toEqual(cur.bands.easy[0]);
+    expect(diffParams(cur, "easy", 2)).toEqual(cur.bands.easy[0]);
+    expect(diffParams(cur, "easy", 3)).toEqual(cur.bands.easy[1]);
+    expect(diffParams(cur, "easy", 5)).toEqual(cur.bands.easy[1]);
+    expect(diffParams(cur, "easy", 6)).toEqual(cur.bands.easy[2]);
+  });
+
+  it("stays on the last band with questions once counts run out", () => {
+    const cur = { ...defaultCurriculum("add"), counts: [1, 2, 0] };
+    expect(diffParams(cur, "easy", 4)).toEqual(cur.bands.easy[1]);
+    expect(diffParams(cur, "easy", 40)).toEqual(cur.bands.easy[1]);
+  });
+
+  it("skips bands set to 0", () => {
+    expect(bandForStepWithCounts(1, [0, 0, 5])).toBe(2);
+    expect(bandForStepWithCounts(1, [0, 3, 5])).toBe(1);
+    expect(bandForStepWithCounts(4, [0, 3, 5])).toBe(2);
+  });
+
+  it("falls back to the uniform ramp when counts are absent or all zero", () => {
+    const base = defaultCurriculum("add");
+    expect(ensureCurriculum("add", { ...base, counts: [0, 0, 0] }).counts).toBeUndefined();
+    expect(ensureCurriculum("add", base).counts).toBeUndefined();
+    const cur = { ...base, counts: [0, 0, 0] } as typeof base;
+    // step 5 is band 1 under the default stepsPerBlock of 4
+    expect(diffParams(ensureCurriculum("add", cur), "easy", 5)).toEqual(base.bands.easy[1]);
+  });
+
+  it("clamps, pads and truncates counts to the number of bands", () => {
+    const slots = defaultCurriculum("add").bands.easy.length;
+    expect(normalizeCounts([5], slots)).toEqual([5, 0, 0]);
+    expect(normalizeCounts([1, 2, 3, 4, 5], slots)).toEqual([1, 2, 3]);
+    expect(normalizeCounts([-4, 1e6, "x"], slots)).toEqual([0, 99, 0]);
+    expect(normalizeCounts("nope", slots)).toBeUndefined();
+  });
+
+  it("survives a clamp round-trip", () => {
+    const cur = { ...defaultCurriculum("add"), counts: [10, 10, 10] };
+    expect(clampCurriculum("add", cur).counts).toEqual([10, 10, 10]);
   });
 });
 

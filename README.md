@@ -1,9 +1,40 @@
 # Alufim (אלופים)
 
-A Pokémon-style educational game for kids: raise an animal, earn XP through math, English,
-and "find the..." games, and evolve it. Hebrew, RTL, audio-first, and playable offline.
+A Pokémon-style educational game for kids: raise an animal, earn XP through short learning
+games, and evolve it. Hebrew, RTL, audio-first, and playable offline.
 
 The app is a Next.js + React + TypeScript project in [`web/`](web/).
+
+## Status — WIP
+
+**Quality is not approved.** The six newer learning games below are work in progress: the
+ladders and pedagogy are still being reshaped from real play with kids. Treat them as
+experimental, not as a finished curriculum.
+
+Older games (חיבור, חיסור, אנגלית vocabulary) are more settled, but the product as a whole
+is still evolving.
+
+## Learning games
+
+**Settled (older):**
+
+- **חיבור** / **חיסור** — addition and subtraction with emoji → mixed → digits scaffold
+- **אנגלית** — English word ↔ picture vocabulary
+
+**WIP (six newer games — quality not approved):**
+
+1. **מספרים** — digit recognition, quantity ↔ numeral, which is bigger, tens/hundreds
+2. **כפל** — multiplication as equal groups
+3. **חילוק** — division as fair sharing (no remainders)
+4. **קריאה בעברית** — letter → nikud → syllable → word ladder
+5. **קריאה באנגלית** — phonics ladder (sound → letter → blend → read)
+6. **מוזיקה** — chords first (happy/sad, I/IV/V), then keys / solfège / phrases
+
+## i18n / global language
+
+There is a **design for internationalization** (global UI language, not only Hebrew), but it
+**has not been implemented** yet. The live app is still Hebrew-first / RTL with hardcoded
+copy. When that work lands it should be recorded under [`knowledge/technical/`](knowledge/technical/).
 
 ## Knowledge base ("brain")
 

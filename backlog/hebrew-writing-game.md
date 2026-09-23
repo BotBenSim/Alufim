@@ -14,6 +14,7 @@ related:
   - right-sized-difficulty
   - always-gain-xp
   - minigame-char-maze
+  - music-ear-and-chords-game
 ---
 
 # Hebrew writing game — form the letter, don't just recognize it
@@ -47,6 +48,28 @@ motor:
 
 Suggested shape: **build** for easy, **trace** for medium, **fading trace** for hard — so one game
 carries the whole progression and the youngest child still succeeds.
+
+## How Hebrew reading is actually taught (investigated 2026-08-01)
+
+Relevant because writing and reading share a sequence, and because a Hebrew reading app is the
+likely next project. Hebrew instruction is **not** English phonics:
+
+- **Letter names carry the sounds.** The alef-bet is acrophonic — each letter's name begins with
+  its own sound — so unlike English (where "double-u" tells you nothing about /w/), teaching letter
+  names genuinely supports decoding and spelling (Patel et al. 2002). Both the traditional mesorah
+  method and modern Israeli practice teach all 22 shapes and names to automaticity **first**.
+- **Then nikud, one mark at a time** — not all eight at once, and not simultaneously with letters,
+  which causes confusion.
+- **Then the syllable, as a single unit.** Hebrew's consonant-vowel structure means a child can
+  read בַּ as one blended "ba" rather than blending two phonemes. This body-coda approach places far
+  less load on phonemic awareness than English CVC blending, and is why Hebrew reading is reachable
+  earlier. Words come after syllables are secure.
+- **Never introduce visually similar letters in the same set** — a core systematic-phonics rule
+  that Hebrew needs badly (ב/כ, ד/ר, ה/ח/ת). The app already encodes exactly these families in
+  `LETTER_CONFUSE`, which should drive the teaching order, not just distractor choice.
+
+For the writing game this means: letter shape and name are the right unit for a first version, and
+nikud is correctly out of scope until shapes are automatic.
 
 ## Grounding
 

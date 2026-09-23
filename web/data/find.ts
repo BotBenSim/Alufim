@@ -1,3 +1,8 @@
+/**
+ * Shared vocabulary data: colour/shape/animal packs for the mission beat, and
+ * the Hebrew letter tables (names, confusable pairs, acrophonic cue words) the
+ * reading ladder reads. It outlived the "מצא את" game these were written for.
+ */
 export const FIND_PACKS = {
   colors: [
     { he: "אדום", emoji: "🔴" },
@@ -27,11 +32,6 @@ export const FIND_PACKS = {
 export const FIND_CATS = ["colors", "shapes", "animals"] as const;
 
 export type FindCat = (typeof FIND_CATS)[number];
-
-export function findCatLabel(cat: string, he: string): string {
-  if (cat === "colors") return `מצא את הצבע ה${he}!`;
-  return `מצא את ה${he}!`;
-}
 
 export const FIND_LETTERS = [
   { l: "א", name: "אָלֶף" },
@@ -95,21 +95,6 @@ export const FIND_PHON = [
   { he: "תפוח", emoji: "🍎", l: "ת" },
 ] as const;
 
-export const FIND_REASON = [
-  { q: "מי יכול לעוף?", yes: ["🐦", "🦋", "🐝", "🦅", "🦜", "🦉"], no: ["🐟", "🐶", "🐢", "🐌", "🐱", "🦁", "🐮", "🐠"] },
-  { q: "מי חי בים?", yes: ["🐟", "🐠", "🐙", "🦀", "🐬", "🐋", "🦈", "🐳"], no: ["🐶", "🐦", "🦁", "🐘", "🐱", "🐴", "🐝", "🦒"] },
-  { q: "מצאו את הפרי", yes: ["🍎", "🍌", "🍓", "🍇", "🍊", "🍉", "🍐", "🍑"], no: ["🥕", "🚗", "🐶", "⚽", "🪑", "🌳", "🥦", "✏️"] },
-  { q: "מצאו את הירק", yes: ["🥕", "🥦", "🌽", "🍅", "🥒", "🧅", "🥔"], no: ["🍎", "🍌", "🚗", "🐶", "⚽", "🍩", "🐱", "🌸"] },
-  { q: "מה נוסע בכביש?", yes: ["🚗", "🚌", "🚚", "🏍️", "🚕", "🚜"], no: ["✈️", "🚢", "🚁", "🐶", "🍎", "🌳", "🐦", "⛵"] },
-  { q: "מצאו את החיה", yes: ["🐶", "🐱", "🦁", "🐘", "🐵", "🐴", "🐰", "🐻"], no: ["🍎", "🚗", "⚽", "🪑", "👟", "🌳", "✏️", "🎈"] },
-  { q: "מה אפשר לאכול?", yes: ["🍎", "🍌", "🍕", "🍞", "🧀", "🍪", "🥕", "🍓"], no: ["🚗", "🪑", "👟", "⚽", "✏️", "📱", "🧸", "🔑"] },
-  { q: "מה צומח בגינה?", yes: ["🌳", "🌷", "🌻", "🌵", "🍄", "🌹", "🌼"], no: ["🚗", "🐶", "📱", "⚽", "🪑", "✈️", "👟", "🍕"] },
-] as const;
-
 export const LETTER_NAME: Record<string, string> = Object.fromEntries(
   FIND_LETTERS.map((x) => [x.l, x.name])
 );
-
-export function letterByGlyph(g: string) {
-  return FIND_LETTERS.find((x) => x.l === g) ?? null;
-}

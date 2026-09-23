@@ -31,6 +31,25 @@ export function blockForStep(
   return Math.floor((stepIndex - 1) / size);
 }
 
+/**
+ * Band index for a step when the parent set explicit per-band question counts.
+ * Walks `counts` in order; bands set to 0 are skipped entirely. Once the list is
+ * exhausted the run stays on the last band that has questions.
+ */
+export function bandForStepWithCounts(stepIndex: number, counts: number[]): number {
+  let remaining = Math.max(1, Math.floor(stepIndex) || 1);
+  for (let i = 0; i < counts.length; i++) {
+    const n = counts[i];
+    if (n <= 0) continue;
+    if (remaining <= n) return i;
+    remaining -= n;
+  }
+  for (let i = counts.length - 1; i >= 0; i--) {
+    if (counts[i] > 0) return i;
+  }
+  return 0;
+}
+
 export function xpTier(level: DifficultyLevel, stepIndex: number): number {
   const rows = (XP_TABLE[level] || XP_TABLE.easy).length;
   return Math.min(rows - 1, Math.max(0, Math.floor((stepIndex - 1) / XP_BATCH_SIZE)));

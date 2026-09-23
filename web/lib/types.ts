@@ -1,5 +1,14 @@
 export type DifficultyLevel = "easy" | "medium" | "hard";
-export type GameId = "add" | "sub" | "find" | "eng";
+export type GameId =
+  | "add"
+  | "sub"
+  | "mul"
+  | "div"
+  | "nums"
+  | "eng"
+  | "hebread"
+  | "engread"
+  | "music";
 export type BeatType = "learn" | "mission" | "play";
 export type RunPhase = "learn" | "mission" | "play" | "evolve";
 /** Accent for question UI (answer / hear-again buttons). */
@@ -42,6 +51,13 @@ export type DifficultyBand = Record<string, unknown> & {
 /** Per-game curriculum stored on the profile (copied from factory at create/migrate). */
 export type GameCurriculum = {
   stepsPerBlock: number;
+  /**
+   * Optional questions-per-band, in band order. When set it replaces the uniform
+   * `stepsPerBlock` ramp: `counts[0]` questions from band 0, then `counts[1]` from
+   * band 1, and so on. A `0` skips that band. Absent (or all zeros) keeps the
+   * legacy uniform behaviour, so old saves are unaffected.
+   */
+  counts?: number[];
   bands: Record<DifficultyLevel, DifficultyBand[]>;
 };
 
@@ -89,7 +105,7 @@ export type ScreenId =
   | "game";
 
 export type Question = Record<string, unknown> & {
-  op: GameId | "find";
+  op: GameId;
   answer: unknown;
 };
 

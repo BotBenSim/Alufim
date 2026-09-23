@@ -39,6 +39,7 @@ numbers or studies.
 | [right-sized-difficulty](right-sized-difficulty.md) | Difficulty levels + rewards that rise with progress | Zone of Proximal Development + flow |
 | [parent-tuned-difficulty-bands](parent-tuned-difficulty-bands.md) | Parents can right-size bands per child | ZPD + scaffolding |
 | [math-visual-scaffold](math-visual-scaffold.md) | Add/sub bands: emoji → mixed → digits | CRA progression |
+| [multiplication-as-equal-groups](multiplication-as-equal-groups.md) | Multiplication as equal groups; division as fair sharing | CRA + equal-groups / partitive models |
 | [celebrate-progress](celebrate-progress.md) | Frequent wins; celebrate evolution | Immediate feedback + goal-gradient |
 | [choose-and-nurture-animal](choose-and-nurture-animal.md) | Pick and raise your own animal | Self-Determination Theory |
 | [audio-first](audio-first.md) | Spoken prompts + free replay for pre-readers | Cognitive load + emergent literacy |
@@ -52,6 +53,11 @@ numbers or studies.
 | [minigame-char-maze](minigame-char-maze.md) | Character maze — guide animal to the exit | Attention span + novelty + spatial reasoning |
 | [minigame-cut-rope](minigame-cut-rope.md) | Cut-rope — swipe ropes so snack falls to friend | Attention span + novelty + cause-and-effect |
 | [minigame-lane-catch](minigame-lane-catch.md) | Lane-catch — catch the food, let the junk fall | Attention span + novelty + inhibitory control |
+| [sound-before-symbol](sound-before-symbol.md) | Teach the sound first; the symbol names a known sound | Pestalozzi → Kodály → Gordon (audiation) |
+| [faded-scaffold-ladder](faded-scaffold-ladder.md) | Every support has a band where it disappears | Faded scaffolding / expertise reversal |
+| [hebrew-reading-sequence](hebrew-reading-sequence.md) | Hebrew: letters → nikud → syllable, not English phonics | Acrophonic letter names + body-coda blending |
+| [track-skill-ladders](track-skill-ladders.md) | One 7-stage ladder, filled in for Hebrew / English / music (1-5 shipped) | Sound before symbol + cumulative sequence |
+| [number-sense-ladder](number-sense-ladder.md) | A numeral names a quantity the child already counted; 100 is taught as a shape | Cardinality + CRA + subitizing |
 
 Superseded stubs (removed from product): [minigame-tap-collect](minigame-tap-collect.md),
 [minigame-catch](minigame-catch.md), [minigame-meter-burst](minigame-meter-burst.md).

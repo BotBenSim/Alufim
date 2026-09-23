@@ -10,7 +10,7 @@ import { CharacterPreviewOverlay } from "@/components/cards/CharacterPreviewOver
 import { GameCard } from "@/components/cards/GameCard";
 import { Brand, BrandTitle, KidButton, Screen } from "@/design-system";
 import { CHARACTERS } from "@/data/characters";
-import { GAME_ORDER, GAMES } from "@/data/games";
+import { GAME_GROUPS, GAMES } from "@/data/games";
 import type { GameId } from "@/lib/types";
 import { useStore } from "@/state/store";
 import { useAudio } from "@/hooks/useAudio";
@@ -40,8 +40,12 @@ export function ProfilesScreen() {
     [app]
   );
 
-  const enabledGames = useMemo(
-    () => GAME_ORDER.filter((g) => profile?.games[g]?.enabled),
+  const enabledGroups = useMemo(
+    () =>
+      GAME_GROUPS.map((group) => ({
+        ...group,
+        games: group.games.filter((g) => profile?.games[g]?.enabled),
+      })).filter((group) => group.games.length > 0),
     [profile]
   );
 
@@ -154,17 +158,26 @@ export function ProfilesScreen() {
           <h2 className="text-center text-[clamp(20px,4.2vw,28px)] font-extrabold text-heading">
             בחרו משחק
           </h2>
-          <div
-            id="gameCardsHome"
-            className="grid w-full max-w-[540px] grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5"
-          >
-            {enabledGames.map((gid) => (
-              <GameCard
-                key={gid}
-                gameId={gid}
-                selected={selectedGameId === gid}
-                onClick={() => handleSelectGame(gid)}
-              />
+          <div id="gameCardsHome" className="flex w-full max-w-[540px] flex-col gap-4">
+            {enabledGroups.map((group) => (
+              <div
+                key={group.id}
+                className="flex flex-col gap-2 rounded-[24px] bg-white/45 p-2.5"
+              >
+                <h3 className="px-1 text-[clamp(15px,3vw,18px)] font-extrabold text-heading">
+                  {group.icon} {group.title}
+                </h3>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-2.5">
+                  {group.games.map((gid) => (
+                    <GameCard
+                      key={gid}
+                      gameId={gid}
+                      selected={selectedGameId === gid}
+                      onClick={() => handleSelectGame(gid)}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
           <div ref={playBtnRef} className="scroll-mt-6">

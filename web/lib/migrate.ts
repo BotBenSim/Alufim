@@ -18,10 +18,15 @@ export function normalizeGender(value: unknown, name?: string): PlayerGender {
 
 export function defaultGames(): Profile["games"] {
   return {
-    find: { enabled: true, level: "easy", curriculum: defaultCurriculum("find") },
     add: { enabled: true, level: "easy", curriculum: defaultCurriculum("add") },
     sub: { enabled: true, level: "easy", curriculum: defaultCurriculum("sub") },
+    nums: { enabled: true, level: "easy", curriculum: defaultCurriculum("nums") },
+    mul: { enabled: true, level: "easy", curriculum: defaultCurriculum("mul") },
+    div: { enabled: true, level: "easy", curriculum: defaultCurriculum("div") },
     eng: { enabled: true, level: "easy", curriculum: defaultCurriculum("eng") },
+    hebread: { enabled: true, level: "easy", curriculum: defaultCurriculum("hebread") },
+    engread: { enabled: true, level: "easy", curriculum: defaultCurriculum("engread") },
+    music: { enabled: true, level: "easy", curriculum: defaultCurriculum("music") },
   };
 }
 
@@ -60,6 +65,12 @@ export function migrateProfile(p: Profile): Profile {
     if (!p.games[g].level) p.games[g].level = "easy";
     p.games[g].curriculum = ensureCurriculum(g, p.games[g].curriculum);
   });
+  // Drop games we removed (find), so an old save stops carrying them forever.
+  for (const key of Object.keys(p.games)) {
+    if (!GAME_ORDER.includes(key as GameId)) {
+      delete p.games[key as GameId];
+    }
+  }
   // Rebuild from known engines only — drops removed stub ids (tapCollect/catch/meterBurst)
   const defaults = defaultMinigameConfig();
   const prev = p.minigames;

@@ -18,11 +18,16 @@ import {
 import { CHARACTERS, characterById } from "@/data/characters";
 import { GAMES, GAME_ORDER } from "@/data/games";
 import { MINIGAME_META } from "@/data/minigameMeta";
+import { NUMS_STAGES } from "@/data/nums";
 import { PHOTOS } from "@/data/photos";
 import {
   clampCurriculum,
   defaultCurriculum,
+  isMathGame,
+  hasStageBands,
   MATH_VISUAL_OPTIONS,
+  MAX_BAND_COUNT,
+  MAX_STAGE,
   normalizeMathVisual,
 } from "@/lib/difficulty";
 import { isImgAvatar } from "@/lib/migrate";
@@ -41,6 +46,26 @@ import { useStore } from "@/state/store";
 import { cn } from "@/lib/utils";
 
 const AVATAR_EMOJIS = ["🦄", "🦖", "🚀", "🐬", "🦁", "🐶", "🐱", "🐉", "🐧", "🐼", "🦊", "🐢"];
+
+const LEVELS_FOR_COUNTS: DifficultyLevel[] = ["easy", "medium", "hard"];
+
+/** First and last step of a band, honouring per-band counts when they are set. */
+function bandStepRange(
+  counts: number[] | undefined,
+  stepsPerBlock: number,
+  bandIndex: number
+): { start: number; end: number; skipped: boolean } {
+  if (!counts) {
+    return {
+      start: bandIndex * stepsPerBlock + 1,
+      end: (bandIndex + 1) * stepsPerBlock,
+      skipped: false,
+    };
+  }
+  const before = counts.slice(0, bandIndex).reduce((sum, n) => sum + n, 0);
+  const own = counts[bandIndex] ?? 0;
+  return { start: before + 1, end: before + own, skipped: own === 0 };
+}
 
 const GENDER_OPTIONS: { value: PlayerGender; label: string }[] = [
   { value: "boy", label: "ילד" },
@@ -63,10 +88,37 @@ const SECTIONS: { id: SettingsSection; label: string; existingOnly?: boolean }[]
   { id: "advanced", label: "מתקדם", existingOnly: true },
 ];
 
+/** What each math visual looks like, per game, for the settings legend. */
+const VISUAL_EXAMPLES: Record<string, { name: string; example: string }[]> = {
+  add: [
+    { name: "ספירה", example: "🍎🍎 + 🍎🍎🍎" },
+    { name: "מעורב", example: "2 + 🍎🍎🍎" },
+    { name: "ספרות", example: "2 + 3" },
+  ],
+  sub: [
+    { name: "ספירה", example: "🍎🍎🍎🍎 − 🍎🍎" },
+    { name: "מעורב", example: "5 − 🍎🍎" },
+    { name: "ספרות", example: "5 − 2" },
+  ],
+  mul: [
+    { name: "ספירה", example: "[🍎🍎] [🍎🍎] [🍎🍎]" },
+    { name: "מעורב", example: "3 × [🍎🍎]" },
+    { name: "ספרות", example: "3 × 2" },
+  ],
+  div: [
+    { name: "ספירה", example: "[🍎🍎] [🍎🍎] [🍎🍎]" },
+    { name: "מעורב", example: "🍎🍎🍎🍎🍎🍎 ÷ 3" },
+    { name: "ספרות", example: "6 ÷ 3" },
+  ],
+};
+
 function emptyBand(gameId: GameId): DifficultyBand {
   if (gameId === "add") return { minSum: 2, maxSum: 8, visual: "fullCount" };
   if (gameId === "sub") return { minTop: 2, maxMin: 8, visual: "fullCount" };
-  if (gameId === "find") return { maxNum: 5, qLo: 1, qHi: 4 };
+  if (gameId === "mul") return { minFactor: 1, maxFactor: 5, visual: "fullCount" };
+  if (gameId === "div") return { maxDivisor: 3, maxQuotient: 5, visual: "fullCount" };
+  if (gameId === "nums") return { stage: 1, maxNum: 10 };
+  if (hasStageBands(gameId)) return { stage: 1 };
   return { maxLen: 8 };
 }
 
@@ -158,16 +210,36 @@ export function ProfileEditor() {
 
   const patchCurriculum = (
     gid: GameId,
-    patch: Partial<{ stepsPerBlock: number; bands: GameCurriculum["bands"] }>
+    patch: Partial<{
+      stepsPerBlock: number;
+      bands: GameCurriculum["bands"];
+      /** `null` clears the per-band counts and returns to the uniform ramp. */
+      counts: number[] | null;
+    }>
   ) => {
     const games = { ...editorDraft.games };
     const prev = games[gid].curriculum;
+    const counts = patch.counts === undefined ? prev.counts : (patch.counts ?? undefined);
     const next = clampCurriculum(gid, {
       stepsPerBlock: patch.stepsPerBlock ?? prev.stepsPerBlock,
+      counts,
       bands: patch.bands ?? prev.bands,
     });
     games[gid] = { ...games[gid], curriculum: next };
     updateEditorDraft({ games });
+  };
+
+  const setBandCount = (gid: GameId, bandIndex: number, value: number) => {
+    const cur = editorDraft.games[gid].curriculum;
+    const slots = Math.max(...LEVELS_FOR_COUNTS.map((l) => cur.bands[l]?.length ?? 0));
+    const counts = Array.from(
+      { length: slots },
+      (_, i) => cur.counts?.[i] ?? cur.stepsPerBlock
+    );
+    counts[bandIndex] = Math.max(0, Math.min(MAX_BAND_COUNT, value || 0));
+    // All-zero would leave a run with nothing to ask; keep at least this band.
+    if (!counts.some((n) => n > 0)) counts[bandIndex] = 1;
+    patchCurriculum(gid, { counts });
   };
 
   const updateBandField = (
@@ -409,33 +481,37 @@ export function ProfileEditor() {
                         {open && (
                           <div className="gameCurriculumPanel">
                             <p className="curriculumIntro">
-                              {gid === "add" || gid === "sub"
+                              {isMathGame(gid)
                                 ? "המשחק מחולק לקטעים. בכל קטע אפשר לקבוע את רמת הקושי (טווח המספרים) ואת התצוגה. אחרי מספר שלבים קבוע עוברים לקטע הבא — כך אפשר להתחיל פשוט ולהעלות בהדרגה."
                                 : "המשחק מחולק לקטעים. בכל קטע אפשר לקבוע את רמת הקושי. אחרי מספר שלבים קבוע עוברים לקטע הבא — כך אפשר להתחיל פשוט ולהעלות בהדרגה."}
                             </p>
 
-                            {(gid === "add" || gid === "sub") && (
+                            {isMathGame(gid) && (
                               <div className="visualLegend">
                                 <div className="visualLegendTitle">תצוגה</div>
                                 <div className="visualLegendRows">
-                                  <div className="visualLegendRow">
-                                    <span className="visualLegendName">ספירה</span>
-                                    <span className="visualLegendEx" dir="ltr">
-                                      {gid === "sub" ? "🍎🍎🍎🍎 − 🍎🍎" : "🍎🍎 + 🍎🍎🍎"}
-                                    </span>
-                                  </div>
-                                  <div className="visualLegendRow">
-                                    <span className="visualLegendName">מעורב</span>
-                                    <span className="visualLegendEx" dir="ltr">
-                                      {gid === "sub" ? "5 − 🍎🍎" : "2 + 🍎🍎🍎"}
-                                    </span>
-                                  </div>
-                                  <div className="visualLegendRow">
-                                    <span className="visualLegendName">ספרות</span>
-                                    <span className="visualLegendEx" dir="ltr">
-                                      {gid === "sub" ? "5 − 2" : "2 + 3"}
-                                    </span>
-                                  </div>
+                                  {VISUAL_EXAMPLES[gid].map((ex) => (
+                                    <div key={ex.name} className="visualLegendRow">
+                                      <span className="visualLegendName">{ex.name}</span>
+                                      <span className="visualLegendEx" dir="ltr">
+                                        {ex.example}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {gid === "nums" && (
+                              <div className="visualLegend">
+                                <div className="visualLegendTitle">שלבים</div>
+                                <div className="visualLegendRows">
+                                  {NUMS_STAGES.map((s) => (
+                                    <div key={s.stage} className="visualLegendRow">
+                                      <span className="visualLegendName">שלב {s.stage}</span>
+                                      <span className="visualLegendEx">{s.label}</span>
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
                             )}
@@ -443,27 +519,62 @@ export function ProfileEditor() {
                             <div className="flabel">
                               קטעים — רמה {levelLabelHe(level)}
                             </div>
-                            <SettingsNumberField
-                              id={`stepsPerBlock-${gid}`}
-                              label="שלבים בכל קטע"
-                              min={1}
-                              max={20}
-                              value={curriculum.stepsPerBlock}
-                              onChange={(v) =>
-                                patchCurriculum(gid, {
-                                  stepsPerBlock: Math.max(1, v || 1),
-                                })
-                              }
-                            />
+                            <div className="minigameSettingsRow">
+                              <div className="minigameSettingsHit">
+                                <span className="minigameSettingsTitle">
+                                  מספר שאלות שונה לכל קטע
+                                </span>
+                                <span className="minigameSettingsDesc">
+                                  במקום אותו מספר שלבים בכל קטע
+                                </span>
+                              </div>
+                              <div className="settingsRowControls">
+                                <Toggle
+                                  className="settingsToggle"
+                                  on={!!curriculum.counts}
+                                  onClick={() =>
+                                    patchCurriculum(gid, {
+                                      counts: curriculum.counts
+                                        ? null
+                                        : bands.map(() => curriculum.stepsPerBlock),
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                            {curriculum.counts ? (
+                              <p className="curriculumIntro">
+                                קבעו כמה שאלות יש בכל קטע. קטע עם 0 מדלגים עליו.
+                              </p>
+                            ) : (
+                              <SettingsNumberField
+                                id={`stepsPerBlock-${gid}`}
+                                label="שלבים בכל קטע"
+                                min={1}
+                                max={20}
+                                value={curriculum.stepsPerBlock}
+                                onChange={(v) =>
+                                  patchCurriculum(gid, {
+                                    stepsPerBlock: Math.max(1, v || 1),
+                                  })
+                                }
+                              />
+                            )}
                             <div className="bandList">
                               {bands.map((band, idx) => {
-                                const stepStart = idx * curriculum.stepsPerBlock + 1;
-                                const stepEnd = (idx + 1) * curriculum.stepsPerBlock;
+                                const range = bandStepRange(
+                                  curriculum.counts,
+                                  curriculum.stepsPerBlock,
+                                  idx
+                                );
                                 return (
                                   <div key={idx} className="bandCard">
                                     <div className="bandCardHead">
                                       <span>
-                                        קטע {idx + 1} · שלבים {stepStart}–{stepEnd}
+                                        קטע {idx + 1} ·{" "}
+                                        {range.skipped
+                                          ? "מדלגים"
+                                          : `שלבים ${range.start}–${range.end}`}
                                       </span>
                                       {bands.length > 1 && (
                                         <button
@@ -476,6 +587,15 @@ export function ProfileEditor() {
                                       )}
                                     </div>
                                     <div className="bandFields">
+                                      {curriculum.counts && (
+                                        <SettingsNumberField
+                                          label="מספר שאלות"
+                                          min={0}
+                                          max={MAX_BAND_COUNT}
+                                          value={curriculum.counts[idx] ?? 0}
+                                          onChange={(v) => setBandCount(gid, idx, v)}
+                                        />
+                                      )}
                                       {gid === "add" && (() => {
                                         const minSum = Number(band.minSum) || 2;
                                         const maxSum = Number(band.maxSum) || 8;
@@ -502,6 +622,54 @@ export function ProfileEditor() {
                                           </>
                                         );
                                       })()}
+                                      {gid === "mul" && (() => {
+                                        const minFactor = Number(band.minFactor) || 1;
+                                        const maxFactor = Number(band.maxFactor) || 5;
+                                        return (
+                                          <>
+                                            <SettingsNumberField
+                                              label="כופל מינ׳"
+                                              value={minFactor}
+                                              min={1}
+                                              max={maxFactor - 1}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "minFactor", v)
+                                              }
+                                            />
+                                            <SettingsNumberField
+                                              label="כופל מקס׳"
+                                              value={maxFactor}
+                                              min={minFactor + 1}
+                                              max={20}
+                                              onChange={(v) =>
+                                                updateBandField(gid, level, idx, "maxFactor", v)
+                                              }
+                                            />
+                                          </>
+                                        );
+                                      })()}
+                                      {gid === "div" && (
+                                        <>
+                                          <SettingsNumberField
+                                            label="חברים מקס׳"
+                                            value={Number(band.maxDivisor) || 3}
+                                            min={2}
+                                            max={20}
+                                            onChange={(v) =>
+                                              updateBandField(gid, level, idx, "maxDivisor", v)
+                                            }
+                                          />
+                                          <SettingsNumberField
+                                            label="לכל אחד עד"
+                                            value={Number(band.maxQuotient) || 5}
+                                            min={1}
+                                            max={20}
+                                            onChange={(v) =>
+                                              updateBandField(gid, level, idx, "maxQuotient", v)
+                                            }
+                                          />
+                                        </>
+                                      )}
                                       {gid === "sub" && (() => {
                                         const minTop = Number(band.minTop) || 2;
                                         const maxMin = Number(band.maxMin) || 8;
@@ -528,41 +696,30 @@ export function ProfileEditor() {
                                           </>
                                         );
                                       })()}
-                                      {gid === "find" && (() => {
-                                        const qLo = Number(band.qLo) || 1;
-                                        const qHi = Number(band.qHi) || 4;
-                                        return (
-                                          <>
+                                      {hasStageBands(gid) && (
+                                        <>
+                                          <SettingsNumberField
+                                            label="שלב"
+                                            value={Number(band.stage) || 1}
+                                            min={1}
+                                            max={MAX_STAGE}
+                                            onChange={(v) =>
+                                              updateBandField(gid, level, idx, "stage", v)
+                                            }
+                                          />
+                                          {gid === "nums" && (
                                             <SettingsNumberField
                                               label="מספר עד"
-                                              value={Number(band.maxNum) || 0}
-                                              min={1}
+                                              value={Number(band.maxNum) || 10}
+                                              min={2}
                                               max={100}
                                               onChange={(v) =>
                                                 updateBandField(gid, level, idx, "maxNum", v)
                                               }
                                             />
-                                            <SettingsNumberField
-                                              label="טווח נמוך"
-                                              value={qLo}
-                                              min={1}
-                                              max={qHi - 1}
-                                              onChange={(v) =>
-                                                updateBandField(gid, level, idx, "qLo", v)
-                                              }
-                                            />
-                                            <SettingsNumberField
-                                              label="טווח גבוה"
-                                              value={qHi}
-                                              min={qLo + 1}
-                                              max={20}
-                                              onChange={(v) =>
-                                                updateBandField(gid, level, idx, "qHi", v)
-                                              }
-                                            />
-                                          </>
-                                        );
-                                      })()}
+                                          )}
+                                        </>
+                                      )}
                                       {gid === "eng" && (
                                         <SettingsNumberField
                                           label="אורך מקס׳"
@@ -575,7 +732,7 @@ export function ProfileEditor() {
                                         />
                                       )}
                                     </div>
-                                    {(gid === "add" || gid === "sub") && (
+                                    {isMathGame(gid) && (
                                       <PillControl
                                         className="bandVisualControl"
                                         options={MATH_VISUAL_OPTIONS}

@@ -16,6 +16,7 @@ import {
   speakQuestion,
 } from "@/lib/speakPrompt";
 import { engAnswerKey, type EngQuestion } from "@/lib/providers/eng";
+import { MUSIC_LEAD_IN_MS, playQuestionTones } from "@/lib/audio/musicTones";
 import { xpBarState } from "@/lib/xp";
 import { useStore } from "@/state/store";
 import { useAudio } from "@/hooks/useAudio";
@@ -65,6 +66,7 @@ export function GameScreen() {
 
     ensure();
     speakQuestion(run.current, speak, speakEn);
+    playQuestionTones(run.current, ensure(), MUSIC_LEAD_IN_MS);
     lastSpokenKey.current = run.currentKey;
   }, [
     run?.current,
@@ -172,7 +174,9 @@ export function GameScreen() {
       speak(run.mission.say);
       return;
     }
-    if (run.current) speakQuestion(run.current, speak, speakEn);
+    if (!run.current) return;
+    speakQuestion(run.current, speak, speakEn);
+    playQuestionTones(run.current, ensure(), MUSIC_LEAD_IN_MS);
   };
 
   const handleHome = () => {

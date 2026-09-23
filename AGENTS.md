@@ -8,6 +8,16 @@ Alufim is a Pokémon-style educational math/reading game for kids. The live appl
 Next.js + React + TypeScript app in [`web/`](web/) and deploys as a static export to GitHub
 Pages under the `/Alufim/` base path.
 
+## Keep chat replies short
+
+The maintainer runs several features in parallel and reads many tabs. Long replies get skipped.
+
+- Answer in a few sentences. Lead with the answer, not the reasoning.
+- Put detail in the repo (`knowledge/`, `backlog/`), not in chat. Link to the file instead of
+  summarizing it.
+- No recaps of what you just wrote, no restating the question, no options lists unless asked.
+- Research and design rationale belong in an OKF file. Chat gets the conclusion and the open decision.
+
 ## Read this before making architectural changes
 
 The project's knowledge base ("brain") lives in [`knowledge/`](knowledge/). Start at

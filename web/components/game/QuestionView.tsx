@@ -3,11 +3,13 @@
 import { useMemo } from "react";
 import { KidButton } from "@/design-system";
 import { HEB_NUM } from "@/data/hebrew";
-import { findCatLabel } from "@/data/find";
 import { AnswerGlyphView } from "@/components/game/AnswerGlyphView";
 import { addRenderMeta, type AddQuestion } from "@/lib/providers/add";
 import { subRenderMeta, type SubQuestion } from "@/lib/providers/sub";
+import { mulRenderMeta, type MulQuestion } from "@/lib/providers/mul";
+import { divRenderMeta, type DivQuestion } from "@/lib/providers/div";
 import { engRenderMeta, type EngQuestion } from "@/lib/providers/eng";
+import { isStageGame, STAGE_PROVIDERS } from "@/lib/providers";
 import type { AnswerChoice } from "@/lib/answerChoice";
 import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
 import type { PlayerGender, RunState } from "@/lib/types";
@@ -44,6 +46,39 @@ function EmojiGroup({
         >
           {emoji}
         </span>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * One equal group, boxed so the grouping itself is visible — that boundary is
+ * what makes "4 groups of 3" readable rather than 12 loose emoji.
+ */
+function GroupBox({ emoji, count }: { emoji: string; count: number }) {
+  return (
+    <div className="rounded-2xl bg-white/55 px-1.5 py-1 shadow-[0_2px_0_rgba(0,0,0,.08)]">
+      <EmojiGroup emoji={emoji} count={count} />
+    </div>
+  );
+}
+
+function GroupsRow({
+  emoji,
+  groups,
+  per,
+}: {
+  emoji: string;
+  groups: number;
+  per: number;
+}) {
+  return (
+    <div
+      id="shapesRow"
+      className="flex flex-wrap items-center justify-center gap-2 [direction:ltr]"
+    >
+      {Array.from({ length: groups }, (_, i) => (
+        <GroupBox key={i} emoji={emoji} count={per} />
       ))}
     </div>
   );
@@ -101,6 +136,35 @@ export function QuestionView({
       };
     }
 
+    if (q.op === "mul") {
+      const mq = q as unknown as MulQuestion;
+      const meta = mulRenderMeta(mq, run.step, em, run.curriculum, run.level);
+      return {
+        kind: "mul" as const,
+        a: mq.a,
+        b: mq.b,
+        visual: meta.visual,
+        options: meta.options.map(String),
+        variant: "answer" as const,
+      };
+    }
+
+    if (q.op === "div") {
+      const dq = q as unknown as DivQuestion;
+      const meta = divRenderMeta(dq, run.step, em, run.curriculum, run.level);
+      return {
+        kind: "div" as const,
+        a: dq.a,
+        b: dq.b,
+        // Only the scaffolded visuals may show the shared-out groups; at
+        // "numbers" the child works it out from the digits alone.
+        per: dq.answer,
+        visual: meta.visual,
+        options: meta.options.map(String),
+        variant: "answer" as const,
+      };
+    }
+
     if (q.op === "eng") {
       const eq = q as unknown as EngQuestion;
       const meta = engRenderMeta(eq);
@@ -113,82 +177,24 @@ export function QuestionView({
       };
     }
 
-    if (q.op === "find") {
-      const fq = q as unknown as Record<string, unknown> & { kind: string; answer: unknown };
-      const pointer = "👆";
-
-      if (fq.kind === "num") {
-        const answer = fq.answer as number;
-        const maxNum = (fq.maxNum as number) || Math.max(5, answer);
-        const raw = (fq as { options?: number[] }).options;
-        const options = (raw?.length ? raw : numberOptions(answer, maxNum)).map(String);
+    if (isStageGame(q.op)) {
+      const meta = STAGE_PROVIDERS[q.op].render(q);
+      if (meta.variant === "answerGroup") {
+        // Sets of emoji need the wrapping button; the label is the answer.
         return {
-          kind: "find" as const,
-          prompt: `מצאו את המספר ${HEB_NUM[answer] || answer}`,
-          hint: pointer,
-          options,
-          variant: "answerFind" as const,
-        };
-      }
-      if (fq.kind === "letter") {
-        const item = fq.item as { name: string; l: string };
-        return {
-          kind: "find" as const,
-          prompt: `מצאו את האות ${item.name}`,
-          hint: pointer,
-          options: (fq.options as { l: string }[]).map((o) => o.l),
-          variant: "answerFind" as const,
-        };
-      }
-      if (fq.kind === "phon") {
-        const item = fq.item as { l: string; emoji: string };
-        return {
-          kind: "find" as const,
-          prompt: `מה מתחיל ב־ ${item.l}`,
-          hint: "איזה מתחיל בּצליל הזה?",
-          options: (fq.options as { emoji: string }[]).map((o) => o.emoji),
-          variant: "answerEng" as const,
-        };
-      }
-      if (fq.kind === "more") {
-        const opts = fq.options as { count: number; em: string }[];
-        return {
-          kind: "findGroup" as const,
-          prompt: "מצאו את הקבוצה עם הכי הרבה",
-          hint: pointer,
-          options: opts.map((o) => ({
-            value: String(o.count),
-            label: repeatStr(o.em, o.count),
-          })),
+          kind: "pickGroup" as const,
+          prompt: meta.prompt,
+          hint: meta.hint,
+          options: meta.options.map((o) => ({ value: o, label: o })),
           variant: "answerGroup" as const,
         };
       }
-      if (fq.kind === "bignum") {
-        return {
-          kind: "find" as const,
-          prompt: "איזה מספר גדול יותר?",
-          hint: pointer,
-          options: (fq.options as number[]).map(String),
-          variant: "answerFind" as const,
-        };
-      }
-      if (fq.kind === "reason") {
-        return {
-          kind: "find" as const,
-          prompt: fq.prompt as string,
-          hint: pointer,
-          options: fq.options as string[],
-          variant: "answerEng" as const,
-        };
-      }
-      const cat = fq.cat as string;
-      const item = fq.item as { he: string; emoji: string };
       return {
-        kind: "find" as const,
-        prompt: findCatLabel(cat, item.he),
-        hint: pointer,
-        options: (fq.options as { emoji: string }[]).map((o) => o.emoji),
-        variant: "answerEng" as const,
+        kind: "pick" as const,
+        prompt: meta.prompt,
+        hint: meta.hint,
+        options: meta.options,
+        variant: meta.variant,
       };
     }
 
@@ -299,6 +305,64 @@ export function QuestionView({
           </>
         )}
 
+        {choiceProps.kind === "mul" && (
+          <>
+            {choiceProps.visual !== "numbers" &&
+              (choiceProps.visual === "countOn" ? (
+                <div
+                  id="shapesRow"
+                  className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
+                >
+                  <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                    {choiceProps.a}
+                  </span>
+                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                    ×
+                  </span>
+                  <GroupBox emoji={em} count={choiceProps.b!} />
+                </div>
+              ) : (
+                <GroupsRow emoji={em} groups={choiceProps.a!} per={choiceProps.b!} />
+              ))}
+            <div
+              id="digitsRow"
+              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
+            >
+              <b className="text-heading">{choiceProps.a}</b> ×{" "}
+              <b className="text-heading">{choiceProps.b}</b> = ?
+            </div>
+          </>
+        )}
+
+        {choiceProps.kind === "div" && (
+          <>
+            {choiceProps.visual !== "numbers" &&
+              (choiceProps.visual === "countOn" ? (
+                <div
+                  id="shapesRow"
+                  className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
+                >
+                  <EmojiGroup emoji={em} count={choiceProps.a!} />
+                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                    ÷
+                  </span>
+                  <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                    {choiceProps.b}
+                  </span>
+                </div>
+              ) : (
+                <GroupsRow emoji={em} groups={choiceProps.b!} per={choiceProps.per!} />
+              ))}
+            <div
+              id="digitsRow"
+              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
+            >
+              <b className="text-heading">{choiceProps.a}</b> ÷{" "}
+              <b className="text-heading">{choiceProps.b}</b> = ?
+            </div>
+          </>
+        )}
+
         {choiceProps.kind === "wordPrompt" && (
           <>
             <div id="shapesRow" className="flex flex-wrap items-center justify-center gap-2.5">
@@ -312,7 +376,7 @@ export function QuestionView({
           </>
         )}
 
-        {(choiceProps.kind === "find" || choiceProps.kind === "findGroup") && (
+        {(choiceProps.kind === "pick" || choiceProps.kind === "pickGroup") && (
           <>
             <div className="findprompt text-center text-[clamp(30px,7vw,56px)] font-extrabold text-heading">
               {"prompt" in choiceProps ? choiceProps.prompt : ""}
@@ -327,7 +391,7 @@ export function QuestionView({
 
         <div id="answers" className="flex flex-wrap justify-center gap-[clamp(12px,3vw,26px)]">
           {"options" in choiceProps &&
-            (choiceProps.kind === "findGroup"
+            (choiceProps.kind === "pickGroup"
               ? (choiceProps.options as { value: string; label: string }[]).map((o) => (
                   <KidButton
                     key={o.value}

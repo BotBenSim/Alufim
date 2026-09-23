@@ -5,10 +5,16 @@ import type {
   GameId,
   MathVisual,
 } from "./types";
-import { blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
+import { ENGREAD_BANDS } from "@/data/engread";
+import { HEBREAD_BANDS } from "@/data/hebread";
+import { MUSIC_BANDS } from "@/data/music";
+import { NUMS_BANDS } from "@/data/nums";
+import { bandForStepWithCounts, blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
 
 type AddBlock = { minSum: number; maxSum: number; visual: MathVisual };
 type SubBlock = { minTop: number; maxMin: number; visual: MathVisual };
+type MulBlock = { minFactor: number; maxFactor: number; visual: MathVisual };
+type DivBlock = { maxDivisor: number; maxQuotient: number; visual: MathVisual };
 type FindBlock = {
   maxNum?: number;
   kinds?: string[];
@@ -40,10 +46,23 @@ export function mathVisualLabel(v: MathVisual): string {
 }
 
 /** Factory template — deep-copied into profiles on create / migrate / reset. */
+type AnyBlock =
+  | AddBlock
+  | SubBlock
+  | MulBlock
+  | DivBlock
+  | FindBlock
+  | EngBlock
+  | DifficultyBand;
+
 export const GAME_DIFFICULTY: Record<
   GameId,
-  Partial<Record<DifficultyLevel, AddBlock[] | SubBlock[] | FindBlock[] | EngBlock[]>>
+  Partial<Record<DifficultyLevel, AnyBlock[]>>
 > = {
+  nums: NUMS_BANDS,
+  hebread: HEBREAD_BANDS,
+  engread: ENGREAD_BANDS,
+  music: MUSIC_BANDS,
   add: {
     easy: [
       { minSum: 2, maxSum: 8, visual: "fullCount" },
@@ -78,60 +97,38 @@ export const GAME_DIFFICULTY: Record<
       { minTop: 80, maxMin: 120, visual: "numbers" },
     ],
   },
-  find: {
+  mul: {
     easy: [
-      {
-        maxNum: 5,
-        kinds: ["bignum", "letter", "reason", "more"],
-        confuse: false,
-        qLo: 1,
-        qHi: 4,
-        qClose: false,
-      },
-      {
-        maxNum: 15,
-        kinds: ["bignum", "letter", "reason", "more", "phon", "num"],
-        confuse: false,
-        qLo: 2,
-        qHi: 6,
-        qClose: false,
-      },
+      { minFactor: 1, maxFactor: 3, visual: "fullCount" },
+      { minFactor: 2, maxFactor: 5, visual: "fullCount" },
+      { minFactor: 2, maxFactor: 5, visual: "countOn" },
     ],
     medium: [
-      {
-        maxNum: 10,
-        kinds: ["bignum", "letter", "reason", "more", "phon"],
-        confuse: false,
-        qLo: 2,
-        qHi: 6,
-        qClose: false,
-      },
-      {
-        maxNum: 25,
-        kinds: ["bignum", "letter", "reason", "more", "phon", "num"],
-        confuse: true,
-        qLo: 3,
-        qHi: 8,
-        qClose: true,
-      },
+      { minFactor: 2, maxFactor: 5, visual: "fullCount" },
+      { minFactor: 2, maxFactor: 8, visual: "countOn" },
+      { minFactor: 2, maxFactor: 10, visual: "numbers" },
     ],
     hard: [
-      {
-        maxNum: 20,
-        kinds: ["bignum", "letter", "reason", "more", "phon"],
-        confuse: true,
-        qLo: 3,
-        qHi: 8,
-        qClose: true,
-      },
-      {
-        maxNum: 50,
-        kinds: ["bignum", "letter", "reason", "more", "phon"],
-        confuse: true,
-        qLo: 4,
-        qHi: 9,
-        qClose: true,
-      },
+      { minFactor: 2, maxFactor: 8, visual: "countOn" },
+      { minFactor: 2, maxFactor: 10, visual: "numbers" },
+      { minFactor: 3, maxFactor: 12, visual: "numbers" },
+    ],
+  },
+  div: {
+    easy: [
+      { maxDivisor: 2, maxQuotient: 4, visual: "fullCount" },
+      { maxDivisor: 3, maxQuotient: 5, visual: "fullCount" },
+      { maxDivisor: 4, maxQuotient: 5, visual: "countOn" },
+    ],
+    medium: [
+      { maxDivisor: 3, maxQuotient: 5, visual: "fullCount" },
+      { maxDivisor: 5, maxQuotient: 8, visual: "countOn" },
+      { maxDivisor: 8, maxQuotient: 10, visual: "numbers" },
+    ],
+    hard: [
+      { maxDivisor: 5, maxQuotient: 8, visual: "countOn" },
+      { maxDivisor: 8, maxQuotient: 10, visual: "numbers" },
+      { maxDivisor: 10, maxQuotient: 12, visual: "numbers" },
     ],
   },
   eng: {
@@ -143,11 +140,53 @@ export const GAME_DIFFICULTY: Record<
 
 const LEVELS: DifficultyLevel[] = ["easy", "medium", "hard"];
 
+/** Max questions a parent may assign to one band. */
+export const MAX_BAND_COUNT = 99;
+
+function bandSlots(bands: Record<DifficultyLevel, DifficultyBand[]>): number {
+  return LEVELS.reduce((max, level) => Math.max(max, bands[level]?.length || 0), 0);
+}
+
+/**
+ * Clean a parent-edited `counts` array. Returns `undefined` when there is nothing
+ * usable — no array, or every band set to 0 — so the caller falls back to the
+ * uniform `stepsPerBlock` ramp and a run can never end up with zero questions.
+ */
+export function normalizeCounts(counts: unknown, slots: number): number[] | undefined {
+  if (!Array.isArray(counts) || slots <= 0) return undefined;
+  const out: number[] = [];
+  for (let i = 0; i < slots; i++) {
+    const n = Number(counts[i]);
+    out.push(Number.isFinite(n) ? Math.max(0, Math.min(MAX_BAND_COUNT, Math.floor(n))) : 0);
+  }
+  return out.some((n) => n > 0) ? out : undefined;
+}
+
+/** Games whose bands carry a `visual` (emoji → mixed → digits). */
+const MATH_GAMES = new Set<GameId>(["add", "sub", "mul", "div"]);
+
+export function isMathGame(gameId: GameId): boolean {
+  return MATH_GAMES.has(gameId);
+}
+
+/**
+ * Games built as a ladder, where a band picks which rung to stand on.
+ * `lib/providers` has the matching type guard for a question's `op`; this one
+ * is kept separate so the data layer never imports the providers.
+ */
+const STAGE_GAMES = new Set<GameId>(["nums", "hebread", "engread", "music"]);
+
+export function hasStageBands(gameId: GameId): boolean {
+  return STAGE_GAMES.has(gameId);
+}
+
+export const MAX_STAGE = 5;
+
 function withDefaultVisuals(
   gameId: GameId,
   rows: DifficultyBand[]
 ): DifficultyBand[] {
-  if (gameId !== "add" && gameId !== "sub") return rows;
+  if (!isMathGame(gameId)) return rows;
   return rows.map((band, i) => ({
     ...band,
     visual: normalizeMathVisual(band.visual, i),
@@ -156,7 +195,7 @@ function withDefaultVisuals(
 
 function cloneBands(
   gameId: GameId,
-  rows: AddBlock[] | SubBlock[] | FindBlock[] | EngBlock[] | undefined
+  rows: AnyBlock[] | undefined
 ): DifficultyBand[] {
   const cloned = JSON.parse(JSON.stringify(rows ?? [{}])) as DifficultyBand[];
   return withDefaultVisuals(gameId, cloned);
@@ -203,7 +242,8 @@ export function ensureCurriculum(
     }
   }
 
-  return { stepsPerBlock, bands };
+  const counts = normalizeCounts(existing.counts, bandSlots(bands));
+  return counts ? { stepsPerBlock, counts, bands } : { stepsPerBlock, bands };
 }
 
 /** Read band params from a profile-owned curriculum. */
@@ -213,8 +253,11 @@ export function diffParams<T = Record<string, unknown>>(
   stepIndex: number
 ): T {
   const rows = (curriculum.bands[level] || curriculum.bands.easy || [{}]) as T[];
-  const b = blockForStep(stepIndex, curriculum.stepsPerBlock);
-  return rows[Math.min(b, rows.length - 1)] ?? ({} as T);
+  const b = curriculum.counts?.length
+    ? bandForStepWithCounts(stepIndex, curriculum.counts)
+    : blockForStep(stepIndex, curriculum.stepsPerBlock);
+  const i = Math.max(0, Math.min(b, rows.length - 1));
+  return rows[i] ?? ({} as T);
 }
 
 export function effectiveLevel(
@@ -245,7 +288,8 @@ export function clampCurriculum(gameId: GameId, curriculum: GameCurriculum): Gam
     bands[level] = bands[level].map((band, i) => clampBand(gameId, band, i));
   }
 
-  return { stepsPerBlock, bands };
+  const counts = normalizeCounts(ensured.counts, bandSlots(bands));
+  return counts ? { stepsPerBlock, counts, bands } : { stepsPerBlock, bands };
 }
 
 function clampBand(
@@ -285,22 +329,35 @@ function clampBand(
       visual: normalizeMathVisual(next.visual, bandIndex),
     };
   }
-  if (gameId === "find") {
-    let qLo = next.qLo != null ? clampNum(next.qLo, 1, 20, 1) : next.qLo;
-    let qHi = next.qHi != null ? clampNum(next.qHi, 1, 20, 4) : next.qHi;
-    if (qLo != null && qHi != null && qHi <= qLo) {
-      qHi = Math.min(20, qLo + 1);
-      if (qHi <= qLo) qLo = Math.max(1, qHi - 1);
-    }
+  if (gameId === "mul") {
+    let minFactor = clampNum(next.minFactor, 1, 20, 1);
+    let maxFactor = clampNum(next.maxFactor, 1, 20, 5);
+    if (maxFactor <= minFactor) maxFactor = Math.min(20, minFactor + 1);
+    if (maxFactor <= minFactor) minFactor = Math.max(1, maxFactor - 1);
     return {
       ...next,
-      maxNum: clampNum(next.maxNum, 1, 100, 5),
-      qLo,
-      qHi,
+      minFactor,
+      maxFactor,
+      visual: normalizeMathVisual(next.visual, bandIndex),
+    };
+  }
+  if (gameId === "div") {
+    return {
+      ...next,
+      maxDivisor: clampNum(next.maxDivisor, 2, 20, 3),
+      maxQuotient: clampNum(next.maxQuotient, 1, 20, 5),
+      visual: normalizeMathVisual(next.visual, bandIndex),
     };
   }
   if (gameId === "eng") {
     return { ...next, maxLen: clampNum(next.maxLen, 1, 64, 8) };
+  }
+  if (hasStageBands(gameId)) {
+    const stage = clampNum(next.stage, 1, MAX_STAGE, 1);
+    // Only the numbers ladder exposes a ceiling; the others read from their
+    // own word and note tables.
+    if (gameId !== "nums") return { ...next, stage };
+    return { ...next, stage, maxNum: clampNum(next.maxNum, 2, 100, 10) };
   }
   return next;
 }
@@ -320,11 +377,22 @@ export function curriculumSummary(
     const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
     return `התחלה: מספרים ${band.minTop ?? "?"}–${band.maxMin ?? "?"} · ${vis}`;
   }
-  if (gameId === "find") {
-    return `התחלה: עד ${band.maxNum ?? "?"}`;
+  if (gameId === "mul") {
+    const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
+    return `התחלה: כופלים ${band.minFactor ?? "?"}–${band.maxFactor ?? "?"} · ${vis}`;
+  }
+  if (gameId === "div") {
+    const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
+    return `התחלה: עד ${band.maxDivisor ?? "?"} חברים · ${vis}`;
   }
   if (gameId === "eng") {
     return `התחלה: עד ${band.maxLen ?? "?"} אותיות`;
+  }
+  if (gameId === "nums") {
+    return `התחלה: שלב ${band.stage ?? 1} · עד ${band.maxNum ?? "?"}`;
+  }
+  if (band.stage) {
+    return `התחלה: שלב ${band.stage}`;
   }
   return "התחלה";
 }

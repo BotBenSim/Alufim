@@ -55,4 +55,5 @@ Off-ramps: `rejected`, `superseded`.
 | [audit-medium-hard-levels](audit-medium-hard-levels.md) | Playtest + fix medium/hard across all learning games | proposed | ZPD + flow (right-sized difficulty) |
 | [animal-epic-boss-steps-and-skills](animal-epic-boss-steps-and-skills.md) | Growth steps as boss moments; each game grants a move | proposed | SDT competence + goal-gradient + interleaving |
 | [hebrew-writing-game](hebrew-writing-game.md) | Hebrew writing game (trace/build letters) | proposed | Grapho-motor letter learning + faded scaffolding |
-| [music-ear-and-chords-game](music-ear-and-chords-game.md) | Music game: echo tunes + happy/sad chords | proposed | Sound before symbol (Gordon) + retrieval practice |
+| [music-ear-and-chords-game](music-ear-and-chords-game.md) | Music game: sound-before-symbol ladder, pitch strand shipped (stages 1-5) | accepted | Sound before symbol (Kodály/Gordon) + landmark/intervallic reading |
+| [reasoning-and-comparison-games](reasoning-and-comparison-games.md) | Re-home categorisation after מצא את (comparison now lives in מספרים stage 4) | proposed | Prototype theory (Rosch) |
