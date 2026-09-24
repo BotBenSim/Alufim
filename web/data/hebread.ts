@@ -1,5 +1,6 @@
 import { FIND_PHON } from "@/data/find";
 import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 /**
  * Hebrew reading ladder. One band per stage — see
@@ -10,11 +11,11 @@ import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
  * at an ear-only sound-matching game.
  */
 export const HEBREAD_STAGES = [
-  { stage: 1, label: "צליל → אות" },
-  { stage: 2, label: "אות → תמונה" },
-  { stage: 3, label: "שומעים הברה" },
-  { stage: 4, label: "קוראים הברה" },
-  { stage: 5, label: "מילה שלמה" },
+  { stage: 1, get label() { return t("hebread.stages.1"); } },
+  { stage: 2, get label() { return t("hebread.stages.2"); } },
+  { stage: 3, get label() { return t("hebread.stages.3"); } },
+  { stage: 4, get label() { return t("hebread.stages.4"); } },
+  { stage: 5, get label() { return t("hebread.stages.5"); } },
 ] as const;
 
 const DAGESH = "\u05BC";
@@ -207,15 +208,25 @@ export const HEBREAD_WORDS: HebWord[] = [
 
 /** Child-facing lines. Hints exist at stages 1–2 and are gone by 3–5. */
 export const HEBREAD_TEXT = {
-  letterHint: (word: string) => `${word} — באיזו אות מתחילה?`,
-  pictureHint: "איזו תמונה מתחילה באות הזאת?",
-  heardPrompt: "מה שמעתם?",
-  letterSay: (name: string, word: string) => `${name}. כמו ${word}. איזו אות זו?`,
-  pictureSay: "איזו תמונה מתחילה באות שרואים?",
-  hearSylSay: (syl: string) => `${syl}. איזו הברה שמעתם?`,
-  readSylSay: "איזו תמונה מתחילה בהברה שכתובה?",
-  wordSay: "בחרו את התמונה של המילה הכתובה.",
-} as const;
+  letterHint: (word: string) => t("hebread.letterHint", { word }),
+  get pictureHint() {
+    return t("hebread.pictureHint");
+  },
+  get heardPrompt() {
+    return t("hebread.heardPrompt");
+  },
+  letterSay: (name: string, word: string) => t("hebread.letterSay", { name, word }),
+  get pictureSay() {
+    return t("hebread.pictureSay");
+  },
+  hearSylSay: (syl: string) => t("hebread.hearSylSay", { syl }),
+  get readSylSay() {
+    return t("hebread.readSylSay");
+  },
+  get wordSay() {
+    return t("hebread.wordSay");
+  },
+};
 
 function stageBands(stages: readonly number[]): DifficultyBand[] {
   return stages.map((stage) => ({ stage }));

@@ -1,5 +1,6 @@
 import type { Solfa } from "@/lib/audio/musicTones";
 import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 /**
  * Music ladder — sound before symbol. See
@@ -15,11 +16,11 @@ import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
  * should meet a chord on the first question, not after a run of single notes.
  */
 export const MUSIC_STAGES = [
-  { stage: 1, label: "שמח או עצוב" },
-  { stage: 2, label: "איזה אקורד שמעתם" },
-  { stage: 3, label: "איזה מקש שמעתם" },
-  { stage: 4, label: "שם הצליל" },
-  { stage: 5, label: "חזרו על הלחן" },
+  { stage: 1, get label() { return t("music.stages.1"); } },
+  { stage: 2, get label() { return t("music.stages.2"); } },
+  { stage: 3, get label() { return t("music.stages.3"); } },
+  { stage: 4, get label() { return t("music.stages.4"); } },
+  { stage: 5, get label() { return t("music.stages.5"); } },
 ] as const;
 
 /** Kodály's pentatonic core — no combination of these can sound wrong (Orff). */

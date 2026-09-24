@@ -10,6 +10,8 @@ tags: [log, changelog]
 
 Reverse-chronological. Newest first. One line per decision; link to the file.
 
+- 2026-09-24 — Hebrew speech moves to pre-recorded OpenAI TTS clips listed in a committed voice lock; the browser voice is only a fallback — see [pre-recorded-voice](technical/pre-recorded-voice.md).
+- 2026-09-24 — all copy moved to `web/locales/he.json` (i18next JSON format) behind a typed `t()`; content such as word lists stays in `data/` — see [i18n-locale-files](technical/i18n-locale-files.md).
 - 2026-09-24 — visual refresh: Fredoka font, soft sky-and-hills scene, frosted surfaces, candy 3D buttons, and home game tiles grouped by subject with a colour per subject and a bold glyph per game — see [modern-visual-style](product/modern-visual-style.md).
 - 2026-08-01 — numbers stage 4 is now "which is bigger" (three piles or three numerals); README marks the six newer games as WIP / quality not approved and notes the i18n plan is designed but not implemented.
 - 2026-08-01 — reworked the four ladders so they open on what the parent asked for: numbers on digit recognition (not matching piles), Hebrew/English on letters (not ear-only sound matching), music on chords (happy/sad, then I/IV/V) — see [number-sense-ladder](educational/number-sense-ladder.md), [track-skill-ladders](educational/track-skill-ladders.md).

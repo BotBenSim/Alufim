@@ -15,6 +15,7 @@ import type { GameId } from "@/lib/types";
 import { useStore } from "@/state/store";
 import { useAudio } from "@/hooks/useAudio";
 import { useSpeech } from "@/hooks/useSpeech";
+import { t } from "@/lib/i18n";
 
 export function ProfilesScreen() {
   const app = useStore((s) => s.app);
@@ -63,7 +64,7 @@ export function ProfilesScreen() {
   const handleSelectProfile = (id: string, name: string) => {
     ensure();
     selectProfile(id);
-    speak(`שלום ${name}`);
+    speak(t("home.hello", { name }));
   };
 
   const handleSelectCharacter = (id: string, he: string) => {
@@ -96,7 +97,7 @@ export function ProfilesScreen() {
         className="textbtn glass fixed right-3 top-3 z-[5] rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-heading/80 shadow-soft"
         onClick={() => setScreen("about")}
       >
-        ℹ️ אודות
+        ℹ️ {t("home.about")}
       </button>
 
       <BrandTitle className="brandWrap">
@@ -125,7 +126,7 @@ export function ProfilesScreen() {
           className="show flex w-full scroll-mt-4 flex-col items-center gap-6"
         >
           <h2 className="text-center text-[clamp(24px,5vw,32px)] font-bold text-heading">
-            בחרו חיה
+            {t("home.chooseAnimal")}
           </h2>
           <div
             id="charGrid"
@@ -156,7 +157,7 @@ export function ProfilesScreen() {
           className="show flex w-full scroll-mt-4 flex-col items-center gap-6"
         >
           <h2 className="text-center text-[clamp(24px,5vw,32px)] font-bold text-heading">
-            בחרו משחק
+            {t("home.chooseGame")}
           </h2>
           <div id="gameCardsHome" className="flex w-full max-w-[540px] flex-col gap-4">
             {enabledGroups.map((group) => (
@@ -194,7 +195,7 @@ export function ProfilesScreen() {
                 startGame();
               }}
             >
-              ▶ שחקו
+              ▶ {t("home.play")}
             </KidButton>
           </div>
         </section>

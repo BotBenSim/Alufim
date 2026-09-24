@@ -2,7 +2,7 @@ import { diffParams } from "@/lib/difficulty";
 import {
   ENG_CONFUSE,
   ENGREAD_BANDS,
-  ENGREAD_COPY,
+  engreadCopy,
   ENGREAD_CVC,
   ENGREAD_PICS,
   engSound,
@@ -318,7 +318,7 @@ export const engreadProvider: StageProvider = {
 
   render(q: Question): StageRender {
     const qq = q as EngReadQuestion;
-    const copy = ENGREAD_COPY[qq.stage] ?? {};
+    const copy = engreadCopy(qq.stage);
     const options = qq.options;
     switch (qq.stage) {
       case 2:
@@ -351,6 +351,6 @@ export const engreadProvider: StageProvider = {
 
   speak(q: Question): StageSpeak {
     const qq = q as EngReadQuestion;
-    return { he: ENGREAD_COPY[qq.stage]?.he, en: qq.say };
+    return { he: engreadCopy(qq.stage).he, en: qq.say };
   },
 };

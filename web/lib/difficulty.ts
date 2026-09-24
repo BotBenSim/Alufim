@@ -10,6 +10,7 @@ import { HEBREAD_BANDS } from "@/data/hebread";
 import { MUSIC_BANDS } from "@/data/music";
 import { NUMS_BANDS } from "@/data/nums";
 import { bandForStepWithCounts, blockForStep, DIFFICULTY_BLOCK_SIZE } from "./xp";
+import { t } from "@/lib/i18n";
 
 type AddBlock = { minSum: number; maxSum: number; visual: MathVisual };
 type SubBlock = { minTop: number; maxMin: number; visual: MathVisual };
@@ -40,9 +41,7 @@ export function normalizeMathVisual(v: unknown, bandIndex = 0): MathVisual {
 }
 
 export function mathVisualLabel(v: MathVisual): string {
-  if (v === "fullCount") return "ספירה";
-  if (v === "countOn") return "מעורב";
-  return "ספרות";
+  return t(`visual.${v === "fullCount" || v === "countOn" ? v : "numbers"}`);
 }
 
 /** Factory template — deep-copied into profiles on create / migrate / reset. */
@@ -275,7 +274,7 @@ export function effectiveLevel(
 }
 
 export function levelLabel(l: DifficultyLevel): string {
-  return l === "hard" ? "קשה" : l === "medium" ? "בינוני" : "קל";
+  return t(`levels.${l === "hard" || l === "medium" ? l : "easy"}`);
 }
 
 /** Clamp curriculum fields after UI edit. */
@@ -371,35 +370,38 @@ export function curriculumSummary(
   const band = curriculum.bands[level]?.[0] ?? {};
   if (gameId === "add") {
     const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
-    return `התחלה: סכום ${band.minSum ?? "?"}–${band.maxSum ?? "?"} · ${vis}`;
+    return t("curriculum.add", { min: band.minSum ?? "?", max: band.maxSum ?? "?", visual: vis });
   }
   if (gameId === "sub") {
     const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
-    return `התחלה: מספרים ${band.minTop ?? "?"}–${band.maxMin ?? "?"} · ${vis}`;
+    return t("curriculum.sub", { min: band.minTop ?? "?", max: band.maxMin ?? "?", visual: vis });
   }
   if (gameId === "mul") {
     const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
-    return `התחלה: כופלים ${band.minFactor ?? "?"}–${band.maxFactor ?? "?"} · ${vis}`;
+    return t("curriculum.mul", { min: band.minFactor ?? "?", max: band.maxFactor ?? "?", visual: vis });
   }
   if (gameId === "div") {
     const vis = mathVisualLabel(normalizeMathVisual(band.visual, 0));
-    return `התחלה: עד ${band.maxDivisor ?? "?"} חברים · ${vis}`;
+    return t("curriculum.div", { max: band.maxDivisor ?? "?", visual: vis });
   }
   if (gameId === "eng") {
-    return `התחלה: עד ${band.maxLen ?? "?"} אותיות`;
+    return t("curriculum.eng", { max: band.maxLen ?? "?" });
   }
   if (gameId === "nums") {
-    return `התחלה: שלב ${band.stage ?? 1} · עד ${band.maxNum ?? "?"}`;
+    return t("curriculum.nums", { stage: band.stage ?? 1, max: band.maxNum ?? "?" });
   }
   if (band.stage) {
-    return `התחלה: שלב ${band.stage}`;
+    return t("curriculum.stage", { stage: band.stage });
   }
-  return "התחלה";
+  return t("curriculum.start");
 }
 
 /** Short equal-length labels for PillControl. */
-export const MATH_VISUAL_OPTIONS: { value: MathVisual; label: string }[] = [
-  { value: "fullCount", label: "ספירה" },
-  { value: "countOn", label: "מעורב" },
-  { value: "numbers", label: "ספרות" },
-];
+export const MATH_VISUAL_OPTIONS: { value: MathVisual; readonly label: string }[] = (
+  ["fullCount", "countOn", "numbers"] as const
+).map((value) => ({
+  value,
+  get label() {
+    return t(`visual.${value}`);
+  },
+}));

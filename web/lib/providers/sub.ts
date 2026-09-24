@@ -7,6 +7,7 @@ import type {
   Provider,
   ProviderContext,
 } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 export type SubQuestion = {
   op: "sub";
@@ -59,5 +60,5 @@ export function subRenderMeta(
 }
 
 export function subSpeakPrompt(q: SubQuestion, hebNum: readonly string[]): string {
-  return `כמה זה ${hebNum[q.a] || q.a} פחות ${hebNum[q.b] || q.b}?`;
+  return t("math.subAsk", { a: hebNum[q.a] || q.a, b: hebNum[q.b] || q.b });
 }

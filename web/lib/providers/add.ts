@@ -7,6 +7,7 @@ import type {
   Provider,
   ProviderContext,
 } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 export type AddQuestion = {
   op: "add";
@@ -62,5 +63,5 @@ export function addRenderMeta(
 }
 
 export function addSpeakPrompt(q: AddQuestion, hebNum: readonly string[]): string {
-  return `כמה זה ${hebNum[q.a] || q.a} ועוד ${hebNum[q.b] || q.b}?`;
+  return t("math.addAsk", { a: hebNum[q.a] || q.a, b: hebNum[q.b] || q.b });
 }

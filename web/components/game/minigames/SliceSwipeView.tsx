@@ -5,6 +5,7 @@ import { MinigameShell } from "@/design-system";
 import { rnd } from "@/lib/random";
 import type { SliceSwipeState } from "@/lib/minigames/sliceSwipe";
 import type { MinigameViewProps } from "./types";
+import { t } from "@/lib/i18n";
 
 type Flyer = {
   id: string;
@@ -196,7 +197,7 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
       score={st.score}
       needed={st.needed}
       flash={flash}
-      flashGoodLabel="חתכת!"
+      flashGoodLabel={t("minigame.sliced")}
       stageClassName="touch-none"
       stageProps={{
         onPointerDown: (e) => {

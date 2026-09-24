@@ -36,6 +36,8 @@ import type {
   ScreenId,
 } from "@/lib/types";
 import { GAME_ORDER } from "@/data/games";
+import { playBreaksDisabled } from "@/lib/devFlags";
+import { t, tGroup } from "@/lib/i18n";
 import { ENG_CORRECT_ADVANCE_MS } from "@/lib/speakPrompt";
 import { xpForCorrect, formForXp, XP_BEAT } from "@/lib/xp";
 import {
@@ -57,16 +59,6 @@ const EVOLVE_FILMSTRIP_HOLD_MS = 950;
 const EVOLVE_FILMSTRIP_STEP_MS = 900;
 const EVOLVE_DONE_HOLD_MS = 5000;
 
-const PRAISE = [
-  "כל הכבוד!",
-  "מעולה!",
-  "וואו!",
-  "נכון מאוד!",
-  "יופי!",
-  "מצוין!",
-  "אלוף/ה!",
-  "מדהים!",
-];
 
 type EvolveOverlay = {
   formIdx: number;
@@ -88,6 +80,8 @@ type UiState = {
   homeCharSection: boolean;
   homeGameSection: boolean;
   editingProfileId: string | null;
+  /** Set when the editor was opened from a running game: show only this game, return to play. */
+  editorFocusGame: GameId | null;
   editorDraft: {
     avatar: string;
     gender: Profile["gender"];
@@ -118,7 +112,8 @@ type Store = UiState & {
   selectGame: (id: GameId) => void;
   startGame: (gameId?: GameId) => void;
   goHome: () => void;
-  openProfileEditor: (id: string | null) => void;
+  openProfileEditor: (id: string | null, focusGame?: GameId) => void;
+  closeProfileEditor: () => void;
   updateEditorDraft: (patch: Partial<NonNullable<UiState["editorDraft"]>>) => void;
   saveProfileEditor: (name: string) => void;
   deleteProfileEditor: () => void;
@@ -184,6 +179,7 @@ export const useStore = create<Store>()(
       homeCharSection: false,
       homeGameSection: false,
       editingProfileId: null,
+      editorFocusGame: null,
       editorDraft: null,
       selectedGameId: null,
       run: null,
@@ -303,7 +299,7 @@ export const useStore = create<Store>()(
         });
       },
 
-      openProfileEditor: (id) => {
+      openProfileEditor: (id, focusGame) => {
         const p = findProfile(get().app, id);
         const migrated = p
           ? migrateProfile(JSON.parse(JSON.stringify(p)) as Profile)
@@ -311,6 +307,7 @@ export const useStore = create<Store>()(
         set({
           screen: "profileEdit",
           editingProfileId: id,
+          editorFocusGame: focusGame && get().run ? focusGame : null,
           editorDraft: {
             avatar: migrated?.avatar ?? "🙂",
             gender: migrated?.gender ?? "boy",
@@ -333,6 +330,16 @@ export const useStore = create<Store>()(
         });
       },
 
+      closeProfileEditor: () => {
+        const back = get().editorFocusGame && get().run ? "game" : "profiles";
+        set({
+          screen: back,
+          editingProfileId: null,
+          editorFocusGame: null,
+          editorDraft: null,
+        });
+      },
+
       updateEditorDraft: (patch) => {
         const draft = get().editorDraft;
         if (!draft) return;
@@ -342,7 +349,7 @@ export const useStore = create<Store>()(
       saveProfileEditor: (name) => {
         const { app, editingProfileId, editorDraft } = get();
         if (!editorDraft) return;
-        const trimmed = name.trim() || "ילד/ה";
+        const trimmed = name.trim() || t("profile.defaultName");
 
         const games = clampGamesCurriculum(editorDraft.games);
 
@@ -369,6 +376,33 @@ export const useStore = create<Store>()(
             return next;
           });
           const saved = profiles.find((p) => p.id === editingProfileId) ?? null;
+          const { editorFocusGame, run } = get();
+          if (editorFocusGame && run && saved) {
+            // Opened mid-game: keep the run and its step, swap in the new tuning.
+            const cfg = saved.games[run.gameId];
+            set({
+              app: { ...app, profiles },
+              screen: "game",
+              editingProfileId: null,
+              editorFocusGame: null,
+              editorDraft: null,
+              disabledAnswers: [],
+              feedback: "",
+              run: {
+                ...run,
+                level: (cfg?.level || run.level) as DifficultyLevel,
+                curriculum: cfg?.curriculum
+                  ? JSON.parse(JSON.stringify(cfg.curriculum))
+                  : run.curriculum,
+                preset: resolveRhythm(saved.playEverySteps),
+                locked: false,
+                mistakes: 0,
+                hadWrong: false,
+              },
+            });
+            get().makeQuestion();
+            return;
+          }
           set({
             app: { ...app, profiles },
             screen: "profiles",
@@ -550,7 +584,7 @@ export const useStore = create<Store>()(
               },
               collectionOverlay: {
                 characterId: c.id,
-                message: `${c.he} מחכה לך במסך החיות!`,
+                message: t("game.newAnimalWaiting", { name: c.he }),
               },
             });
             window.setTimeout(() => set({ collectionOverlay: null }), 3000);
@@ -586,7 +620,7 @@ export const useStore = create<Store>()(
           } else {
             set({ wobbleAnswer: value });
             window.setTimeout(() => set({ wobbleAnswer: null }), 500);
-            set({ feedback: "💪 כמעט! נסו שוב" });
+            set({ feedback: `💪 ${t("game.almost")}` });
           }
           return;
         }
@@ -604,7 +638,7 @@ export const useStore = create<Store>()(
             ...run.completed,
             { key: run.currentKey || "", correct: true, hadWrongAttempt: run.hadWrong },
           ];
-          const praise = pickNoRepeat(PRAISE, "praise");
+          const praise = pickNoRepeat(tGroup("praise"), "praise");
           let feedback = `🎉 ${praise}`;
           if (run.gameId === "eng" && run.current && "word" in run.current) {
             const w = (run.current as unknown as { word: { en: string; he: string } }).word;
@@ -618,7 +652,8 @@ export const useStore = create<Store>()(
           // Eng teach-back speech needs longer before the next prompt.
           const advanceMs = run.gameId === "eng" ? ENG_CORRECT_ADVANCE_MS : 900;
           window.setTimeout(() => {
-            const beat = buildBeat(run.preset, run.step);
+            const scheduled = buildBeat(run.preset, run.step);
+            const beat = scheduled === "play" && playBreaksDisabled() ? "learn" : scheduled;
             if (beat === "mission") {
               // Grow before mission so art matches the celebrated form.
               get()._withEvolution(() => {
@@ -667,7 +702,7 @@ export const useStore = create<Store>()(
             run: { ...run, hadWrong: true, mistakes },
             disabledAnswers: disabled,
             wobbleAnswer: value,
-            feedback: "💪 כמעט! נסו שוב",
+            feedback: `💪 ${t("game.almost")}`,
           });
           window.setTimeout(() => set({ wobbleAnswer: null }), 500);
           if (mistakes >= 3) {
@@ -694,7 +729,7 @@ export const useStore = create<Store>()(
           get()._awardXp(XP_BEAT.play);
           set({
             minigameOverlay: { ...minigameOverlay, session, done: true },
-            feedback: `ה${run!.character.he} שיחק והתחזק!`,
+            feedback: t("game.playedStronger", { name: run!.character.he }),
           });
           window.setTimeout(() => {
             set({ minigameOverlay: null, run: { ...get().run!, phase: "learn" } });

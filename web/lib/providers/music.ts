@@ -28,6 +28,7 @@ import {
 import { rnd, shuffle } from "@/lib/random";
 import type { ProviderContext, Question } from "@/lib/types";
 import type { StageProvider, StageRender, StageSpeak } from "./stage";
+import { t } from "@/lib/i18n";
 
 export type MusicQuestion = Question & {
   op: "music";
@@ -254,21 +255,10 @@ function genWhichChord(ctx: ProviderContext, band: MusicBand): MusicQuestion {
   };
 }
 
-const PROMPT: Record<number, string> = {
-  1: "הצליל הזה שמח או עצוב?",
-  2: "איזה אקורד שמעתם?",
-  3: "איזה מקש שמעתם?",
-  4: "מה שם הצליל?",
-  5: "איזה לחן שמעתם?",
-};
-
-const SAY: Record<number, string> = {
-  1: "הקשיבו. שמח או עצוב?",
-  2: "הקשיבו לאקורד. איזה אקורד זה?",
-  3: "הקשיבו. איזה מקש שמעתם?",
-  4: "הקשיבו. מה שם הצליל?",
-  5: "הקשיבו ללחן. איזה לחן זה?",
-};
+const STAGES = [1, 2, 3, 4, 5] as const;
+const clampStage = (n: number) => (STAGES.includes(n as never) ? n : 1) as (typeof STAGES)[number];
+const prompt = (n: number) => t(`music.ask.${clampStage(n)}`);
+const saying = (n: number) => t(`music.say.${clampStage(n)}`);
 
 export const musicProvider: StageProvider = {
   bands: MUSIC_BANDS,
@@ -298,7 +288,7 @@ export const musicProvider: StageProvider = {
     const qq = q as MusicQuestion;
     const emojiOptions = qq.stage === 1;
     return {
-      prompt: PROMPT[qq.stage] ?? PROMPT[1],
+      prompt: prompt(qq.stage),
       hint: musicHint(qq),
       options: qq.options,
       variant: emojiOptions ? "answerEng" : "answerFind",
@@ -307,15 +297,15 @@ export const musicProvider: StageProvider = {
 
   speak(q: Question): StageSpeak {
     const qq = q as MusicQuestion;
-    const say = SAY[qq.stage] ?? SAY[1];
-    return { he: qq.anchor ? `הצליל הראשון הוא דו. ${say}` : say };
+    const say = saying(qq.stage);
+    return { he: qq.anchor ? t("music.anchorThen", { say }) : say };
   },
 };
 
 /** The faded support: present at a level's first band, gone from the next one. */
 function musicHint(q: MusicQuestion): string | undefined {
   if (!q.showHint) return undefined;
-  if (q.anchor) return "הצליל הראשון הוא דו";
-  if (q.stage === 1) return `${MUSIC_HAPPY} שמח · ${MUSIC_SAD} עצוב`;
+  if (q.anchor) return t("music.anchor");
+  if (q.stage === 1) return t("music.happySad", { happy: MUSIC_HAPPY, sad: MUSIC_SAD });
   return undefined;
 }

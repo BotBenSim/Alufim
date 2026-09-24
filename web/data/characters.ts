@@ -1,5 +1,6 @@
 import { assetPath } from "@/lib/utils";
 import type { ArtDescriptor, CharacterDef } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 export function charArt(id: string, stage: number, fallback: string): ArtDescriptor {
   return {
@@ -103,8 +104,8 @@ export function evolveCelebrateLine(
 ): string {
   const opener = character.cheer.replace(/[!]+$/u, "").trim();
   // Mid form = בוגר, final form = גיבור (starter baby has no evolve line).
-  const stage = formIdx >= character.forms.length - 1 ? "גיבור" : "בוגר";
-  return `${opener}, עכשיו יש לך ${character.he} ${stage}!`;
+  const form = t(formIdx >= character.forms.length - 1 ? "evolve.formHero" : "evolve.formAdult");
+  return t("evolve.celebrate", { cheer: opener, name: character.he, form });
 }
 
 export type CharacterId = (typeof CHARACTERS)[number]["id"];

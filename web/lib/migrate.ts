@@ -4,6 +4,7 @@ import { defaultMinigameConfig, MINIGAME_ORDER } from "@/data/minigameMeta";
 import { defaultCurriculum, ensureCurriculum } from "./difficulty";
 import { clampPlayEverySteps, DEFAULT_PLAY_EVERY_STEPS } from "./rhythm";
 import type { AppState, GameId, PlayerGender, Profile } from "./types";
+import { t } from "@/lib/i18n";
 
 export const STATE_KEY = "alufim_state_v2";
 
@@ -41,7 +42,7 @@ export function newProfile(
   });
   return {
     id: `p${Date.now()}_${Math.floor(Math.random() * 99999)}`,
-    name: name || "ילד/ה",
+    name: name || t("profile.defaultName"),
     avatar: avatar || "🙂",
     gender: normalizeGender(gender, name),
     games: defaultGames(),

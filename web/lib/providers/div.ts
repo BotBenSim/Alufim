@@ -7,6 +7,7 @@ import type {
   Provider,
   ProviderContext,
 } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 export type DivQuestion = {
   op: "div";
@@ -65,5 +66,5 @@ export function divRenderMeta(
 export function divSpeakPrompt(q: DivQuestion, hebNum: readonly string[]): string {
   const total = hebNum[q.a] || q.a;
   const shares = hebNum[q.b] || q.b;
-  return `מחלקים ${total} שווה בשווה ל־${shares} חברים. כמה מקבל כל אחד?`;
+  return t("math.divAsk", { total, shares });
 }

@@ -1,76 +1,113 @@
 import type { GameId } from "@/lib/types";
 import { PROVIDERS } from "@/lib/providers";
+import { t } from "@/lib/i18n";
 
 export const GAMES = {
   add: {
-    title: "חיבור",
+    get title() {
+      return t("games.add.title");
+    },
     icon: "➕",
     glyph: "+",
-    subtitle: "לחבר מספרים",
+    get subtitle() {
+      return t("games.add.subtitle");
+    },
     cardClass: "add",
     provider: PROVIDERS.add,
   },
   sub: {
-    title: "חיסור",
+    get title() {
+      return t("games.sub.title");
+    },
     icon: "➖",
     glyph: "−",
-    subtitle: "להוריד מספרים",
+    get subtitle() {
+      return t("games.sub.subtitle");
+    },
     cardClass: "sub",
     provider: PROVIDERS.sub,
   },
   nums: {
-    title: "מספרים",
+    get title() {
+      return t("games.nums.title");
+    },
     icon: "🔢",
     glyph: "123",
-    subtitle: "לספור ולהכיר ספרות",
+    get subtitle() {
+      return t("games.nums.subtitle");
+    },
     cardClass: "find",
     provider: PROVIDERS.nums,
   },
   mul: {
-    title: "כפל",
+    get title() {
+      return t("games.mul.title");
+    },
     icon: "✖️",
     glyph: "×",
-    subtitle: "קבוצות שוות",
+    get subtitle() {
+      return t("games.mul.subtitle");
+    },
     cardClass: "add",
     provider: PROVIDERS.mul,
   },
   div: {
-    title: "חילוק",
+    get title() {
+      return t("games.div.title");
+    },
     icon: "➗",
     glyph: "÷",
-    subtitle: "לחלק שווה בשווה",
+    get subtitle() {
+      return t("games.div.subtitle");
+    },
     cardClass: "sub",
     provider: PROVIDERS.div,
   },
   eng: {
-    title: "אנגלית",
+    get title() {
+      return t("games.eng.title");
+    },
     icon: "🔤",
     glyph: "ABC",
-    subtitle: "מילים באנגלית",
+    get subtitle() {
+      return t("games.eng.subtitle");
+    },
     cardClass: "eng",
     provider: PROVIDERS.eng,
   },
   hebread: {
-    title: "קריאה בעברית",
+    get title() {
+      return t("games.hebread.title");
+    },
     icon: "📖",
     glyph: "אב",
-    subtitle: "מצליל לאות למילה",
+    get subtitle() {
+      return t("games.hebread.subtitle");
+    },
     cardClass: "find",
     provider: PROVIDERS.hebread,
   },
   engread: {
-    title: "קריאה באנגלית",
+    get title() {
+      return t("games.engread.title");
+    },
     icon: "🅰️",
     glyph: "Aa",
-    subtitle: "sound it out",
+    get subtitle() {
+      return t("games.engread.subtitle");
+    },
     cardClass: "eng",
     provider: PROVIDERS.engread,
   },
   music: {
-    title: "מוזיקה",
+    get title() {
+      return t("games.music.title");
+    },
     icon: "🎵",
     glyph: "♪",
-    subtitle: "לשמוע, לנגן, לקרוא תווים",
+    get subtitle() {
+      return t("games.music.subtitle");
+    },
     cardClass: "sub",
     provider: PROVIDERS.music,
   },
@@ -89,21 +126,27 @@ export type GameGroup = {
 export const GAME_GROUPS: GameGroup[] = [
   {
     id: "math",
-    title: "חשבון",
+    get title() {
+      return t("gameGroups.math");
+    },
     icon: "🔢",
     color: { from: "#FFB547", to: "#FF7A2F", edge: "#D9571A" },
     games: ["nums", "add", "sub", "mul", "div"],
   },
   {
     id: "reading",
-    title: "קריאה ושפה",
+    get title() {
+      return t("gameGroups.reading");
+    },
     icon: "📖",
     color: { from: "#8F8BFF", to: "#5E5CE6", edge: "#4240B8" },
     games: ["hebread", "engread", "eng"],
   },
   {
     id: "music",
-    title: "מוזיקה",
+    get title() {
+      return t("gameGroups.music");
+    },
     icon: "🎵",
     color: { from: "#FF8DC7", to: "#EC4899", edge: "#BE2A76" },
     games: ["music"],

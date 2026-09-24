@@ -7,6 +7,7 @@ import { useAudio } from "@/hooks/useAudio";
 import { useConfetti } from "@/hooks/useConfetti";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useStore } from "@/state/store";
+import { t } from "@/lib/i18n";
 
 export function EvolvePreview() {
   const run = useStore((s) => s.run);
@@ -18,7 +19,7 @@ export function EvolvePreview() {
 
   useEffect(() => {
     if (overlay?.phase === "tap" && overlay.taps === 0) {
-      speak("לחצו שוב ושוב — החבר הולך לגדול!");
+      speak(t("evolve.tapAgainSpoken"));
     }
   }, [overlay?.phase, overlay?.taps, speak]);
 
@@ -49,13 +50,13 @@ export function EvolvePreview() {
         {overlay.phase === "tap" && (
           <>
             <div className="text-center text-[clamp(22px,5.5vw,36px)] font-black text-white drop-shadow-lg">
-              {c.he} מתחזק!
+              {t("evolve.growing", { name: c.he })}
             </div>
             <div
               id="evolveHint"
               className="min-h-[1.2em] text-center text-[clamp(18px,5vw,28px)] font-extrabold text-[#FFE9A8] drop-shadow-md"
             >
-              לחצו שוב ושוב! 👆
+              {t("evolve.tapAgain")} 👆
             </div>
             <div
               id="evolveMeterWrap"
@@ -107,7 +108,7 @@ export function EvolvePreview() {
               id="evolveTitle"
               className="text-center text-[clamp(28px,7vw,52px)] font-black text-white drop-shadow-lg"
             >
-              {overlay.phase === "done" || revealing ? "התפתח! ✨" : "גדל…"}
+              {overlay.phase === "done" || revealing ? `${t("evolve.evolved")} ✨` : t("evolve.grows")}
             </div>
             {(overlay.phase === "done" || revealing) && (
               <div className="max-w-[22ch] text-center text-[clamp(18px,4.5vw,28px)] font-extrabold leading-snug text-[#FFE9A8] drop-shadow-md">

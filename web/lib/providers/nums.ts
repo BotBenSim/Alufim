@@ -9,6 +9,7 @@ import {
 import { repeatStr, rnd, shuffle } from "@/lib/random";
 import type { ProviderContext, Question } from "@/lib/types";
 import type { StageProvider, StageRender, StageSpeak } from "./stage";
+import { t } from "@/lib/i18n";
 
 export type NumsQuestion = Question & {
   op: "nums";
@@ -216,7 +217,7 @@ export const numsProvider: StageProvider = {
       // The number is only spoken; printing it would make the choice a match.
       return {
         prompt: "👂",
-        hint: "איזה מספר שמעתם?",
+        hint: t("nums.whichHeard"),
         options: qq.options as string[],
         variant: "answerFind",
       };
@@ -224,7 +225,7 @@ export const numsProvider: StageProvider = {
     if (qq.dir === "compare") {
       const asQuantity = !/^\d+$/.test(qq.answer);
       return {
-        prompt: asQuantity ? "איזו קבוצה גדולה יותר?" : "איזה מספר גדול יותר?",
+        prompt: t(asQuantity ? "nums.biggerGroup" : "nums.biggerNumber"),
         hint: "👆",
         options: qq.options as string[],
         variant: asQuantity ? "answerGroup" : "answerFind",
@@ -233,7 +234,7 @@ export const numsProvider: StageProvider = {
     const toNumeral = qq.dir !== "toQuantity";
     return {
       prompt: (qq.prompt as string) || String(qq.n),
-      hint: qq.stage === 2 || qq.stage === 5 ? "כמה יש?" : "👆",
+      hint: qq.stage === 2 || qq.stage === 5 ? t("nums.howMany") : "👆",
       options: qq.options as string[],
       variant: toNumeral ? "answerFind" : "answerGroup",
     };
@@ -243,14 +244,12 @@ export const numsProvider: StageProvider = {
     const qq = q as NumsQuestion;
     if (qq.dir === "compare") {
       return {
-        he: /^\d+$/.test(qq.answer)
-          ? "איזה מספר גדול יותר?"
-          : "איזו קבוצה גדולה יותר?",
+        he: t(/^\d+$/.test(qq.answer) ? "nums.biggerNumber" : "nums.biggerGroup"),
       };
     }
-    if (qq.dir === "toQuantity") return { he: `מצאו ${hebNumber(qq.n)}` };
+    if (qq.dir === "toQuantity") return { he: t("nums.find", { n: hebNumber(qq.n) }) };
     // Counting stages must not read the answer out loud.
-    if (qq.stage === 2 || (qq.stage === 5 && qq.prompt)) return { he: "כמה יש?" };
-    return { he: `לחצו על ${hebNumber(qq.n)}` };
+    if (qq.stage === 2 || (qq.stage === 5 && qq.prompt)) return { he: t("nums.howMany") };
+    return { he: t("nums.tap", { n: hebNumber(qq.n) }) };
   },
 };

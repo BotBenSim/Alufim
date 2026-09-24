@@ -1,5 +1,6 @@
 import { HEB_NUM } from "@/data/hebrew";
 import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 /**
  * Numbers ladder — the numeral is on screen from the very first question. Rung 1
@@ -8,11 +9,11 @@ import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
  * then tens-and-ones.
  */
 export const NUMS_STAGES = [
-  { stage: 1, label: "זיהוי ספרה" },
-  { stage: 2, label: "כמות → ספרה" },
-  { stage: 3, label: "ספרה → כמות" },
-  { stage: 4, label: "איזה גדול יותר" },
-  { stage: 5, label: "עשרות ומאות" },
+  { stage: 1, get label() { return t("nums.stages.1"); } },
+  { stage: 2, get label() { return t("nums.stages.2"); } },
+  { stage: 3, get label() { return t("nums.stages.3"); } },
+  { stage: 4, get label() { return t("nums.stages.4"); } },
+  { stage: 5, get label() { return t("nums.stages.5"); } },
 ] as const;
 
 /** A bundle of ten, so 30 is three things rather than thirty things. */

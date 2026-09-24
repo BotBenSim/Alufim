@@ -18,6 +18,7 @@ import {
   type Vec,
 } from "@/lib/minigames/cutRope";
 import type { MinigameViewProps } from "./types";
+import { t } from "@/lib/i18n";
 
 type Rope = { id: string; peg: Vec; cut: boolean };
 type Phase = "swing" | "fall" | "reset";
@@ -280,8 +281,8 @@ export function CutRopeView({ session, formArt, onInput, playSfx }: MinigameView
       score={st.score}
       needed={st.needed}
       flash={flash}
-      flashGoodLabel="טעים!"
-      flashMissLabel="עוד פעם!"
+      flashGoodLabel={t("minigame.yum")}
+      flashMissLabel={t("game.again")}
       stageClassName="border-none"
     >
       <div
@@ -289,7 +290,7 @@ export function CutRopeView({ session, formArt, onInput, playSfx }: MinigameView
         className="absolute inset-0 z-10 touch-none select-none"
         role="button"
         tabIndex={0}
-        aria-label="חתכו את החבל"
+        aria-label={t("minigame.aria.cutRope")}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
