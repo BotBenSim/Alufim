@@ -18,6 +18,7 @@ import {
 import { engAnswerKey, type EngQuestion } from "@/lib/providers/eng";
 import { MUSIC_LEAD_IN_MS, playQuestionTones } from "@/lib/audio/musicTones";
 import { xpBarState } from "@/lib/xp";
+import { t } from "@/lib/i18n";
 import { useStore } from "@/state/store";
 import { useAudio } from "@/hooks/useAudio";
 import { useConfetti } from "@/hooks/useConfetti";
@@ -34,6 +35,7 @@ export function GameScreen() {
   const minigameOverlay = useStore((s) => s.minigameOverlay);
   const collectionOverlay = useStore((s) => s.collectionOverlay);
   const evolveOverlay = useStore((s) => s.evolveOverlay);
+  const openProfileEditor = useStore((s) => s.openProfileEditor);
   const goHome = useStore((s) => s.goHome);
   const submitAnswer = useStore((s) => s.submitAnswer);
   const restartGame = useStore((s) => s.restartGame);
@@ -55,7 +57,7 @@ export function GameScreen() {
   }, [showMission, run?.mission, speak]);
 
   useEffect(() => {
-    if (collectionOverlay) speak("נפתחה חיה חדשה!");
+    if (collectionOverlay) speak(t("game.newAnimal"));
   }, [collectionOverlay, speak]);
 
   useEffect(() => {
@@ -135,7 +137,7 @@ export function GameScreen() {
         speak(st.run.mission.success);
       } else {
         playWrong();
-        speak("כמעט! נסו שוב");
+        speak(t("game.almost"));
       }
       return;
     }
@@ -160,11 +162,11 @@ export function GameScreen() {
         if (picked && engAnswerKey(picked) !== engAnswerKey(eq.word)) {
           speakEngWrong(eq.word, picked, speak, speakEn);
         } else {
-          speak("נסו שוב!");
+          speak(t("game.tryAgain"));
           speakEn(eq.word.en, true);
         }
       } else {
-        speak("כמעט! נסו שוב");
+        speak(t("game.almost"));
       }
     }
   };
@@ -196,16 +198,29 @@ export function GameScreen() {
           <span className="truncate">{profile.name}</span>
         </Badge>
         <Badge variant="step" className="shrink-0 px-2.5 text-[clamp(14px,3.6vw,18px)]">
-          שלב {run.step}
+          {t("game.step", { step: run.step })}
         </Badge>
         <div className="ms-auto flex shrink-0 items-center gap-2">
+          <KidButton
+            variant="top"
+            id="gameSettingsBtn"
+            className="shrink-0"
+            aria-label={t("game.settings")}
+            disabled={!!minigameOverlay || !!evolveOverlay}
+            onClick={() => {
+              cancel();
+              openProfileEditor(profile.id, run.gameId);
+            }}
+          >
+            ⚙️
+          </KidButton>
           <KidButton variant="top" id="homeBtn" className="shrink-0" onClick={handleHome}>
             🏠
           </KidButton>
           <button
             type="button"
             id="restartBtn"
-            aria-label="התחילו מחדש"
+            aria-label={t("game.restart")}
             className="glass inline-flex h-11 w-11 items-center justify-center rounded-full text-[#F0508F] shadow-soft transition-transform active:translate-y-0.5"
             onClick={restartGame}
           >
@@ -300,7 +315,7 @@ export function GameScreen() {
         return (
           <div id="ovCollection" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-[rgba(35,53,84,.35)] backdrop-blur-md">
             <div className="panel flex max-w-[86%] flex-col items-center gap-4 rounded-panel bg-white p-7 text-center shadow-panel">
-              <h2 className="text-[clamp(24px,5vw,38px)] text-heading">🎉 נפתחה חיה חדשה!</h2>
+              <h2 className="text-[clamp(24px,5vw,38px)] text-heading">🎉 {t("game.newAnimal")}</h2>
               {unlocked && <CharacterArt art={unlocked.forms[0]} size={120} />}
               <p className="text-[19px] text-[#456]">{collectionOverlay.message}</p>
             </div>

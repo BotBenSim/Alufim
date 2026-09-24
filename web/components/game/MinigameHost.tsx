@@ -9,6 +9,7 @@ import { useAudio, type MinigameSfx } from "@/hooks/useAudio";
 import { useConfetti } from "@/hooks/useConfetti";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useStore } from "@/state/store";
+import { t } from "@/lib/i18n";
 
 type Props = {
   overlay: MinigameOverlay;
@@ -43,7 +44,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
   const finishFx = () => {
     playSfx("fanfare");
     burst(90);
-    speak(`ה${character.he} שיחק והתחזק!`);
+    speak(t("game.playedStronger", { name: character.he }));
   };
 
   const onInput = (input: MinigameInput) => {
@@ -56,7 +57,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
       if (now - lastMissSpeak.current > 1200) {
         lastMissSpeak.current = now;
         // Let the miss beep finish before speech steals the audio focus
-        window.setTimeout(() => speak("עוד פעם!"), 180);
+        window.setTimeout(() => speak(t("game.again")), 180);
       }
     } else {
       playSfx(strategy.goodSfx);
@@ -98,7 +99,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
               <CharacterArt art={formArt} size={120} />
             </div>
             <div className="text-center text-[clamp(20px,4.5vw,34px)] font-extrabold text-heading [text-shadow:0_1px_0_#fff]">
-              ה{character.he} שיחק והתחזק!
+              {t("game.playedStronger", { name: character.he })}
             </div>
           </div>
         )}

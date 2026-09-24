@@ -29,6 +29,8 @@ import {
   MAX_BAND_COUNT,
   MAX_STAGE,
   normalizeMathVisual,
+  levelLabel,
+  mathVisualLabel,
 } from "@/lib/difficulty";
 import { isImgAvatar } from "@/lib/migrate";
 import { currentFormArt } from "@/lib/missions";
@@ -43,6 +45,7 @@ import type {
 } from "@/lib/types";
 import type { MinigameEngineId } from "@/lib/minigames/types";
 import { useStore } from "@/state/store";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const AVATAR_EMOJIS = ["🦄", "🦖", "🚀", "🐬", "🦁", "🐶", "🐱", "🐉", "🐧", "🐼", "🦊", "🐢"];
@@ -67,10 +70,14 @@ function bandStepRange(
   return { start: before + 1, end: before + own, skipped: own === 0 };
 }
 
-const GENDER_OPTIONS: { value: PlayerGender; label: string }[] = [
-  { value: "boy", label: "ילד" },
-  { value: "girl", label: "ילדה" },
-];
+const GENDER_OPTIONS: { value: PlayerGender; readonly label: string }[] = (
+  ["boy", "girl"] as const
+).map((value) => ({
+  value,
+  get label() {
+    return t(`settings.profile.${value}`);
+  },
+}));
 
 const PHOTO_GENDER: Record<string, PlayerGender> = {
   ellie: "girl",
@@ -81,34 +88,34 @@ const PHOTO_GENDER: Record<string, PlayerGender> = {
 
 type SettingsSection = "profile" | "games" | "minigames" | "advanced";
 
-const SECTIONS: { id: SettingsSection; label: string; existingOnly?: boolean }[] = [
-  { id: "profile", label: "פרופיל" },
-  { id: "games", label: "משחקי למידה" },
-  { id: "minigames", label: "משחקונים" },
-  { id: "advanced", label: "מתקדם", existingOnly: true },
+const SECTIONS: { id: SettingsSection; existingOnly?: boolean }[] = [
+  { id: "profile" },
+  { id: "games" },
+  { id: "minigames" },
+  { id: "advanced", existingOnly: true },
 ];
 
 /** What each math visual looks like, per game, for the settings legend. */
-const VISUAL_EXAMPLES: Record<string, { name: string; example: string }[]> = {
+const VISUAL_EXAMPLES: Record<string, { visual: MathVisual; example: string }[]> = {
   add: [
-    { name: "ספירה", example: "🍎🍎 + 🍎🍎🍎" },
-    { name: "מעורב", example: "2 + 🍎🍎🍎" },
-    { name: "ספרות", example: "2 + 3" },
+    { visual: "fullCount", example: "🍎🍎 + 🍎🍎🍎" },
+    { visual: "countOn", example: "2 + 🍎🍎🍎" },
+    { visual: "numbers", example: "2 + 3" },
   ],
   sub: [
-    { name: "ספירה", example: "🍎🍎🍎🍎 − 🍎🍎" },
-    { name: "מעורב", example: "5 − 🍎🍎" },
-    { name: "ספרות", example: "5 − 2" },
+    { visual: "fullCount", example: "🍎🍎🍎🍎 − 🍎🍎" },
+    { visual: "countOn", example: "5 − 🍎🍎" },
+    { visual: "numbers", example: "5 − 2" },
   ],
   mul: [
-    { name: "ספירה", example: "[🍎🍎] [🍎🍎] [🍎🍎]" },
-    { name: "מעורב", example: "3 × [🍎🍎]" },
-    { name: "ספרות", example: "3 × 2" },
+    { visual: "fullCount", example: "[🍎🍎] [🍎🍎] [🍎🍎]" },
+    { visual: "countOn", example: "3 × [🍎🍎]" },
+    { visual: "numbers", example: "3 × 2" },
   ],
   div: [
-    { name: "ספירה", example: "[🍎🍎] [🍎🍎] [🍎🍎]" },
-    { name: "מעורב", example: "🍎🍎🍎🍎🍎🍎 ÷ 3" },
-    { name: "ספרות", example: "6 ÷ 3" },
+    { visual: "fullCount", example: "[🍎🍎] [🍎🍎] [🍎🍎]" },
+    { visual: "countOn", example: "🍎🍎🍎🍎🍎🍎 ÷ 3" },
+    { visual: "numbers", example: "6 ÷ 3" },
   ],
 };
 
@@ -132,12 +139,13 @@ export function ProfileEditor() {
   const deleteProfileEditor = useStore((s) => s.deleteProfileEditor);
   const previewMinigame = useStore((s) => s.previewMinigame);
   const closeMinigamePreview = useStore((s) => s.closeMinigamePreview);
-  const setScreen = useStore((s) => s.setScreen);
+  const closeProfileEditor = useStore((s) => s.closeProfileEditor);
+  const focusGame = useStore((s) => s.editorFocusGame);
 
   const existing = app.profiles.find((p) => p.id === editingProfileId);
   const [name, setName] = useState(existing?.name ?? "");
-  const [section, setSection] = useState<SettingsSection>("profile");
-  const [expandedGame, setExpandedGame] = useState<GameId | null>(null);
+  const [section, setSection] = useState<SettingsSection>(focusGame ? "games" : "profile");
+  const [expandedGame, setExpandedGame] = useState<GameId | null>(focusGame);
   const [sectionKey, setSectionKey] = useState(0);
 
   const previewCharId = minigameOverlay?.previewCharacterId;
@@ -157,7 +165,7 @@ export function ProfileEditor() {
 
   if (!editorDraft) return null;
 
-  const displayName = name.trim() || existing?.name || "פרופיל חדש";
+  const displayName = name.trim() || existing?.name || t("home.newProfile");
   const avatar = editorDraft.avatar;
 
   const goSection = (id: SettingsSection) => {
@@ -327,11 +335,12 @@ export function ProfileEditor() {
             </div>
             <div className="settingsAvatarName">{displayName}</div>
             <div className="settingsAvatarHint">
-              {existing ? "הגדרות השחקן" : "פרופיל חדש"}
+              {existing ? t("settings.playerSettings") : t("home.newProfile")}
             </div>
           </div>
 
-          <nav className="settingsNav" aria-label="סעיפי הגדרות">
+          {!focusGame && (
+          <nav className="settingsNav" aria-label={t("settings.sections.label")}>
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -339,41 +348,42 @@ export function ProfileEditor() {
                 className={cn("settingsNavItem", section === item.id && "is-active")}
                 onClick={() => goSection(item.id)}
               >
-                {item.label}
+                {t(`settings.sections.${item.id}`)}
               </button>
             ))}
           </nav>
+          )}
         </aside>
 
         <div className="settingsMain">
           <div key={sectionKey} className="settingsPane">
             {section === "profile" && (
               <>
-                <h2 className="settingsPaneTitle">פרופיל</h2>
+                <h2 className="settingsPaneTitle">{t("settings.sections.profile")}</h2>
                 <label className="flabel profileNameLabel" htmlFor="profileName">
-                  שם
+                  {t("settings.profile.name")}
                 </label>
                 <input
                   id="profileName"
                   className="finput profileNameInput"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="ילד/ה"
+                  placeholder={t("profile.defaultName")}
                 />
 
-                <div className="flabel">ילד או ילדה</div>
+                <div className="flabel">{t("settings.profile.genderLabel")}</div>
                 <PillControl
                   className="mb-1"
                   options={GENDER_OPTIONS}
                   value={editorDraft.gender}
                   onChange={setGender}
-                  aria-label="מין השחקן"
+                  aria-label={t("settings.profile.genderAria")}
                 />
                 <p className="settingsPaneBlurb mt-1">
-                  כפתורי התשובות והשמע־שוב יהיו כחולים לילד וורודים לילדה.
+                  {t("settings.profile.genderHint")}
                 </p>
 
-                <div className="flabel">תמונה</div>
+                <div className="flabel">{t("settings.profile.picture")}</div>
                 <div id="avatarGrid" className="avatarGrid">
                   {AVATAR_EMOJIS.map((e) => (
                     <button
@@ -417,13 +427,16 @@ export function ProfileEditor() {
 
             {section === "games" && (
               <>
-                <h2 className="settingsPaneTitle">משחקי למידה</h2>
+                <h2 className="settingsPaneTitle">
+                  {focusGame ? t("settings.games.gameTitle", { game: GAMES[focusGame].title }) : t("settings.sections.games")}
+                </h2>
                 <p className="settingsPaneBlurb">
-                  בחרו אילו משחקים יהיו זמינים לילד, הגדירו רמת קושי לכל משחק,
-                  ודרך ״התאמה״ כוונו במדויק את הקטעים, הטווחים והתצוגה.
+                  {focusGame
+                    ? t("settings.games.focusBlurb")
+                    : t("settings.games.blurb")}
                 </p>
                 <div id="gameRows" className="gameSettingsList">
-                  {GAME_ORDER.map((gid) => {
+                  {(focusGame ? [focusGame] : GAME_ORDER).map((gid) => {
                     const cfg = editorDraft.games[gid];
                     const g = GAMES[gid];
                     const open = expandedGame === gid && cfg.enabled;
@@ -472,7 +485,7 @@ export function ProfileEditor() {
                                 setExpandedGame((cur) => (cur === gid ? null : gid))
                               }
                             >
-                              {open ? "סגור" : "התאמה"}
+                              {open ? t("settings.games.close") : t("settings.games.customize")}
                               <span aria-hidden>{open ? "▴" : "▾"}</span>
                             </button>
                           </div>
@@ -482,17 +495,17 @@ export function ProfileEditor() {
                           <div className="gameCurriculumPanel">
                             <p className="curriculumIntro">
                               {isMathGame(gid)
-                                ? "המשחק מחולק לקטעים. בכל קטע אפשר לקבוע את רמת הקושי (טווח המספרים) ואת התצוגה. אחרי מספר שלבים קבוע עוברים לקטע הבא — כך אפשר להתחיל פשוט ולהעלות בהדרגה."
-                                : "המשחק מחולק לקטעים. בכל קטע אפשר לקבוע את רמת הקושי. אחרי מספר שלבים קבוע עוברים לקטע הבא — כך אפשר להתחיל פשוט ולהעלות בהדרגה."}
+                                ? t("settings.games.bandsIntroMath")
+                                : t("settings.games.bandsIntro")}
                             </p>
 
                             {isMathGame(gid) && (
                               <div className="visualLegend">
-                                <div className="visualLegendTitle">תצוגה</div>
+                                <div className="visualLegendTitle">{t("settings.games.visualLegend")}</div>
                                 <div className="visualLegendRows">
                                   {VISUAL_EXAMPLES[gid].map((ex) => (
-                                    <div key={ex.name} className="visualLegendRow">
-                                      <span className="visualLegendName">{ex.name}</span>
+                                    <div key={ex.visual} className="visualLegendRow">
+                                      <span className="visualLegendName">{mathVisualLabel(ex.visual)}</span>
                                       <span className="visualLegendEx" dir="ltr">
                                         {ex.example}
                                       </span>
@@ -504,11 +517,11 @@ export function ProfileEditor() {
 
                             {gid === "nums" && (
                               <div className="visualLegend">
-                                <div className="visualLegendTitle">שלבים</div>
+                                <div className="visualLegendTitle">{t("settings.games.stagesLegend")}</div>
                                 <div className="visualLegendRows">
                                   {NUMS_STAGES.map((s) => (
                                     <div key={s.stage} className="visualLegendRow">
-                                      <span className="visualLegendName">שלב {s.stage}</span>
+                                      <span className="visualLegendName">{t("settings.games.stageN", { stage: s.stage })}</span>
                                       <span className="visualLegendEx">{s.label}</span>
                                     </div>
                                   ))}
@@ -517,15 +530,15 @@ export function ProfileEditor() {
                             )}
 
                             <div className="flabel">
-                              קטעים — רמה {levelLabelHe(level)}
+                              {t("settings.games.bandsForLevel", { level: levelLabel(level) })}
                             </div>
                             <div className="minigameSettingsRow">
                               <div className="minigameSettingsHit">
                                 <span className="minigameSettingsTitle">
-                                  מספר שאלות שונה לכל קטע
+                                  {t("settings.games.perBandCounts")}
                                 </span>
                                 <span className="minigameSettingsDesc">
-                                  במקום אותו מספר שלבים בכל קטע
+                                  {t("settings.games.perBandCountsHint")}
                                 </span>
                               </div>
                               <div className="settingsRowControls">
@@ -544,12 +557,12 @@ export function ProfileEditor() {
                             </div>
                             {curriculum.counts ? (
                               <p className="curriculumIntro">
-                                קבעו כמה שאלות יש בכל קטע. קטע עם 0 מדלגים עליו.
+                                {t("settings.games.countsHelp")}
                               </p>
                             ) : (
                               <SettingsNumberField
                                 id={`stepsPerBlock-${gid}`}
-                                label="שלבים בכל קטע"
+                                label={t("settings.games.stepsPerBand")}
                                 min={1}
                                 max={20}
                                 value={curriculum.stepsPerBlock}
@@ -571,10 +584,10 @@ export function ProfileEditor() {
                                   <div key={idx} className="bandCard">
                                     <div className="bandCardHead">
                                       <span>
-                                        קטע {idx + 1} ·{" "}
+                                        {t("settings.games.bandN", { n: idx + 1 })} ·{" "}
                                         {range.skipped
-                                          ? "מדלגים"
-                                          : `שלבים ${range.start}–${range.end}`}
+                                          ? t("settings.games.skipped")
+                                          : t("settings.games.stepsRange", { start: range.start, end: range.end })}
                                       </span>
                                       {bands.length > 1 && (
                                         <button
@@ -582,14 +595,14 @@ export function ProfileEditor() {
                                           className="bandRemove"
                                           onClick={() => removeBand(gid, level, idx)}
                                         >
-                                          הסר
+                                          {t("settings.games.remove")}
                                         </button>
                                       )}
                                     </div>
                                     <div className="bandFields">
                                       {curriculum.counts && (
                                         <SettingsNumberField
-                                          label="מספר שאלות"
+                                          label={t("settings.games.questionCount")}
                                           min={0}
                                           max={MAX_BAND_COUNT}
                                           value={curriculum.counts[idx] ?? 0}
@@ -602,7 +615,7 @@ export function ProfileEditor() {
                                         return (
                                           <>
                                             <SettingsNumberField
-                                              label="סכום מינ׳"
+                                              label={t("settings.games.minSum")}
                                               value={minSum}
                                               min={2}
                                               max={maxSum - 1}
@@ -611,7 +624,7 @@ export function ProfileEditor() {
                                               }
                                             />
                                             <SettingsNumberField
-                                              label="סכום מקס׳"
+                                              label={t("settings.games.maxSum")}
                                               value={maxSum}
                                               min={minSum + 1}
                                               max={200}
@@ -628,7 +641,7 @@ export function ProfileEditor() {
                                         return (
                                           <>
                                             <SettingsNumberField
-                                              label="כופל מינ׳"
+                                              label={t("settings.games.minFactor")}
                                               value={minFactor}
                                               min={1}
                                               max={maxFactor - 1}
@@ -637,7 +650,7 @@ export function ProfileEditor() {
                                               }
                                             />
                                             <SettingsNumberField
-                                              label="כופל מקס׳"
+                                              label={t("settings.games.maxFactor")}
                                               value={maxFactor}
                                               min={minFactor + 1}
                                               max={20}
@@ -651,7 +664,7 @@ export function ProfileEditor() {
                                       {gid === "div" && (
                                         <>
                                           <SettingsNumberField
-                                            label="חברים מקס׳"
+                                            label={t("settings.games.maxDivisor")}
                                             value={Number(band.maxDivisor) || 3}
                                             min={2}
                                             max={20}
@@ -660,7 +673,7 @@ export function ProfileEditor() {
                                             }
                                           />
                                           <SettingsNumberField
-                                            label="לכל אחד עד"
+                                            label={t("settings.games.maxQuotient")}
                                             value={Number(band.maxQuotient) || 5}
                                             min={1}
                                             max={20}
@@ -676,7 +689,7 @@ export function ProfileEditor() {
                                         return (
                                           <>
                                             <SettingsNumberField
-                                              label="מינ׳"
+                                              label={t("settings.games.min")}
                                               value={minTop}
                                               min={2}
                                               max={maxMin - 1}
@@ -685,7 +698,7 @@ export function ProfileEditor() {
                                               }
                                             />
                                             <SettingsNumberField
-                                              label="מקס׳"
+                                              label={t("settings.games.max")}
                                               value={maxMin}
                                               min={minTop + 1}
                                               max={200}
@@ -699,7 +712,7 @@ export function ProfileEditor() {
                                       {hasStageBands(gid) && (
                                         <>
                                           <SettingsNumberField
-                                            label="שלב"
+                                            label={t("settings.games.stage")}
                                             value={Number(band.stage) || 1}
                                             min={1}
                                             max={MAX_STAGE}
@@ -709,7 +722,7 @@ export function ProfileEditor() {
                                           />
                                           {gid === "nums" && (
                                             <SettingsNumberField
-                                              label="מספר עד"
+                                              label={t("settings.games.maxNum")}
                                               value={Number(band.maxNum) || 10}
                                               min={2}
                                               max={100}
@@ -722,7 +735,7 @@ export function ProfileEditor() {
                                       )}
                                       {gid === "eng" && (
                                         <SettingsNumberField
-                                          label="אורך מקס׳"
+                                          label={t("settings.games.maxLen")}
                                           value={Number(band.maxLen) || 0}
                                           min={1}
                                           max={64}
@@ -740,7 +753,7 @@ export function ProfileEditor() {
                                         onChange={(visual) =>
                                           updateBandField(gid, level, idx, "visual", visual)
                                         }
-                                        aria-label={`תצוגה לקטע ${idx + 1}`}
+                                        aria-label={t("settings.games.visualForBand", { n: idx + 1 })}
                                       />
                                     )}
                                   </div>
@@ -750,10 +763,10 @@ export function ProfileEditor() {
 
                             <div className="btnRow bandActions">
                               <SettingsButton onClick={() => addBand(gid, level)}>
-                                + הוסף קטע
+                                {t("settings.games.addBand")}
                               </SettingsButton>
                               <SettingsButton onClick={() => resetCurriculum(gid)}>
-                                איפוס לברירת מחדל
+                                {t("settings.games.reset")}
                               </SettingsButton>
                             </div>
                           </div>
@@ -767,16 +780,14 @@ export function ProfileEditor() {
 
             {section === "minigames" && (
               <>
-                <h2 className="settingsPaneTitle">משחקונים</h2>
+                <h2 className="settingsPaneTitle">{t("settings.sections.minigames")}</h2>
                 <p className="settingsPaneBlurb">
-                  בין שלבי הלמידה מופיעה הפסקה קצרה עם משחקון — זה עוזר לשמור על
-                  ריכוז, נותן ניצחונות קלים ומשהו לחכות לו. כאן קובעים כמה תכופות
-                  היא מגיעה, ואילו משחקונים ייכנסו להגרלה (לפחות אחד פעיל).
+                  {t("settings.minigames.blurb")}
                 </p>
 
                 <SettingsNumberField
                   id="playEverySteps"
-                  label="הפסקה כל כמה שלבי למידה"
+                  label={t("settings.minigames.everySteps")}
                   min={2}
                   max={20}
                   value={editorDraft.playEverySteps}
@@ -787,7 +798,7 @@ export function ProfileEditor() {
                   }
                 />
 
-                <div className="flabel mt-3">משחקונים פעילים</div>
+                <div className="flabel mt-3">{t("settings.minigames.active")}</div>
                 <div id="minigameRows" className="minigameSettingsList">
                   {MINIGAME_META.map((m) => {
                     const on = !!editorDraft.minigames[m.id]?.enabled;
@@ -801,7 +812,7 @@ export function ProfileEditor() {
                         </div>
                         <div className="settingsRowControls">
                           <SettingsButton onClick={() => previewMinigame(m.id)}>
-                            נסו
+                            {t("settings.minigames.try")}
                           </SettingsButton>
                           <Toggle
                             className="settingsToggle"
@@ -818,10 +829,9 @@ export function ProfileEditor() {
 
             {section === "advanced" && existing && (
               <>
-                <h2 className="settingsPaneTitle">מתקדם</h2>
+                <h2 className="settingsPaneTitle">{t("settings.sections.advanced")}</h2>
                 <p className="settingsPaneBlurb">
-                  כאן אפשר לשנות ידנית כמה XP יש לכל חיה — וכך גם באיזו צורה היא
-                  נמצאת.
+                  {t("settings.advanced.blurb")}
                 </p>
                 <div id="advChars" className="advCharList">
                   {CHARACTERS.filter((c) => existing.characters[c.id]).map((c) => {
@@ -840,8 +850,8 @@ export function ProfileEditor() {
                     const nextAt = thresholds[formIdx + 1];
                     const formLabel =
                       nextAt == null
-                        ? `צורה ${formNum} מתוך ${c.forms.length} · בוגר`
-                        : `צורה ${formNum} מתוך ${c.forms.length} · הבאה ב־${nextAt} XP`;
+                        ? t("settings.advanced.formGrown", { n: formNum, total: c.forms.length })
+                        : t("settings.advanced.formNext", { n: formNum, total: c.forms.length, at: nextAt });
                     return (
                       <div key={c.id} className="advCharRow">
                         <div className="advCharHit">
@@ -876,21 +886,21 @@ export function ProfileEditor() {
               variant="primary"
               onClick={() => saveProfileEditor(name)}
             >
-              שמירה
+              {t("settings.save")}
             </SettingsButton>
             <SettingsButton
               id="profileCancel"
-              onClick={() => setScreen("profiles")}
+              onClick={closeProfileEditor}
             >
-              ביטול
+              {t("settings.cancel")}
             </SettingsButton>
-            {existing && (
+            {existing && !focusGame && (
               <SettingsButton
                 id="profileDelete"
                 variant="danger"
                 onClick={deleteProfileEditor}
               >
-                מחיקה
+                {t("settings.delete")}
               </SettingsButton>
             )}
           </div>
@@ -915,7 +925,7 @@ export function ProfileEditor() {
               className="fixed left-3 top-3 z-[20] rounded-[18px] border-none bg-white/95 px-3.5 py-2 text-[17px] font-extrabold text-heading shadow-[0_4px_12px_rgba(0,0,0,.2)]"
               onClick={closeMinigamePreview}
             >
-              ✕ סגרו
+              {t("settings.minigames.closePreview")}
             </button>
           </div>,
           document.body
@@ -924,6 +934,3 @@ export function ProfileEditor() {
   );
 }
 
-function levelLabelHe(level: DifficultyLevel): string {
-  return level === "hard" ? "קשה" : level === "medium" ? "בינוני" : "קל";
-}

@@ -13,6 +13,7 @@ import {
 } from "@/lib/minigames/jumpConfig";
 import type { PathDashState } from "@/lib/minigames/pathDash";
 import type { MinigameViewProps } from "./types";
+import { t } from "@/lib/i18n";
 
 type Roof = { id: number; x: number; w: number };
 
@@ -268,13 +269,13 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
       score={st.score}
       needed={st.needed}
       flash={flash}
-      flashGoodLabel="גג!"
-      flashMissLabel="אופס…"
+      flashGoodLabel={t("minigame.roof")}
+      flashMissLabel={t("minigame.oops")}
       stageClassName="cursor-pointer border-none"
       stageProps={{
         role: "button",
         tabIndex: 0,
-        "aria-label": "קפיצה בין גגות",
+        "aria-label": t("minigame.aria.pathDash"),
         onPointerDown: (e) => {
           e.preventDefault();
           startJump();

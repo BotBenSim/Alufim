@@ -4,6 +4,7 @@ import { Card, CardBig } from "@/design-system";
 import { isImgAvatar } from "@/lib/migrate";
 import type { Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 type ProfileCardProps = {
   profile: Profile;
@@ -31,8 +32,8 @@ export function ProfileCard({ profile, selected, onSelect, onEdit }: ProfileCard
       <button
         type="button"
         className="profileEditBtn absolute left-2 top-2 z-[3] flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-[#5a7a94] shadow-[0_1px_3px_rgba(29,78,122,.12)] backdrop-blur-sm transition-colors hover:bg-white hover:text-[#1d4e7a] active:scale-95"
-        title="הגדרות שחקן"
-        aria-label={`הגדרות של ${profile.name}`}
+        title={t("home.profileSettings")}
+        aria-label={t("home.profileSettingsOf", { name: profile.name })}
         onClick={(e) => {
           e.stopPropagation();
           onEdit();
@@ -66,7 +67,7 @@ export function AddProfileCard({ onClick }: { onClick: () => void }) {
             +
           </span>
         </CardBig>
-        <span className="shrink-0">פרופיל חדש</span>
+        <span className="shrink-0">{t("home.newProfile")}</span>
       </Card>
     </div>
   );

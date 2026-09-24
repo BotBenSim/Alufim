@@ -4,9 +4,10 @@ import { rnd, shuffle } from "@/lib/random";
 import type { ArtDescriptor, CharacterDef } from "@/lib/types";
 import { normArt } from "@/data/characters";
 import { formForXp } from "@/lib/xp";
+import { t, tGroup } from "@/lib/i18n";
 
-export const MISSION_PHRASES = ["מצאו את ה", "איפה ה", "לחצו על ה", "תמצאו את ה"];
-export const MISSION_SUCCESS = ["יש! מצאת!", "כל הכבוד!", "יופי, נכון!", "מצוין!", "וואו!", "בדיוק!"];
+/** Ways of asking for a mission item, each a `{{item}}` template in the locale file. */
+export const MISSION_ASKS = ["find", "where", "tap", "findYou"] as const;
 
 let _missionPool: { he: string; emoji: string }[] | null = null;
 
@@ -38,6 +39,8 @@ export type Mission = {
   success: string;
 };
 
+const pickOne = <T,>(xs: T[]): T => xs[rnd(xs.length)];
+
 export function nextMission(
   character: CharacterDef,
   currentFormArt: ArtDescriptor
@@ -48,21 +51,21 @@ export function nextMission(
     return {
       target: character.food,
       options: shuffle([character.food, others[0].emoji, others[1].emoji]),
-      prompt: `האכילו את ה${character.he}!`,
-      say: `האכילו את ה${character.he}!`,
-      success: `יש! ה${character.he} אכל!`,
+      prompt: t("mission.feed", { name: character.he }),
+      say: t("mission.feed", { name: character.he }),
+      success: t("mission.fed", { name: character.he }),
     };
   }
   const item = pool[rnd(pool.length)];
   const rest = shuffle(pool.filter((it) => it.emoji !== item.emoji));
-  const ph = MISSION_PHRASES[rnd(MISSION_PHRASES.length)];
-  const prompt = ph.indexOf("איפה") === 0 ? `${ph}${item.he}?` : `${ph}${item.he}!`;
+  const ask = MISSION_ASKS[rnd(MISSION_ASKS.length)];
+  const prompt = t(`mission.ask.${ask}`, { item: item.he });
   return {
     target: item.emoji,
     options: shuffle([item.emoji, rest[0].emoji, rest[1].emoji]),
     prompt,
     say: prompt,
-    success: MISSION_SUCCESS[rnd(MISSION_SUCCESS.length)],
+    success: pickOne(tGroup("mission.success")),
   };
 }
 

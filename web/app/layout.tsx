@@ -4,6 +4,7 @@ import { SerwistRegistration } from "@/components/SerwistRegistration";
 import { StoreHydration } from "@/components/StoreHydration";
 import { BackgroundScene } from "@/components/scene/BackgroundScene";
 import "./globals.css";
+import { getLocale, LOCALE_META, t } from "@/lib/i18n";
 
 const fredoka = Fredoka({
   subsets: ["hebrew", "latin"],
@@ -14,7 +15,7 @@ const fredoka = Fredoka({
 
 export const metadata: Metadata = {
   title: "Alufim",
-  description: "משחק חינוכי לילדים — חיות, XP והתפתחות",
+  description: t("app.description"),
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -30,7 +31,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="he" dir="rtl" className={fredoka.variable}>
+    <html
+      lang={LOCALE_META[getLocale()].lang}
+      dir={LOCALE_META[getLocale()].dir}
+      className={fredoka.variable}
+    >
       <body>
         <BackgroundScene />
         <SerwistRegistration />

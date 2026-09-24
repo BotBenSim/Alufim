@@ -11,6 +11,7 @@ import {
 } from "@/lib/minigames/jumpConfig";
 import type { TimingBounceState } from "@/lib/minigames/timingBounce";
 import type { MinigameViewProps } from "./types";
+import { t } from "@/lib/i18n";
 
 export function TimingBounceView({ session, formArt, onInput, playSfx }: MinigameViewProps) {
   const st = session.state as TimingBounceState;
@@ -196,13 +197,13 @@ export function TimingBounceView({ session, formArt, onInput, playSfx }: Minigam
       score={st.score}
       needed={st.needed}
       flash={flash}
-      flashGoodLabel="יופי!"
-      flashMissLabel="אוי!"
+      flashGoodLabel={t("minigame.good")}
+      flashMissLabel={t("minigame.ouch")}
       stageClassName="cursor-pointer border-none"
       stageProps={{
         role: "button",
         tabIndex: 0,
-        "aria-label": "קפיצה",
+        "aria-label": t("minigame.aria.bounce"),
         onPointerDown: (e) => {
           e.preventDefault();
           startJump();

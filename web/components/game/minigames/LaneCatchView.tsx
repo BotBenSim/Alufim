@@ -25,6 +25,7 @@ import {
   type LaneCatchState,
 } from "@/lib/minigames/laneCatch";
 import type { MinigameViewProps } from "./types";
+import { t } from "@/lib/i18n";
 
 type Drop = {
   id: number;
@@ -46,8 +47,8 @@ const FLOOR_Y = 1.08;
 /** Breath between one item resolving and the next lane lighting up. */
 const GAP_SECONDS = 0.3;
 
-const MISS_LABEL_GONE = "אופס…";
-const MISS_LABEL_INEDIBLE = "לא אוכל…";
+const missLabelGone = () => t("minigame.oops");
+const missLabelInedible = () => t("minigame.notFood");
 
 export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) {
   const st = session.state as LaneCatchState;
@@ -56,7 +57,7 @@ export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) 
   const [animalX, setAnimalX] = useState(() => laneCenter(1, lanes));
   const [drop, setDrop] = useState<Drop | null>(null);
   const [flash, setFlash] = useState<"good" | "miss" | null>(null);
-  const [missLabel, setMissLabel] = useState(MISS_LABEL_GONE);
+  const [missLabel, setMissLabel] = useState(missLabelGone());
   const [wobble, setWobble] = useState(false);
 
   const animalXRef = useRef(animalX);
@@ -126,7 +127,7 @@ export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) 
           setFlash("good");
           window.setTimeout(() => setFlash(null), 420);
         } else {
-          showMiss(MISS_LABEL_GONE);
+          showMiss(missLabelGone());
         }
         onInputRef.current({
           type: "action",
@@ -141,7 +142,7 @@ export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) 
       if (caught) {
         setWobble(true);
         window.setTimeout(() => setWobble(false), 480);
-        showMiss(MISS_LABEL_INEDIBLE);
+        showMiss(missLabelInedible());
         onInputRef.current({
           type: "action",
           action: "catch",
@@ -231,13 +232,13 @@ export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) 
       score={st.score}
       needed={st.needed}
       flash={flash}
-      flashGoodLabel="טעים!"
+      flashGoodLabel={t("minigame.yum")}
       flashMissLabel={missLabel}
       stageClassName="touch-none cursor-pointer border-none"
       stageProps={{
         role: "button",
         tabIndex: 0,
-        "aria-label": "תפסו את האוכל — הזיזו את החבר בין המסלולים",
+        "aria-label": t("minigame.aria.laneCatch"),
         onPointerDown: (e) => {
           e.preventDefault();
           (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);

@@ -28,11 +28,11 @@ const kidButtonVariants = cva(
           "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-gradient-to-br from-[#4DA3FF] to-[#2F7BD0] shadow-[0_5px_0_#1F5A9E] active:shadow-[0_2px_0_#1F5A9E]",
         top: "glass inline-flex h-11 w-11 items-center justify-center rounded-full text-[18px] text-heading shadow-soft",
         answer:
-          "rounded-[30%] w-[clamp(78px,17vw,120px)] h-[clamp(78px,17vw,120px)] text-[clamp(34px,7.5vw,54px)]",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-[clamp(24px,5vw,36px)] min-w-[clamp(78px,17vw,120px)] h-[clamp(78px,17vw,120px)] px-[0.3em] text-[clamp(34px,7.5vw,54px)]",
         answerEng:
-          "rounded-[30%] w-[clamp(86px,19vw,140px)] h-[clamp(86px,19vw,140px)] text-[clamp(46px,10vw,76px)]",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-[clamp(26px,5.5vw,40px)] min-w-[clamp(86px,19vw,140px)] h-[clamp(86px,19vw,140px)] px-[0.3em] text-[clamp(46px,10vw,76px)]",
         answerFind:
-          "rounded-[30%] w-[clamp(78px,17vw,120px)] h-[clamp(78px,17vw,120px)] text-[clamp(40px,9vw,68px)]",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-[clamp(24px,5vw,36px)] min-w-[clamp(78px,17vw,120px)] h-[clamp(78px,17vw,120px)] px-[0.3em] text-[clamp(40px,9vw,68px)]",
         answerGroup:
           "rounded-3xl min-w-[clamp(78px,17vw,120px)] min-h-[clamp(74px,16vw,110px)] max-w-[clamp(120px,30vw,210px)] px-3.5 py-3 text-[clamp(20px,4.6vw,32px)] leading-tight flex flex-wrap items-center justify-center gap-0.5 h-auto w-auto",
         speak:

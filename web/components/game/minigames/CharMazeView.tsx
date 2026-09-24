@@ -13,6 +13,7 @@ import {
   type CharMazeState,
 } from "@/lib/minigames/charMaze";
 import type { MinigameViewProps } from "./types";
+import { t } from "@/lib/i18n";
 
 const ART = 40;
 
@@ -168,14 +169,14 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
       score={st.score}
       needed={st.needed}
       flash={flash}
-      flashGoodLabel="יצאת!"
-      flashMissLabel="קיר!"
+      flashGoodLabel={t("minigame.out")}
+      flashMissLabel={t("minigame.wall")}
       stageClassName="border-none"
     >
       <div
         className="absolute inset-0 z-10 touch-none select-none"
         role="application"
-        aria-label="מבוך — לחצו על משבצת ליד החבר"
+        aria-label={t("minigame.aria.maze")}
         onPointerDown={onPointerDown}
         onPointerUp={finishPointer}
         onPointerCancel={() => {
@@ -212,7 +213,7 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
                 <button
                   key={`${r}-${c}`}
                   type="button"
-                  aria-label={isExit ? "יציאה" : adjacent ? "ללכת לכאן" : "משבצת"}
+                  aria-label={t(isExit ? "minigame.aria.mazeExit" : adjacent ? "minigame.aria.mazeStep" : "minigame.aria.mazeCell")}
                   className={
                     isExit
                       ? "relative flex items-center justify-center rounded-md bg-[#FFE066]/95 ring-2 ring-[#FAB005]"

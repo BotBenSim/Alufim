@@ -1,6 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 const toggleVariants = cva(
   "rounded-xl px-3.5 py-2 text-[15px] font-bold transition-colors",
@@ -26,8 +27,8 @@ export type ToggleProps = ButtonHTMLAttributes<HTMLButtonElement> &
 export function Toggle({
   className,
   on,
-  onLabel = "פעיל",
-  offLabel = "כבוי",
+  onLabel = t("toggle.on"),
+  offLabel = t("toggle.off"),
   ...props
 }: ToggleProps) {
   return (

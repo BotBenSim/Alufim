@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
 
 /**
@@ -16,11 +17,11 @@ import type { DifficultyBand, DifficultyLevel } from "@/lib/types";
  * child meets one picture per word across the whole app.
  */
 export const ENGREAD_STAGES = [
-  { stage: 1, label: "sound → letter" },
-  { stage: 2, label: "letter → sound" },
-  { stage: 3, label: "blend a word" },
-  { stage: 4, label: "read a word" },
-  { stage: 5, label: "picture → word" },
+  { stage: 1, get label() { return t("engread.stages.1"); } },
+  { stage: 2, get label() { return t("engread.stages.2"); } },
+  { stage: 3, get label() { return t("engread.stages.3"); } },
+  { stage: 4, get label() { return t("engread.stages.4"); } },
+  { stage: 5, get label() { return t("engread.stages.5"); } },
 ] as const;
 
 /** Standard first phase of a synthetic-phonics progression. */
@@ -260,25 +261,22 @@ export const ENGREAD_CVC: readonly EngCvc[] = [
  * | 4 | the word, nothing else, three pictures | short Hebrew cue; the word is never spoken first |
  * | 5 | one picture + short Hebrew cue, three spellings | short Hebrew cue only; no word is ever said |
  */
-export const ENGREAD_COPY: Record<
-  number,
-  { prompt?: string; hint?: string; he?: string }
-> = {
-  1: {
-    prompt: "איזו אות עושה את הצליל הזה?",
-    he: "איזו אות עושה את הצליל הזה?",
-  },
-  2: {
-    hint: "איזו תמונה מתחילה באות הזאת?",
-    he: "איזו תמונה מתחילה באות הזאת?",
-  },
-  3: { hint: "👆", he: "חברו את הצלילים למילה" },
-  4: { he: "קראו את המילה ובחרו תמונה" },
-  5: {
-    hint: "איזו מילה מתאימה לתמונה?",
-    he: "איזו מילה מתאימה לתמונה?",
-  },
-};
+export function engreadCopy(stage: number): { prompt?: string; hint?: string; he?: string } {
+  switch (stage) {
+    case 1:
+      return { prompt: t("engread.whichLetter"), he: t("engread.whichLetter") };
+    case 2:
+      return { hint: t("engread.whichPicture"), he: t("engread.whichPicture") };
+    case 3:
+      return { hint: "👆", he: t("engread.blend") };
+    case 4:
+      return { he: t("engread.readWord") };
+    case 5:
+      return { hint: t("engread.whichWord"), he: t("engread.whichWord") };
+    default:
+      return {};
+  }
+}
 
 export function engSound(letter: string): EngSound | undefined {
   return ENG_SOUNDS.find((s) => s.l === letter);

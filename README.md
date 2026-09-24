@@ -32,9 +32,10 @@ is still evolving.
 
 ## i18n / global language
 
-There is a **design for internationalization** (global UI language, not only Hebrew), but it
-**has not been implemented** yet. The live app is still Hebrew-first / RTL with hardcoded
-copy. When that work lands it should be recorded under [`knowledge/technical/`](knowledge/technical/).
+All copy lives in [`web/locales/he.json`](web/locales/he.json) (i18next JSON format) and is
+read through `t()` — see [i18n-locale-files](knowledge/technical/i18n-locale-files.md).
+Only Hebrew exists so far; a language is one more file. Spoken Hebrew is pre-recorded —
+see [`web/scripts/voice/README.md`](web/scripts/voice/README.md).
 
 ## Knowledge base ("brain")
 

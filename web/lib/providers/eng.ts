@@ -3,6 +3,7 @@ import { diffParams } from "@/lib/difficulty";
 import { rnd, shuffle } from "@/lib/random";
 import { VOCAB, VOCAB_ORDER } from "@/data/vocab";
 import type { Provider, ProviderContext } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 export type EngWord = {
   en: string;
@@ -38,7 +39,7 @@ export function engChoice(w: EngWord): AnswerChoice {
 export function engRenderMeta(q: EngQuestion) {
   return {
     word: q.word.en,
-    hint: "איזה אחד זה?",
+    hint: t("eng.whichOne"),
     options: q.options.map(engChoice),
   };
 }

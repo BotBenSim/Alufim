@@ -48,3 +48,5 @@ The core patterns that keep the app extensible — start here to understand the 
 | [zustand-store](zustand-store.md) | Zustand + persist for app state | accepted |
 | [hydration-gating](hydration-gating.md) | Gate UI until store rehydrates | accepted |
 | [accounts-sync-architecture](accounts-sync-architecture.md) | Accounts/auth/sync: local-first, server as sync + entitlement layer | proposed |
+| [i18n-locale-files](i18n-locale-files.md) | All copy in i18next-format `locales/he.json`, typed `t()` | accepted |
+| [pre-recorded-voice](pre-recorded-voice.md) | Hebrew speech from pre-recorded OpenAI TTS clips, browser voice fallback | accepted |

@@ -15,6 +15,7 @@ import { PLAY_CARD_STAGE_CLASS } from "@/components/game/GamePlayPanel";
 import type { PlayerGender, RunState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { numberOptions, repeatStr } from "@/lib/random";
+import { t } from "@/lib/i18n";
 
 function emojiSize(n: number) {
   if (n <= 3) return 44;
@@ -92,6 +93,14 @@ type QuestionViewProps = {
   onAnswer: (value: string) => void;
   onSpeak: () => void;
 };
+
+/** Step the label down as it gets longer, so a word fits the button's height. */
+function labelSizeClass(text: string): string | undefined {
+  const n = [...text].length;
+  if (n >= 4) return "text-[clamp(22px,5.5vw,38px)]";
+  if (n === 3) return "text-[clamp(28px,6.5vw,46px)]";
+  return undefined;
+}
 
 export function QuestionView({
   run,
@@ -208,7 +217,7 @@ export function QuestionView({
       id="questionCard"
       className={cn(
         PLAY_CARD_STAGE_CLASS,
-        "relative flex flex-col border border-white bg-white/95 px-4 pb-5 pt-3 shadow-[0_24px_48px_-16px_rgba(35,53,84,.3),0_4px_12px_rgba(35,53,84,.06)]"
+        "relative flex flex-col border border-white bg-white px-4 pb-5 pt-3 shadow-[0_24px_48px_-16px_rgba(35,53,84,.3),0_4px_12px_rgba(35,53,84,.06)]"
       )}
     >
       {/* Own row + opaque strip so emoji content can never paint over the speaker */}
@@ -218,7 +227,7 @@ export function QuestionView({
           tone={gender}
           id="speakBtn"
           onClick={onSpeak}
-          aria-label="השמע שוב"
+          aria-label={t("game.replay")}
         >
           <svg
             viewBox="0 0 24 24"
@@ -409,6 +418,7 @@ export function QuestionView({
                     <KidButton
                       key={o.value}
                       variant={choiceProps.variant}
+                      className={o.glyph.kind === "text" ? labelSizeClass(o.glyph.text) : undefined}
                       tone={gender}
                       off={disabledAnswers.includes(o.value)}
                       wobble={wobbleAnswer === o.value}
@@ -421,6 +431,7 @@ export function QuestionView({
                     <KidButton
                       key={o}
                       variant={choiceProps.variant}
+                      className={labelSizeClass(o)}
                       tone={gender}
                       off={disabledAnswers.includes(o)}
                       wobble={wobbleAnswer === o}

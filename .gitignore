@@ -22,3 +22,4 @@ web/*.tsbuildinfo
 .cursor/skills/
 .claude/
 /CLAUDE.md
+web/scripts/voice/samples/

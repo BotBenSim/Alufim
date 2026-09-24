@@ -7,6 +7,7 @@ import type {
   Provider,
   ProviderContext,
 } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 export type MulQuestion = {
   op: "mul";
@@ -88,5 +89,5 @@ export function mulRenderMeta(
 export function mulSpeakPrompt(q: MulQuestion, hebNum: readonly string[]): string {
   const groups = hebNum[q.a] || q.a;
   const each = hebNum[q.b] || q.b;
-  return `${groups} קבוצות של ${each}. כמה יש בסך הכל?`;
+  return t("math.mulAsk", { groups, each });
 }

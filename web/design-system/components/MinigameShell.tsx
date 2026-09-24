@@ -2,6 +2,7 @@
 
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 export type MinigameFlash = "good" | "miss" | null;
 
@@ -9,9 +10,9 @@ export type MinigameShellProps = {
   score: number;
   needed: number;
   flash?: MinigameFlash;
-  /** Default: יופי! */
+  /** Default: minigame.good */
   flashGoodLabel?: string;
-  /** Default: עוד פעם */
+  /** Default: minigame.miss */
   flashMissLabel?: string;
   children: ReactNode;
   /** Extra classes on the play stage */
@@ -30,8 +31,8 @@ export function MinigameShell({
   score,
   needed,
   flash = null,
-  flashGoodLabel = "יופי!",
-  flashMissLabel = "עוד פעם",
+  flashGoodLabel = t("minigame.good"),
+  flashMissLabel = t("minigame.miss"),
   children,
   stageClassName,
   stageProps,

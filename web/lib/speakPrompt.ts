@@ -6,6 +6,7 @@ import { divSpeakPrompt, type DivQuestion } from "@/lib/providers/div";
 import type { EngQuestion, EngWord } from "@/lib/providers/eng";
 import { isStageGame, STAGE_PROVIDERS } from "@/lib/providers";
 import type { Question } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 type SpeakFn = (text: string, queue?: boolean) => void;
 
@@ -40,9 +41,9 @@ export function speakQuestion(q: Question, speak: SpeakFn, speakEn: SpeakFn) {
 
 /** Correct pick: pair Hebrew ↔ English, confirm right, then caller advances. */
 export function speakEngCorrect(word: EngWord, speak: SpeakFn, speakEn: SpeakFn) {
-  speak(`${word.he}!`);
+  speak(t("eng.word", { word: word.he }));
   speakEn(word.en, true);
-  speak(`זה ${word.he}! יופי!`, true);
+  speak(t("eng.correct", { word: word.he }), true);
 }
 
 /**
@@ -55,9 +56,9 @@ export function speakEngWrong(
   speak: SpeakFn,
   speakEn: SpeakFn
 ) {
-  speak(`${picked.he} אומרים`);
+  speak(t("eng.sayIt", { word: picked.he }));
   speakEn(picked.en, true);
-  speak("נסו שוב!", true);
+  speak(t("game.tryAgain"), true);
   speakEn(target.en, true);
 }
 

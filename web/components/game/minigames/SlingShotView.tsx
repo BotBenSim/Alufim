@@ -6,6 +6,7 @@ import { MinigameShell } from "@/design-system";
 import { rnd } from "@/lib/random";
 import type { SlingShotState } from "@/lib/minigames/slingShot";
 import type { MinigameViewProps } from "./types";
+import { t } from "@/lib/i18n";
 
 type Vec = { x: number; y: number };
 
@@ -318,8 +319,8 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
       score={st.score}
       needed={st.needed}
       flash={flash}
-      flashGoodLabel="טעים!"
-      flashMissLabel="עוד פעם!"
+      flashGoodLabel={t("minigame.yum")}
+      flashMissLabel={t("game.again")}
       stageClassName="border-none"
     >
       <div
@@ -455,7 +456,7 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
         className="absolute inset-0 z-10 touch-none cursor-pointer"
         role="button"
         tabIndex={0}
-        aria-label="שליחת חטיף לחבר"
+        aria-label={t("minigame.aria.sling")}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

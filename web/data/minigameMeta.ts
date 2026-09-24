@@ -1,5 +1,6 @@
 import type { MinigameEngineId } from "@/lib/minigames/types";
 import { ACTIVE_ENGINES } from "@/lib/minigames/types";
+import { t } from "@/lib/i18n";
 
 export type MinigameMeta = {
   id: MinigameEngineId;
@@ -14,51 +15,79 @@ export type MinigameMeta = {
 export const MINIGAME_META: MinigameMeta[] = [
   {
     id: "pathDash",
-    title: "גג לגג",
+    get title() {
+      return t("minigame.meta.pathDash.title");
+    },
     icon: "🏙️",
-    blurb: "קפצו בין הגגות ותפסו פרסים",
+    get blurb() {
+      return t("minigame.meta.pathDash.blurb");
+    },
     defaultEnabled: true,
   },
   {
     id: "timingBounce",
-    title: "דילוג קקטוס",
+    get title() {
+      return t("minigame.meta.timingBounce.title");
+    },
     icon: "🌵",
-    blurb: "לחצו בזמן וקפצו מעל הקקטוסים",
+    get blurb() {
+      return t("minigame.meta.timingBounce.blurb");
+    },
     defaultEnabled: true,
   },
   {
     id: "sliceSwipe",
-    title: "סופת חטיפים",
+    get title() {
+      return t("minigame.meta.sliceSwipe.title");
+    },
     icon: "🍎",
-    blurb: "החליקו וחתכו חטיפים שעפים באוויר",
+    get blurb() {
+      return t("minigame.meta.sliceSwipe.blurb");
+    },
     defaultEnabled: true,
   },
   {
     id: "slingShot",
-    title: "תאכילו אותי",
+    get title() {
+      return t("minigame.meta.slingShot.title");
+    },
     icon: "🎯",
-    blurb: "מתחו ושלחו חטיף ישר לחבר",
+    get blurb() {
+      return t("minigame.meta.slingShot.blurb");
+    },
     defaultEnabled: true,
   },
   {
     id: "charMaze",
-    title: "מבוך",
+    get title() {
+      return t("minigame.meta.charMaze.title");
+    },
     icon: "🧩",
-    blurb: "הובילו את החבר עד היציאה",
+    get blurb() {
+      return t("minigame.meta.charMaze.blurb");
+    },
     defaultEnabled: false,
   },
   {
     id: "cutRope",
-    title: "חטיף על חבל",
+    get title() {
+      return t("minigame.meta.cutRope.title");
+    },
     icon: "🍬",
-    blurb: "חתכו את החבל — החטיף נופל לפה",
+    get blurb() {
+      return t("minigame.meta.cutRope.blurb");
+    },
     defaultEnabled: false,
   },
   {
     id: "laneCatch",
-    title: "אוכל נופל",
+    get title() {
+      return t("minigame.meta.laneCatch.title");
+    },
     icon: "🍗",
-    blurb: "זוזו לצד ותפסו רק אוכל אמיתי",
+    get blurb() {
+      return t("minigame.meta.laneCatch.blurb");
+    },
     defaultEnabled: true,
   },
 ];

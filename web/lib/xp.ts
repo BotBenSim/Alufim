@@ -1,4 +1,5 @@
 import type { DifficultyLevel } from "./types";
+import { t } from "@/lib/i18n";
 
 export const XP_BATCH_SIZE = 8;
 export const XP_TABLE: Record<DifficultyLevel, number[][]> = {
@@ -88,7 +89,7 @@ export function xpBarState(totalXp: number, formCount: number) {
   const th = formThresholds(formCount);
   const f = formForXp(totalXp, formCount);
   if (f >= formCount - 1) {
-    return { pct: 100, label: `בוגר! ✨ (${totalXp} XP)` };
+    return { pct: 100, label: t("game.xpGrown", { xp: totalXp }) };
   }
   const next = th[f + 1];
   const pct = Math.max(0, Math.min(100, Math.round((totalXp / next) * 100)));

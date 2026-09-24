@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-
-/** Chrome GC's utterances without a live ref — keep until end/error. */
-const alive = new Set<SpeechSynthesisUtterance>();
+import { loadVoiceManifest, say, stopVoice, unlockVoiceOnGesture } from "@/lib/voice/player";
 
 let heVoice: SpeechSynthesisVoice | null = null;
 let enVoice: SpeechSynthesisVoice | null = null;
+let started = false;
 
 function loadVoices() {
   if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -29,56 +28,31 @@ function loadVoices() {
   }
 }
 
-function speakUtterance(
-  text: string,
-  lang: string,
-  voice: SpeechSynthesisVoice | null,
-  rate: number,
-  pitch: number,
-  queue: boolean
-) {
-  if (typeof window === "undefined" || !window.speechSynthesis || !text.trim()) return;
-  loadVoices();
-  try {
-    speechSynthesis.resume();
-    if (!queue) speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang;
-    if (voice) u.voice = voice;
-    u.rate = rate;
-    u.pitch = pitch;
-    alive.add(u);
-    u.onend = () => alive.delete(u);
-    u.onerror = () => alive.delete(u);
-    speechSynthesis.speak(u);
-  } catch {
-    /* ignore */
-  }
-}
-
 export function useSpeech() {
   useEffect(() => {
+    if (!started) {
+      started = true;
+      void loadVoiceManifest();
+      unlockVoiceOnGesture();
+    }
     loadVoices();
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     speechSynthesis.addEventListener("voiceschanged", loadVoices);
     return () => speechSynthesis.removeEventListener("voiceschanged", loadVoices);
   }, []);
 
+  /** Hebrew: a recorded clip when there is one, else the browser voice. */
   const speak = useCallback((text: string, queue = false) => {
-    speakUtterance(text, "he-IL", heVoice, 0.82, 1.3, queue);
+    loadVoices();
+    say({ text, lang: "he-IL", voice: heVoice, rate: 0.9, pitch: 1.05 }, true, queue);
   }, []);
 
   const speakEn = useCallback((text: string, queue = false) => {
-    speakUtterance(text, "en-US", enVoice, 0.78, 1.15, queue);
+    loadVoices();
+    say({ text, lang: "en-US", voice: enVoice, rate: 0.85, pitch: 1.05 }, false, queue);
   }, []);
 
-  const cancel = useCallback(() => {
-    try {
-      speechSynthesis.cancel();
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  const cancel = useCallback(() => stopVoice(), []);
 
   return { speak, speakEn, cancel };
 }
