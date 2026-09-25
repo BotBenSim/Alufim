@@ -380,9 +380,9 @@ export function ProfileEditor() {
                       key={e}
                       type="button"
                       className={cn(
-                        "avatarOpt flex h-[54px] w-[54px] items-center justify-center rounded-full border-[3px] bg-[#F0F4F8] text-[30px]",
+                        "avatarOpt flex h-[54px] w-[54px] items-center justify-center rounded-full border-[3px] bg-muted text-[30px]",
                         editorDraft.avatar === e
-                          ? "border-[#2E9E5B] shadow-[0_0_0_3px_rgba(46,158,91,.25)]"
+                          ? "border-success shadow-[0_0_0_3px_color-mix(in_oklab,var(--success)_25%,transparent)]"
                           : "border-transparent"
                       )}
                       onClick={() => setAvatar(e)}
@@ -403,7 +403,7 @@ export function ProfileEditor() {
                       type="button"
                       className={cn(
                         "avatarOpt h-[54px] w-[54px] overflow-hidden rounded-full border-[3px] p-0",
-                        editorDraft.avatar === ph ? "border-[#2E9E5B]" : "border-transparent"
+                        editorDraft.avatar === ph ? "border-success" : "border-transparent"
                       )}
                       onClick={() => setAvatar(ph, PHOTO_GENDER[id])}
                     >
@@ -912,7 +912,7 @@ export function ProfileEditor() {
             />
             <button
               type="button"
-              className="fixed left-3 top-3 z-20 rounded-[18px] border-none bg-white/95 px-3.5 py-2 text-[17px] font-extrabold text-heading shadow-[0_4px_12px_rgba(0,0,0,.2)]"
+              className="fixed left-3 top-3 z-20 rounded-[18px] border-none bg-card/95 px-3.5 py-2 text-[17px] font-extrabold text-foreground shadow-[0_4px_12px_rgba(0,0,0,.2)]"
               onClick={closeMinigamePreview}
             >
               ✕ סגרו

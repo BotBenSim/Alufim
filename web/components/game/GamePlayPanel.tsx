@@ -48,7 +48,7 @@ export function GamePlayPanel({
       >
         <CharacterArt art={formArt} size={56} className="shrink-0" />
         <div className="runInfo relative flex min-w-0 flex-1 flex-col gap-1">
-          <div className="runName truncate text-[clamp(16px,3.2vw,20px)] font-semibold text-heading [direction:rtl]">
+          <div className="runName truncate text-[clamp(16px,3.2vw,20px)] font-semibold text-foreground [direction:rtl]">
             {run.character.he}
           </div>
           <XpBar pct={xp.pct} label={xp.label} gainFlash={xpGainFlash} />

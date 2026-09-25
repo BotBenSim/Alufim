@@ -21,7 +21,7 @@ export function ProfileCard({ profile, selected, onSelect, onEdit }: ProfileCard
           <img
             src={profile.avatar}
             alt=""
-            className="face aspect-square w-[66%] min-h-0 flex-1 rounded-full object-cover ring-4 ring-[#EAF4FF]"
+            className="face aspect-square w-[66%] min-h-0 flex-1 rounded-full object-cover ring-4 ring-background"
           />
         ) : (
           <CardBig>{profile.avatar || "🙂"}</CardBig>
@@ -30,7 +30,7 @@ export function ProfileCard({ profile, selected, onSelect, onEdit }: ProfileCard
       </Card>
       <button
         type="button"
-        className="profileEditBtn absolute left-2 top-2 z-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-[#5a7a94] shadow-[0_1px_3px_rgba(29,78,122,.12)] backdrop-blur-xs transition-colors hover:bg-white hover:text-[#1d4e7a] active:scale-95"
+        className="profileEditBtn absolute left-2 top-2 z-3 flex h-7 w-7 items-center justify-center rounded-full bg-card/80 text-muted-foreground shadow-[0_1px_3px_color-mix(in_oklab,var(--foreground)_12%,transparent)] backdrop-blur-xs transition-colors hover:bg-card hover:text-foreground active:scale-95"
         title="הגדרות שחקן"
         aria-label={`הגדרות של ${profile.name}`}
         onClick={(e) => {
@@ -62,7 +62,7 @@ export function AddProfileCard({ onClick }: { onClick: () => void }) {
     <div className="profileHolder flex w-full">
       <Card variant="addProfile" onClick={onClick}>
         <CardBig>
-          <span className="flex h-[58%] aspect-square items-center justify-center rounded-full bg-white/80 text-[clamp(30px,8vw,44px)] font-bold leading-none text-[#FF7A45] shadow-soft">
+          <span className="flex h-[58%] aspect-square items-center justify-center rounded-full bg-card/80 text-[clamp(30px,8vw,44px)] font-bold leading-none text-primary shadow-soft">
             +
           </span>
         </CardBig>

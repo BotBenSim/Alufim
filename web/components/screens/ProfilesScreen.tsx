@@ -93,7 +93,7 @@ export function ProfilesScreen() {
       <button
         type="button"
         id="aboutBtn"
-        className="textbtn glass fixed right-3 top-3 z-5 rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-heading/80 shadow-soft"
+        className="textbtn glass fixed right-3 top-3 z-5 rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-foreground/80 shadow-soft"
         onClick={() => setScreen("about")}
       >
         ℹ️ אודות
@@ -124,7 +124,7 @@ export function ProfilesScreen() {
           id="charSection"
           className="show flex w-full scroll-mt-4 flex-col items-center gap-6"
         >
-          <h2 className="text-center text-[clamp(24px,5vw,32px)] font-bold text-heading">
+          <h2 className="text-center text-[clamp(24px,5vw,32px)] font-bold text-foreground">
             בחרו חיה
           </h2>
           <div
@@ -155,7 +155,7 @@ export function ProfilesScreen() {
           id="gameSection"
           className="show flex w-full scroll-mt-4 flex-col items-center gap-6"
         >
-          <h2 className="text-center text-[clamp(24px,5vw,32px)] font-bold text-heading">
+          <h2 className="text-center text-[clamp(24px,5vw,32px)] font-bold text-foreground">
             בחרו משחק
           </h2>
           <div id="gameCardsHome" className="flex w-full max-w-[540px] flex-col gap-4">
@@ -164,7 +164,7 @@ export function ProfilesScreen() {
                 key={group.id}
                 className="glass flex flex-col gap-3 rounded-panel p-3 shadow-soft"
               >
-                <h3 className="flex items-center gap-2 px-1.5 text-[clamp(16px,3.2vw,19px)] font-semibold text-heading">
+                <h3 className="flex items-center gap-2 px-1.5 text-[clamp(16px,3.2vw,19px)] font-semibold text-foreground">
                   <span
                     className="h-3 w-3 rounded-full"
                     style={{ background: `linear-gradient(180deg, ${group.color.from}, ${group.color.to})` }}

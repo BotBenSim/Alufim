@@ -431,9 +431,9 @@ export function SlingShotView({ session, formArt, onInput, playSfx }: MinigameVi
           transform: "translate(-50%, 0)",
         }}
       >
-        <div className="absolute bottom-0 left-1/2 h-[42px] w-[10px] -translate-x-1/2 rounded-sm bg-[#6B3F1A]" />
-        <div className="absolute left-0 top-0 h-[38px] w-[10px] rotate-[-18deg] rounded-sm bg-[#8B5A2B]" />
-        <div className="absolute right-0 top-0 h-[38px] w-[10px] rotate-18 rounded-sm bg-[#8B5A2B]" />
+        <div className="absolute bottom-0 left-1/2 h-[42px] w-[10px] -translate-x-1/2 rounded-[8px] bg-[#6B3F1A]" />
+        <div className="absolute left-0 top-0 h-[38px] w-[10px] rotate-[-18deg] rounded-[8px] bg-[#8B5A2B]" />
+        <div className="absolute right-0 top-0 h-[38px] w-[10px] rotate-18 rounded-[8px] bg-[#8B5A2B]" />
       </div>
 
       {bursts.map((b) => (

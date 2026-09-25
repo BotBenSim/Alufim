@@ -13,21 +13,21 @@ export function XpBar({ className, pct, label, gainFlash, ...props }: XpBarProps
     <div className={cn("relative w-full", className)} {...props}>
       <div
         className={cn(
-          "xpBar relative h-6 overflow-hidden rounded-full bg-[#E6EEF7] shadow-[inset_0_2px_4px_rgba(35,53,84,.12)]",
+          "xpBar relative h-6 overflow-hidden rounded-full bg-muted shadow-[inset_0_2px_4px_color-mix(in_oklab,var(--foreground)_12%,transparent)]",
           gainFlash && "gain"
         )}
         style={gainFlash ? { ["--xp-gain" as string]: xpGainColor(gainFlash) } : undefined}
       >
         <div
           className={cn(
-            "xpFill absolute inset-y-0 left-0 rounded-full bg-linear-to-b from-[#6EE08A] to-[#2FB45A] shadow-[inset_0_3px_0_rgba(255,255,255,.4)] transition-[width] duration-500",
+            "xpFill absolute inset-y-0 left-0 rounded-full bg-linear-to-b from-[color-mix(in_oklab,var(--success)_65%,white)] to-success shadow-[inset_0_3px_0_color-mix(in_oklab,white_40%,transparent)] transition-[width] duration-500",
             gainFlash && "gain"
           )}
           style={{ width: `${pct}%` }}
         />
         <div
           className={cn(
-            "xpText absolute inset-0 flex items-center justify-center text-[13px] font-semibold text-heading [direction:ltr]",
+            "xpText absolute inset-0 flex items-center justify-center text-[13px] font-semibold text-foreground [direction:ltr]",
             gainFlash && "tick"
           )}
         >

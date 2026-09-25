@@ -88,7 +88,7 @@ export function CharacterPreviewOverlay({ characterId, onClose }: CharacterPrevi
 
   return createPortal(
     <div
-      className="fixed inset-0 z-12 flex items-center justify-center bg-[rgba(20,40,70,.45)] backdrop-blur-[3px]"
+      className="fixed inset-0 z-12 flex items-center justify-center bg-foreground/45 backdrop-blur-[3px]"
       style={{ padding: PREVIEW_INSET }}
       onClick={() => swept && onClose()}
       role="presentation"

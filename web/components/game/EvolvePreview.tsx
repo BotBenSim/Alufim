@@ -40,7 +40,7 @@ export function EvolvePreview() {
   return (
     <div
       id="ovEvolve"
-      className="overlay show absolute inset-0 z-11 flex items-center justify-center bg-[rgba(12,28,55,.55)] backdrop-blur-xs"
+      className="overlay show absolute inset-0 z-11 flex items-center justify-center bg-foreground/55 backdrop-blur-xs"
     >
       <div
         id="evolveScene"

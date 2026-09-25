@@ -1,32 +1,33 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes } from "react";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const boyAnswerFill =
-  "text-white bg-linear-to-b from-[#5DB2FF] to-[#3A86F0] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#2462C4,0_14px_22px_-6px_rgba(36,98,196,.55)] active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#2462C4]";
-const girlAnswerFill =
-  "text-white bg-linear-to-b from-[#FF8DBA] to-[#F0508F] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#C72E6C,0_14px_22px_-6px_rgba(199,46,108,.5)] active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#C72E6C]";
-const boySpeakFill =
-  "text-white bg-[#4DA3FF] shadow-[0_3px_0_#2F7BD0,0_4px_10px_rgba(47,123,208,.25)] hover:bg-[#3b93ef] active:translate-y-0.5 active:shadow-[0_1px_0_#2F7BD0]";
-const girlSpeakFill =
-  "text-white bg-[#F783AC] shadow-[0_3px_0_#D6336C,0_4px_10px_rgba(214,51,108,.25)] hover:bg-[#e66f9a] active:translate-y-0.5 active:shadow-[0_1px_0_#D6336C]";
+/*
+  Every colour is a theme token. A raised "toy" fill takes its role colour from
+  --fill; the highlight and pressed edge are derived from it with color-mix,
+  the same way the shared @kids button does.
+*/
+const toyFill =
+  "text-white bg-linear-to-b from-[color-mix(in_oklab,var(--fill)_72%,white)] to-(--fill) [--edge:color-mix(in_oklab,var(--fill)_68%,black)]";
+const answerFill = `${toyFill} shadow-[inset_0_3px_0_color-mix(in_oklab,white_35%,transparent),0_6px_0_var(--edge),0_14px_22px_-6px_color-mix(in_oklab,var(--edge)_55%,transparent)] active:shadow-[inset_0_3px_0_color-mix(in_oklab,white_35%,transparent),0_2px_0_var(--edge)]`;
+const speakFill =
+  "text-white bg-(--fill) [--edge:color-mix(in_oklab,var(--fill)_68%,black)] shadow-[0_3px_0_var(--edge),0_4px_10px_color-mix(in_oklab,var(--edge)_25%,transparent)] hover:brightness-95 active:translate-y-0.5 active:shadow-[0_1px_0_var(--edge)]";
+const panelFill = `${toyFill} shadow-[0_5px_0_var(--edge)] active:shadow-[0_2px_0_var(--edge)]`;
 
 const kidButtonVariants = cva(
   "border-none font-bold cursor-pointer transition-[transform,box-shadow] duration-150 active:translate-y-1 disabled:opacity-45 disabled:grayscale disabled:cursor-default disabled:active:translate-y-0",
   {
     variants: {
       variant: {
-        play: "inline-flex min-w-[200px] items-center justify-center gap-2 rounded-full text-[22px] font-bold px-10 py-4 text-white bg-linear-to-b from-[#FFA24C] to-[#FF6A3D] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#D9481F,0_18px_30px_-8px_rgba(255,106,61,.6)] hover:brightness-105 active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#D9481F] disabled:shadow-none",
-        text: "glass rounded-full text-[clamp(15px,3vw,19px)] px-5 py-2.5 text-heading shadow-soft",
-        continue:
-          "rounded-[18px] text-[clamp(16px,3.2vw,20px)] px-5 py-2.5 text-white bg-linear-to-br from-[#58C26E] to-[#2E9E5B] shadow-[0_5px_0_#1F7A42] active:shadow-[0_2px_0_#1F7A42] mt-3",
-        panel:
-          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-linear-to-br from-[#58C26E] to-[#2E9E5B] shadow-[0_5px_0_#1F7A42] active:shadow-[0_2px_0_#1F7A42]",
-        panelRed:
-          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-linear-to-br from-[#FF8A80] to-[#E2574C] shadow-[0_5px_0_#B03A31] active:shadow-[0_2px_0_#B03A31]",
-        panelBlue:
-          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-linear-to-br from-[#4DA3FF] to-[#2F7BD0] shadow-[0_5px_0_#1F5A9E] active:shadow-[0_2px_0_#1F5A9E]",
-        top: "glass inline-flex h-11 w-11 items-center justify-center rounded-full text-[18px] text-heading shadow-soft",
+        // The main call to action is the shared @kids `play` button.
+        play: cn(buttonVariants({ variant: "play", size: "kid" }), "min-w-[200px] px-10 text-[22px]"),
+        text: "glass rounded-full text-[clamp(15px,3vw,19px)] px-5 py-2.5 text-foreground shadow-soft",
+        continue: `${panelFill} [--fill:var(--success)] rounded-[18px] text-[clamp(16px,3.2vw,20px)] px-5 py-2.5 mt-3`,
+        panel: `${panelFill} [--fill:var(--success)] rounded-[20px] text-[22px] px-6 py-3.5`,
+        panelRed: `${panelFill} [--fill:var(--destructive)] rounded-[20px] text-[22px] px-6 py-3.5`,
+        panelBlue: `${panelFill} [--fill:var(--secondary)] rounded-[20px] text-[22px] px-6 py-3.5`,
+        top: "glass inline-flex h-11 w-11 items-center justify-center rounded-full text-[18px] text-foreground shadow-soft",
         answer:
           "rounded-[30%] w-[clamp(78px,17vw,120px)] h-[clamp(78px,17vw,120px)] text-[clamp(34px,7.5vw,54px)]",
         answerEng:
@@ -34,16 +35,16 @@ const kidButtonVariants = cva(
         answerFind:
           "rounded-[30%] w-[clamp(78px,17vw,120px)] h-[clamp(78px,17vw,120px)] text-[clamp(40px,9vw,68px)]",
         answerGroup:
-          "rounded-3xl min-w-[clamp(78px,17vw,120px)] min-h-[clamp(74px,16vw,110px)] max-w-[clamp(120px,30vw,210px)] px-3.5 py-3 text-[clamp(20px,4.6vw,32px)] leading-tight flex flex-wrap items-center justify-center gap-0.5 h-auto w-auto",
+          "rounded-[24px] min-w-[clamp(78px,17vw,120px)] min-h-[clamp(74px,16vw,110px)] max-w-[clamp(120px,30vw,210px)] px-3.5 py-3 text-[clamp(20px,4.6vw,32px)] leading-tight flex flex-wrap items-center justify-center gap-0.5 h-auto w-auto",
         speak:
           "inline-flex items-center justify-center rounded-full h-10 w-10",
       },
       tone: {
-        boy: "",
-        girl: "",
+        boy: "[--fill:var(--boy)]",
+        girl: "[--fill:var(--girl)]",
       },
       off: {
-        true: "bg-[#B8C4CE] shadow-[0_7px_0_#8E9BA6] pointer-events-none opacity-60 active:translate-y-0",
+        true: "bg-muted text-muted-foreground shadow-[0_7px_0_color-mix(in_oklab,var(--muted)_70%,black)] pointer-events-none opacity-60 active:translate-y-0",
         false: "",
       },
       wobble: {
@@ -54,18 +55,10 @@ const kidButtonVariants = cva(
     compoundVariants: [
       {
         variant: ["answer", "answerEng", "answerFind", "answerGroup"],
-        tone: "boy",
         off: false,
-        class: boyAnswerFill,
+        class: answerFill,
       },
-      {
-        variant: ["answer", "answerEng", "answerFind", "answerGroup"],
-        tone: "girl",
-        off: false,
-        class: girlAnswerFill,
-      },
-      { variant: "speak", tone: "boy", off: false, class: boySpeakFill },
-      { variant: "speak", tone: "girl", off: false, class: girlSpeakFill },
+      { variant: "speak", off: false, class: speakFill },
     ],
     defaultVariants: {
       variant: "text",

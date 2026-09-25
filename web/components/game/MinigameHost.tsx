@@ -93,11 +93,11 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
           />
         )}
         {overlay.done && (
-          <div className="flex min-h-[min(42vh,360px)] w-full flex-col items-center justify-center gap-1.5 rounded-[26px] bg-white/90 px-3 py-4 shadow-[0_8px_22px_rgba(29,78,122,.18)]">
+          <div className="flex min-h-[min(42vh,360px)] w-full flex-col items-center justify-center gap-1.5 rounded-[26px] bg-card/90 px-3 py-4 shadow-[0_8px_22px_color-mix(in_oklab,var(--foreground)_18%,transparent)]">
             <div className="animate-[caughtBounce_1.4s_ease-in-out_infinite] text-[clamp(72px,18vw,140px)] drop-shadow-lg">
               <CharacterArt art={formArt} size={120} />
             </div>
-            <div className="text-center text-[clamp(20px,4.5vw,34px)] font-extrabold text-heading [text-shadow:0_1px_0_#fff]">
+            <div className="text-center text-[clamp(20px,4.5vw,34px)] font-extrabold text-foreground [text-shadow:0_1px_0_var(--card)]">
               ה{character.he} שיחק והתחזק!
             </div>
           </div>

@@ -183,7 +183,7 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
         }}
       >
         <div
-          className="absolute inset-[5%] bottom-14 grid gap-1 rounded-2xl bg-[#5C7C3A]/40 p-1.5 shadow-inner"
+          className="absolute inset-[5%] bottom-14 grid gap-1 rounded-[16px] bg-[#5C7C3A]/40 p-1.5 shadow-inner"
           style={{
             gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
             gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
@@ -203,7 +203,7 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
                 return (
                   <div
                     key={`${r}-${c}`}
-                    className="rounded-md bg-[#6B4F2A] shadow-[inset_0_-2px_0_#4A3418]"
+                    className="rounded-[10px] bg-[#6B4F2A] shadow-[inset_0_-2px_0_#4A3418]"
                   />
                 );
               }
@@ -215,10 +215,10 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
                   aria-label={isExit ? "יציאה" : adjacent ? "ללכת לכאן" : "משבצת"}
                   className={
                     isExit
-                      ? "relative flex items-center justify-center rounded-md bg-[#FFE066]/95 ring-2 ring-[#FAB005]"
+                      ? "relative flex items-center justify-center rounded-[10px] bg-[#FFE066]/95 ring-2 ring-[#FAB005]"
                       : adjacent
-                        ? "relative flex items-center justify-center rounded-md bg-[#A9E34B]/95 ring-2 ring-white/70"
-                        : "relative flex items-center justify-center rounded-md bg-[#C8E6A0]/90"
+                        ? "relative flex items-center justify-center rounded-[10px] bg-[#A9E34B]/95 ring-2 ring-white/70"
+                        : "relative flex items-center justify-center rounded-[10px] bg-[#C8E6A0]/90"
                   }
                   onPointerDown={(e) => {
                     e.stopPropagation();
@@ -273,7 +273,7 @@ function PadBtn({ label, onPress }: { label: string; onPress: () => void }) {
   return (
     <button
       type="button"
-      className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/80 text-lg font-black text-heading shadow-xs active:scale-95"
+      className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white/80 text-lg font-black text-foreground shadow-xs active:scale-95"
       onPointerDown={(e) => {
         e.stopPropagation();
         e.preventDefault();

@@ -57,7 +57,7 @@ function EmojiGroup({
  */
 function GroupBox({ emoji, count }: { emoji: string; count: number }) {
   return (
-    <div className="rounded-2xl bg-white/55 px-1.5 py-1 shadow-[0_2px_0_rgba(0,0,0,.08)]">
+    <div className="rounded-[16px] bg-card/55 px-1.5 py-1 shadow-[0_2px_0_rgba(0,0,0,.08)]">
       <EmojiGroup emoji={emoji} count={count} />
     </div>
   );
@@ -208,7 +208,7 @@ export function QuestionView({
       id="questionCard"
       className={cn(
         PLAY_CARD_STAGE_CLASS,
-        "relative flex flex-col border border-white bg-white/95 px-4 pb-5 pt-3 shadow-[0_24px_48px_-16px_rgba(35,53,84,.3),0_4px_12px_rgba(35,53,84,.06)]"
+        "relative flex flex-col border border-card bg-card/95 px-4 pb-5 pt-3 shadow-[0_24px_48px_-16px_color-mix(in_oklab,var(--foreground)_30%,transparent),0_4px_12px_color-mix(in_oklab,var(--foreground)_6%,transparent)]"
       )}
     >
       {/* Own row + opaque strip so emoji content can never paint over the speaker */}
@@ -244,10 +244,10 @@ export function QuestionView({
               >
                 {choiceProps.visual === "countOn" ? (
                   <>
-                    <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                    <span className="bignum rounded-[18px] bg-[color-mix(in_oklab,var(--accent)_40%,white)] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-foreground shadow-[0_4px_0_rgba(0,0,0,.12)]">
                       {choiceProps.a}
                     </span>
-                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-foreground">
                       +
                     </span>
                     <EmojiGroup emoji={em} count={choiceProps.b!} />
@@ -255,7 +255,7 @@ export function QuestionView({
                 ) : (
                   <>
                     <EmojiGroup emoji={em} count={choiceProps.a!} />
-                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-foreground">
                       +
                     </span>
                     <EmojiGroup emoji={em} count={choiceProps.b!} />
@@ -265,10 +265,10 @@ export function QuestionView({
             )}
             <div
               id="digitsRow"
-              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
+              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-primary [direction:ltr]"
             >
-              <b className="text-heading">{choiceProps.a}</b> +{" "}
-              <b className="text-heading">{choiceProps.b}</b> = ?
+              <b className="text-foreground">{choiceProps.a}</b> +{" "}
+              <b className="text-foreground">{choiceProps.b}</b> = ?
             </div>
           </>
         )}
@@ -282,10 +282,10 @@ export function QuestionView({
               >
                 {choiceProps.visual === "countOn" ? (
                   <>
-                    <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                    <span className="bignum rounded-[18px] bg-[color-mix(in_oklab,var(--accent)_40%,white)] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-foreground shadow-[0_4px_0_rgba(0,0,0,.12)]">
                       {choiceProps.a}
                     </span>
-                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                    <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-foreground">
                       −
                     </span>
                     <EmojiGroup emoji={em} count={choiceProps.b!} />
@@ -297,10 +297,10 @@ export function QuestionView({
             )}
             <div
               id="digitsRow"
-              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
+              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-primary [direction:ltr]"
             >
-              <b className="text-heading">{choiceProps.a}</b> −{" "}
-              <b className="text-heading">{choiceProps.b}</b> = ?
+              <b className="text-foreground">{choiceProps.a}</b> −{" "}
+              <b className="text-foreground">{choiceProps.b}</b> = ?
             </div>
           </>
         )}
@@ -313,10 +313,10 @@ export function QuestionView({
                   id="shapesRow"
                   className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
                 >
-                  <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                  <span className="bignum rounded-[18px] bg-[color-mix(in_oklab,var(--accent)_40%,white)] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-foreground shadow-[0_4px_0_rgba(0,0,0,.12)]">
                     {choiceProps.a}
                   </span>
-                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-foreground">
                     ×
                   </span>
                   <GroupBox emoji={em} count={choiceProps.b!} />
@@ -326,10 +326,10 @@ export function QuestionView({
               ))}
             <div
               id="digitsRow"
-              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
+              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-primary [direction:ltr]"
             >
-              <b className="text-heading">{choiceProps.a}</b> ×{" "}
-              <b className="text-heading">{choiceProps.b}</b> = ?
+              <b className="text-foreground">{choiceProps.a}</b> ×{" "}
+              <b className="text-foreground">{choiceProps.b}</b> = ?
             </div>
           </>
         )}
@@ -343,10 +343,10 @@ export function QuestionView({
                   className="flex flex-wrap items-center justify-center gap-2.5 [direction:ltr]"
                 >
                   <EmojiGroup emoji={em} count={choiceProps.a!} />
-                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-heading">
+                  <span className="op text-[clamp(28px,5vw,44px)] font-extrabold text-foreground">
                     ÷
                   </span>
-                  <span className="bignum rounded-[18px] bg-[#FFE9A8] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-heading shadow-[0_4px_0_rgba(0,0,0,.12)]">
+                  <span className="bignum rounded-[18px] bg-[color-mix(in_oklab,var(--accent)_40%,white)] px-3 py-0.5 text-[clamp(54px,11vw,92px)] font-extrabold text-foreground shadow-[0_4px_0_rgba(0,0,0,.12)]">
                     {choiceProps.b}
                   </span>
                 </div>
@@ -355,10 +355,10 @@ export function QuestionView({
               ))}
             <div
               id="digitsRow"
-              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-[#E2574C] [direction:ltr]"
+              className="text-[clamp(34px,7vw,56px)] font-extrabold tracking-wide text-primary [direction:ltr]"
             >
-              <b className="text-heading">{choiceProps.a}</b> ÷{" "}
-              <b className="text-heading">{choiceProps.b}</b> = ?
+              <b className="text-foreground">{choiceProps.a}</b> ÷{" "}
+              <b className="text-foreground">{choiceProps.b}</b> = ?
             </div>
           </>
         )}
@@ -366,11 +366,11 @@ export function QuestionView({
         {choiceProps.kind === "wordPrompt" && (
           <>
             <div id="shapesRow" className="flex flex-wrap items-center justify-center gap-2.5">
-              <div className="engword text-[clamp(48px,12vw,100px)] font-extrabold tracking-wide text-heading [direction:ltr]">
+              <div className="engword text-[clamp(48px,12vw,100px)] font-extrabold tracking-wide text-foreground [direction:ltr]">
                 {choiceProps.word}
               </div>
             </div>
-            <div id="digitsRow" className="enghint text-[clamp(18px,3.4vw,26px)] font-bold text-heading">
+            <div id="digitsRow" className="enghint text-[clamp(18px,3.4vw,26px)] font-bold text-foreground">
               {choiceProps.hint}
             </div>
           </>
@@ -378,11 +378,11 @@ export function QuestionView({
 
         {(choiceProps.kind === "pick" || choiceProps.kind === "pickGroup") && (
           <>
-            <div className="findprompt text-center text-[clamp(30px,7vw,56px)] font-extrabold text-heading">
+            <div className="findprompt text-center text-[clamp(30px,7vw,56px)] font-extrabold text-foreground">
               {"prompt" in choiceProps ? choiceProps.prompt : ""}
             </div>
             {"hint" in choiceProps && choiceProps.hint && (
-              <div className="enghint text-[clamp(18px,3.4vw,26px)] font-bold text-heading">
+              <div className="enghint text-[clamp(18px,3.4vw,26px)] font-bold text-foreground">
                 {choiceProps.hint}
               </div>
             )}

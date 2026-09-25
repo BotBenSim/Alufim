@@ -35,7 +35,7 @@ export function CharacterCard({
           className={cn("cArt", !owned && "blur-[1px]")}
         />
       </span>
-      <span className="cName shrink-0 text-[clamp(12px,2.4vw,15px)] font-extrabold text-heading">
+      <span className="cName shrink-0 text-[clamp(12px,2.4vw,15px)] font-extrabold text-foreground">
         {character.he}
       </span>
     </Card>

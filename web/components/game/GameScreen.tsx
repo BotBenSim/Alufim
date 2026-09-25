@@ -206,7 +206,7 @@ export function GameScreen() {
             type="button"
             id="restartBtn"
             aria-label="התחילו מחדש"
-            className="glass inline-flex h-11 w-11 items-center justify-center rounded-full text-[#F0508F] shadow-soft transition-transform active:translate-y-0.5"
+            className="glass inline-flex h-11 w-11 items-center justify-center rounded-full text-primary shadow-soft transition-transform active:translate-y-0.5"
             onClick={restartGame}
           >
             <svg
@@ -262,7 +262,7 @@ export function GameScreen() {
           {!minigameOverlay && (
             <div
               id="feedback"
-              className="min-h-[34px] text-center text-[clamp(20px,3.8vw,28px)] font-semibold text-heading"
+              className="min-h-[34px] text-center text-[clamp(20px,3.8vw,28px)] font-semibold text-foreground"
             >
               {feedback}
             </div>
@@ -271,9 +271,9 @@ export function GameScreen() {
       </div>
 
       {showMission && run.mission && (
-        <div id="ovMission" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-[rgba(35,53,84,.35)] backdrop-blur-md">
-          <div className="panel flex max-w-[86%] flex-col items-center gap-4 rounded-panel bg-white p-7 text-center shadow-panel animate-[pop_0.35s]">
-            <div id="missionPrompt" className="text-[clamp(24px,5.5vw,40px)] text-heading">
+        <div id="ovMission" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-foreground/35 backdrop-blur-md">
+          <div className="panel flex max-w-[86%] flex-col items-center gap-4 rounded-panel bg-card p-7 text-center shadow-panel animate-[pop_0.35s]">
+            <div id="missionPrompt" className="text-[clamp(24px,5.5vw,40px)] text-foreground">
               {run.mission.prompt}
             </div>
             <div id="missionOptions" className="flex flex-wrap justify-center gap-[clamp(14px,4vw,28px)]">
@@ -298,11 +298,11 @@ export function GameScreen() {
       {collectionOverlay && (() => {
         const unlocked = characterById(collectionOverlay.characterId);
         return (
-          <div id="ovCollection" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-[rgba(35,53,84,.35)] backdrop-blur-md">
-            <div className="panel flex max-w-[86%] flex-col items-center gap-4 rounded-panel bg-white p-7 text-center shadow-panel">
-              <h2 className="text-[clamp(24px,5vw,38px)] text-heading">🎉 נפתחה חיה חדשה!</h2>
+          <div id="ovCollection" className="overlay show absolute inset-0 z-10 flex items-center justify-center bg-foreground/35 backdrop-blur-md">
+            <div className="panel flex max-w-[86%] flex-col items-center gap-4 rounded-panel bg-card p-7 text-center shadow-panel">
+              <h2 className="text-[clamp(24px,5vw,38px)] text-foreground">🎉 נפתחה חיה חדשה!</h2>
               {unlocked && <CharacterArt art={unlocked.forms[0]} size={120} />}
-              <p className="text-[19px] text-[#456]">{collectionOverlay.message}</p>
+              <p className="text-[19px] text-muted-foreground">{collectionOverlay.message}</p>
             </div>
           </div>
         );
