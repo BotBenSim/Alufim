@@ -54,6 +54,24 @@ New educational features flow through a git-based loop: **propose -> curate -> i
   from `playbooks/` by `make agents` and are gitignored. Edit the playbook, never the
   generated file. Run `make agents` (optionally `VENDORS=cursor`) to (re)build them.
 
+## Shared design system (planned move)
+
+Alufim's own [`web/design-system/`](web/design-system/) is being replaced by the workspace's
+shared design system: the `@kids` shadcn registry in `Development/design-system`, with a
+neutral base and one theme per game. Pitputim already runs on it; Alufim moves in its own PR
+after upgrading to Tailwind 4. A draft `theme-alufim` (sky, orange, sunshine) is already in
+the registry. See the workspace decision
+[Shared design system](/knowledge/decisions/shared-design-system.md).
+
+Until then:
+- **A new UI piece that another game could use** (a button style, a control, a game piece) goes
+  into the registry first, then gets installed here. Don't add it only to
+  `web/design-system/`.
+- **Raw colours** belong only in the theme (`tokens.ts` today, `theme-alufim` after the move),
+  not in components.
+- Commit subjects and PR titles follow
+  [Conventional Commits](/knowledge/decisions/conventional-commits.md) (already the habit here).
+
 ## Working in the app
 
 - App code and commands live in `web/` (`npm run dev`, `npm run build`, `npm test`).

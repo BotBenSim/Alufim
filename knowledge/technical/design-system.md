@@ -3,6 +3,7 @@ id: design-system
 title: Design system - tokens + primitives
 status: accepted
 date: 2026-06-22
+updated: 2026-09-25
 tags: [ui, design-system, tailwind, architecture]
 supersedes: []
 related: [nextjs-migration]
@@ -53,3 +54,14 @@ Controls:
   button) lives in feature components that consume the primitives.
 - `as const` token/character definitions require `readonly` types in
   [`web/lib/types.ts`](../../web/lib/types.ts).
+
+## Update 2026-09-25: moving to the shared design system
+
+The workspace now has one shared shadcn design system for every game: the `@kids` registry in
+`Development/design-system`, with a neutral base and a theme per game. Its segmented control
+was ported from this repo, and a draft `theme-alufim` is in the registry. Pitputim runs fully
+on it. Alufim follows after a Tailwind 4 upgrade, replacing these primitives with registry
+items plus `theme-alufim`. Until then this file stands, and new reusable pieces go into the
+registry first. Decision:
+[Shared design system](/knowledge/decisions/shared-design-system.md).
+
