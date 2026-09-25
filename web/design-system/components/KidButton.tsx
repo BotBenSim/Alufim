@@ -3,9 +3,9 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const boyAnswerFill =
-  "text-white bg-gradient-to-b from-[#5DB2FF] to-[#3A86F0] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#2462C4,0_14px_22px_-6px_rgba(36,98,196,.55)] active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#2462C4]";
+  "text-white bg-linear-to-b from-[#5DB2FF] to-[#3A86F0] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#2462C4,0_14px_22px_-6px_rgba(36,98,196,.55)] active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#2462C4]";
 const girlAnswerFill =
-  "text-white bg-gradient-to-b from-[#FF8DBA] to-[#F0508F] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#C72E6C,0_14px_22px_-6px_rgba(199,46,108,.5)] active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#C72E6C]";
+  "text-white bg-linear-to-b from-[#FF8DBA] to-[#F0508F] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#C72E6C,0_14px_22px_-6px_rgba(199,46,108,.5)] active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#C72E6C]";
 const boySpeakFill =
   "text-white bg-[#4DA3FF] shadow-[0_3px_0_#2F7BD0,0_4px_10px_rgba(47,123,208,.25)] hover:bg-[#3b93ef] active:translate-y-0.5 active:shadow-[0_1px_0_#2F7BD0]";
 const girlSpeakFill =
@@ -16,16 +16,16 @@ const kidButtonVariants = cva(
   {
     variants: {
       variant: {
-        play: "inline-flex min-w-[200px] items-center justify-center gap-2 rounded-full text-[22px] font-bold px-10 py-4 text-white bg-gradient-to-b from-[#FFA24C] to-[#FF6A3D] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#D9481F,0_18px_30px_-8px_rgba(255,106,61,.6)] hover:brightness-105 active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#D9481F] disabled:shadow-none",
+        play: "inline-flex min-w-[200px] items-center justify-center gap-2 rounded-full text-[22px] font-bold px-10 py-4 text-white bg-linear-to-b from-[#FFA24C] to-[#FF6A3D] shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_6px_0_#D9481F,0_18px_30px_-8px_rgba(255,106,61,.6)] hover:brightness-105 active:shadow-[inset_0_3px_0_rgba(255,255,255,.35),0_2px_0_#D9481F] disabled:shadow-none",
         text: "glass rounded-full text-[clamp(15px,3vw,19px)] px-5 py-2.5 text-heading shadow-soft",
         continue:
-          "rounded-[18px] text-[clamp(16px,3.2vw,20px)] px-5 py-2.5 text-white bg-gradient-to-br from-[#58C26E] to-[#2E9E5B] shadow-[0_5px_0_#1F7A42] active:shadow-[0_2px_0_#1F7A42] mt-3",
+          "rounded-[18px] text-[clamp(16px,3.2vw,20px)] px-5 py-2.5 text-white bg-linear-to-br from-[#58C26E] to-[#2E9E5B] shadow-[0_5px_0_#1F7A42] active:shadow-[0_2px_0_#1F7A42] mt-3",
         panel:
-          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-gradient-to-br from-[#58C26E] to-[#2E9E5B] shadow-[0_5px_0_#1F7A42] active:shadow-[0_2px_0_#1F7A42]",
+          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-linear-to-br from-[#58C26E] to-[#2E9E5B] shadow-[0_5px_0_#1F7A42] active:shadow-[0_2px_0_#1F7A42]",
         panelRed:
-          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-gradient-to-br from-[#FF8A80] to-[#E2574C] shadow-[0_5px_0_#B03A31] active:shadow-[0_2px_0_#B03A31]",
+          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-linear-to-br from-[#FF8A80] to-[#E2574C] shadow-[0_5px_0_#B03A31] active:shadow-[0_2px_0_#B03A31]",
         panelBlue:
-          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-gradient-to-br from-[#4DA3FF] to-[#2F7BD0] shadow-[0_5px_0_#1F5A9E] active:shadow-[0_2px_0_#1F5A9E]",
+          "rounded-[20px] text-[22px] px-6 py-3.5 text-white bg-linear-to-br from-[#4DA3FF] to-[#2F7BD0] shadow-[0_5px_0_#1F5A9E] active:shadow-[0_2px_0_#1F5A9E]",
         top: "glass inline-flex h-11 w-11 items-center justify-center rounded-full text-[18px] text-heading shadow-soft",
         answer:
           "rounded-[30%] w-[clamp(78px,17vw,120px)] h-[clamp(78px,17vw,120px)] text-[clamp(34px,7.5vw,54px)]",

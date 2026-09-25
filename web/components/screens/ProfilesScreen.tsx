@@ -93,7 +93,7 @@ export function ProfilesScreen() {
       <button
         type="button"
         id="aboutBtn"
-        className="textbtn glass fixed right-3 top-3 z-[5] rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-heading/80 shadow-soft"
+        className="textbtn glass fixed right-3 top-3 z-5 rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-heading/80 shadow-soft"
         onClick={() => setScreen("about")}
       >
         ℹ️ אודות
@@ -162,7 +162,7 @@ export function ProfilesScreen() {
             {enabledGroups.map((group) => (
               <div
                 key={group.id}
-                className="glass flex flex-col gap-3 rounded-[30px] p-3 shadow-soft"
+                className="glass flex flex-col gap-3 rounded-panel p-3 shadow-soft"
               >
                 <h3 className="flex items-center gap-2 px-1.5 text-[clamp(16px,3.2vw,19px)] font-semibold text-heading">
                   <span

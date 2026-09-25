@@ -8,7 +8,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: "glass",
-        step: "bg-gradient-to-b from-[#FFE08A] to-[#FFC53D] text-[#7A4B00]",
+        step: "bg-linear-to-b from-[#FFE08A] to-[#FFC53D] text-[#7A4B00]",
       },
     },
     defaultVariants: {

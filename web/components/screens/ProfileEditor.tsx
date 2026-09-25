@@ -902,8 +902,8 @@ export function ProfileEditor() {
         previewCharacter &&
         previewFormArt &&
         createPortal(
-          <div className="fixed inset-0 z-[19]">
-            <div className="absolute inset-0 bg-gradient-to-b from-sky via-sky-mid to-sky-light" />
+          <div className="fixed inset-0 z-19">
+            <div className="absolute inset-0 bg-linear-to-b from-sky via-sky-mid to-sky-light" />
             <BackgroundScene mode="fill" />
             <MinigameHost
               overlay={minigameOverlay}
@@ -912,7 +912,7 @@ export function ProfileEditor() {
             />
             <button
               type="button"
-              className="fixed left-3 top-3 z-[20] rounded-[18px] border-none bg-white/95 px-3.5 py-2 text-[17px] font-extrabold text-heading shadow-[0_4px_12px_rgba(0,0,0,.2)]"
+              className="fixed left-3 top-3 z-20 rounded-[18px] border-none bg-white/95 px-3.5 py-2 text-[17px] font-extrabold text-heading shadow-[0_4px_12px_rgba(0,0,0,.2)]"
               onClick={closeMinigamePreview}
             >
               ✕ סגרו

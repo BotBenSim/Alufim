@@ -247,7 +247,7 @@ export function CharMazeView({ session, formArt, onInput, playSfx }: MinigameVie
                         transition: "transform 70ms",
                       }}
                     >
-                      <CharacterArt art={formArt} size={ART} className="drop-shadow-sm" />
+                      <CharacterArt art={formArt} size={ART} className="drop-shadow-xs" />
                     </div>
                   )}
                 </button>
@@ -273,7 +273,7 @@ function PadBtn({ label, onPress }: { label: string; onPress: () => void }) {
   return (
     <button
       type="button"
-      className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/80 text-lg font-black text-heading shadow-sm active:scale-95"
+      className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/80 text-lg font-black text-heading shadow-xs active:scale-95"
       onPointerDown={(e) => {
         e.stopPropagation();
         e.preventDefault();

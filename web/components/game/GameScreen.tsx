@@ -189,7 +189,7 @@ export function GameScreen() {
     <>
       <div
         id="topbar"
-        className="relative z-[3] mx-auto flex w-[min(94vw,520px)] items-center gap-2.5 py-3 [direction:rtl]"
+        className="relative z-3 mx-auto flex w-[min(94vw,520px)] items-center gap-2.5 py-3 [direction:rtl]"
       >
         <Badge className="badge min-w-0 max-w-[45%] overflow-hidden py-1.5 pe-4 ps-1.5 text-[clamp(14px,3.6vw,18px)]">
           <AvatarFace avatar={profile.avatar} size={30} className="shrink-0" />
@@ -235,7 +235,7 @@ export function GameScreen() {
         </div>
       </div>
 
-      <div id="playWrap" className="relative z-[2] flex min-h-0 flex-1 flex-col">
+      <div id="playWrap" className="relative z-2 flex min-h-0 flex-1 flex-col">
         <div id="gameArea" className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3.5 px-2.5 pb-3.5 pt-1.5">
           {/* XP bar always stays; only the question card swaps for the minigame */}
           <GamePlayPanel

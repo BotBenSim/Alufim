@@ -7,7 +7,7 @@ export function AboutScreen() {
   const setScreen = useStore((s) => s.setScreen);
 
   return (
-    <Screen id="scrAbout" scroll className="z-[11]" contentClassName="gap-6 max-w-[640px]">
+    <Screen id="scrAbout" scroll className="z-11" contentClassName="gap-6 max-w-[640px]">
       <Panel id="aboutContent" variant="surface" className="leading-[1.65]">
         <h2 className="mb-1 text-[clamp(26px,5.5vw,36px)] font-black text-heading">
           אלופים

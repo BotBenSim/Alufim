@@ -7,7 +7,7 @@ const segmentVariants = cva(
   {
     variants: {
       selected: {
-        true: "bg-gradient-to-br from-[#4DA3FF] to-[#2F7BD0] text-white",
+        true: "bg-linear-to-br from-[#4DA3FF] to-[#2F7BD0] text-white",
         false: "bg-[#E2ECF5] text-heading",
       },
     },

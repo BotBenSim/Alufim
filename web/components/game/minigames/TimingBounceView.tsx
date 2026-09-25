@@ -256,7 +256,7 @@ export function TimingBounceView({ session, formArt, onInput, playSfx }: Minigam
 
       {hit && (
         <div
-          className="pointer-events-none absolute z-[2] animate-[dinoStars_0.7s_ease-out]"
+          className="pointer-events-none absolute z-2 animate-[dinoStars_0.7s_ease-out]"
           style={{
             left: `${cfg.runnerX * 100}%`,
             bottom: cfg.groundH + cfg.artSize * 0.55,
@@ -289,7 +289,7 @@ export function TimingBounceView({ session, formArt, onInput, playSfx }: Minigam
           transition: jumping || hit ? undefined : "transform 80ms linear",
         }}
       >
-        <CharacterArt art={formArt} size={cfg.artSize} className="drop-shadow-sm" />
+        <CharacterArt art={formArt} size={cfg.artSize} className="drop-shadow-xs" />
       </div>
     </MinigameShell>
   );

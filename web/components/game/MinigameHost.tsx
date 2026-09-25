@@ -71,7 +71,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
 
   // Preview (settings): full overlay. In-run: sits in the question-card slot under the XP bar.
   const shellClass = overlay.preview
-    ? "overlay show absolute inset-0 z-[1] flex items-center justify-center bg-transparent"
+    ? "overlay show absolute inset-0 z-1 flex items-center justify-center bg-transparent"
     : "relative w-full";
 
   return (
@@ -79,7 +79,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
       <div
         className={
           overlay.preview
-            ? "relative z-[1] flex h-full w-full max-w-[520px] flex-col items-center justify-center gap-2 px-2 py-3"
+            ? "relative z-1 flex h-full w-full max-w-[520px] flex-col items-center justify-center gap-2 px-2 py-3"
             : "relative w-full"
         }
       >

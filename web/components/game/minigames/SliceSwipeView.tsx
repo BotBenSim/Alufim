@@ -238,7 +238,7 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
           ref={(el) => {
             elRefs.current[f.id] = el;
           }}
-          className="pointer-events-none absolute z-[1] px-2 py-2 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
+          className="pointer-events-none absolute z-1 px-2 py-2 text-[clamp(48px,12vw,88px)] leading-none drop-shadow-md"
           style={{
             left: `${f.x * 100}%`,
             top: `${f.y * 100}%`,
@@ -253,7 +253,7 @@ export function SliceSwipeView({ session, onInput }: MinigameViewProps) {
       {bursts.map((b) => (
         <div
           key={b.id}
-          className="pointer-events-none absolute z-[3]"
+          className="pointer-events-none absolute z-3"
           style={{ left: `${b.x * 100}%`, top: `${b.y * 100}%` }}
         >
           <div

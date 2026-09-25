@@ -30,7 +30,7 @@ export function ProfileCard({ profile, selected, onSelect, onEdit }: ProfileCard
       </Card>
       <button
         type="button"
-        className="profileEditBtn absolute left-2 top-2 z-[3] flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-[#5a7a94] shadow-[0_1px_3px_rgba(29,78,122,.12)] backdrop-blur-sm transition-colors hover:bg-white hover:text-[#1d4e7a] active:scale-95"
+        className="profileEditBtn absolute left-2 top-2 z-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-[#5a7a94] shadow-[0_1px_3px_rgba(29,78,122,.12)] backdrop-blur-xs transition-colors hover:bg-white hover:text-[#1d4e7a] active:scale-95"
         title="הגדרות שחקן"
         aria-label={`הגדרות של ${profile.name}`}
         onClick={(e) => {
