@@ -297,7 +297,7 @@ export function PathDashView({ session, formArt, onInput, playSfx }: MinigameVie
 
       {jumpCue && (
         <div
-          className="pointer-events-none absolute z-[4] animate-jumpCuePulse text-[clamp(36px,9vw,56px)] font-black text-[#FFD93D] drop-shadow-[0_2px_0_#C8923B]"
+          className="pointer-events-none absolute z-4 animate-jumpCuePulse text-[clamp(36px,9vw,56px)] font-black text-[#FFD93D] drop-shadow-[0_2px_0_#C8923B]"
           style={{
             left: `${runnerX * 100}%`,
             bottom: `${roofTop * 100 + 22}%`,

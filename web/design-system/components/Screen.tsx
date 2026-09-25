@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-const screenVariants = cva("absolute inset-0 z-[2]", {
+const screenVariants = cva("absolute inset-0 z-2", {
   variants: {
     scroll: {
       // Scroll on the outer shell; horizontal padding lives on the inner column

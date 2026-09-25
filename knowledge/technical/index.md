@@ -3,7 +3,7 @@ id: technical-index
 title: Technical - Engineering Decisions
 type: manifest
 format: OKF/1.0
-updated: 2026-08-01
+updated: 2026-09-25
 tags: [technical, engineering, architecture, manifest]
 ---
 
@@ -31,7 +31,7 @@ The core patterns that keep the app extensible — start here to understand the 
 | [per-profile-curriculum](per-profile-curriculum.md) | Difficulty curriculum copied into each profile | accepted |
 | [question-dispatch-by-op](question-dispatch-by-op.md) | Dispatch render/speech by `Question.op` | accepted |
 | [pure-logic-in-lib](pure-logic-in-lib.md) | Pure, testable logic in `lib/`, split from React | accepted |
-| [design-system](design-system.md) | Design system: tokens + primitives | accepted |
+| [design-system](design-system.md) | Design system: shared `@kids` theme + Alufim game primitives | accepted |
 | [curriculum-tracks](curriculum-tracks.md) | Domains are tracks of many small games | proposed |
 | [skill-mix-settings](skill-mix-settings.md) | Parent sets questions-per-stage (`counts`), 0 = skip | accepted |
 | [runner-jump-tuning](runner-jump-tuning.md) | Runner minigames: jump reach envelope + coyote time | accepted |

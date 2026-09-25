@@ -3,7 +3,6 @@ export { Panel } from "./components/Panel";
 export { KidButton } from "./components/KidButton";
 export { Badge } from "./components/Badge";
 export { Screen, Brand, BrandTitle } from "./components/Screen";
-export { SegmentedControl } from "./components/SegmentedControl";
 export { PillControl } from "./components/PillControl";
 export type { PillOption } from "./components/PillControl";
 export { LevelControl } from "./components/LevelControl";

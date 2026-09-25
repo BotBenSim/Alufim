@@ -1,14 +1,16 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import type { HTMLAttributes } from "react";
+import type { ComponentProps } from "react";
+import { Badge as KidsBadge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+/** Game-sized header chip over the shared @kids badge. */
 const badgeVariants = cva(
-  "inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-lg font-semibold text-heading shadow-soft",
+  "gap-2 border-0 px-3.5 py-2 text-lg font-semibold text-foreground shadow-soft",
   {
     variants: {
       variant: {
         default: "glass",
-        step: "bg-gradient-to-b from-[#FFE08A] to-[#FFC53D] text-[#7A4B00]",
+        step: "bg-linear-to-b from-[color-mix(in_oklab,var(--accent)_55%,white)] to-accent text-[color-mix(in_oklab,var(--accent)_35%,var(--foreground))]",
       },
     },
     defaultVariants: {
@@ -17,9 +19,9 @@ const badgeVariants = cva(
   }
 );
 
-export type BadgeProps = HTMLAttributes<HTMLDivElement> &
+export type BadgeProps = Omit<ComponentProps<typeof KidsBadge>, "variant"> &
   VariantProps<typeof badgeVariants>;
 
 export function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+  return <KidsBadge variant="outline" className={cn(badgeVariants({ variant }), className)} {...props} />;
 }

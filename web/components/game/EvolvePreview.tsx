@@ -40,7 +40,7 @@ export function EvolvePreview() {
   return (
     <div
       id="ovEvolve"
-      className="overlay show absolute inset-0 z-[11] flex items-center justify-center bg-[rgba(12,28,55,.55)] backdrop-blur-[4px]"
+      className="overlay show absolute inset-0 z-11 flex items-center justify-center bg-foreground/55 backdrop-blur-xs"
     >
       <div
         id="evolveScene"
@@ -63,7 +63,7 @@ export function EvolvePreview() {
             >
               <div
                 id="evolveMeter"
-                className="h-full rounded-[20px] bg-gradient-to-r from-[#FFD93D] via-[#FFB347] to-[#FF8A3D] transition-[width] duration-200"
+                className="h-full rounded-[20px] bg-linear-to-r from-[#FFD93D] via-[#FFB347] to-[#FF8A3D] transition-[width] duration-200"
                 style={{ width: `${Math.round(progress * 100)}%` }}
               />
             </div>

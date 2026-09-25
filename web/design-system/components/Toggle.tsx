@@ -3,12 +3,12 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const toggleVariants = cva(
-  "rounded-xl px-3.5 py-2 text-[15px] font-bold transition-colors",
+  "rounded-lg px-3.5 py-2 text-[15px] font-bold transition-colors",
   {
     variants: {
       on: {
-        true: "bg-gradient-to-br from-[#4DA3FF] to-[#2F7BD0] text-white",
-        false: "bg-[#E2ECF5] text-heading",
+        true: "bg-secondary text-secondary-foreground",
+        false: "bg-muted text-foreground",
       },
     },
     defaultVariants: {

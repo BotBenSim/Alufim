@@ -71,7 +71,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
 
   // Preview (settings): full overlay. In-run: sits in the question-card slot under the XP bar.
   const shellClass = overlay.preview
-    ? "overlay show absolute inset-0 z-[1] flex items-center justify-center bg-transparent"
+    ? "overlay show absolute inset-0 z-1 flex items-center justify-center bg-transparent"
     : "relative w-full";
 
   return (
@@ -79,7 +79,7 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
       <div
         className={
           overlay.preview
-            ? "relative z-[1] flex h-full w-full max-w-[520px] flex-col items-center justify-center gap-2 px-2 py-3"
+            ? "relative z-1 flex h-full w-full max-w-[520px] flex-col items-center justify-center gap-2 px-2 py-3"
             : "relative w-full"
         }
       >
@@ -93,11 +93,11 @@ export function MinigameHost({ overlay, character, formArt }: Props) {
           />
         )}
         {overlay.done && (
-          <div className="flex min-h-[min(42vh,360px)] w-full flex-col items-center justify-center gap-1.5 rounded-[26px] bg-white/90 px-3 py-4 shadow-[0_8px_22px_rgba(29,78,122,.18)]">
+          <div className="flex min-h-[min(42vh,360px)] w-full flex-col items-center justify-center gap-1.5 rounded-[26px] bg-card/90 px-3 py-4 shadow-[0_8px_22px_color-mix(in_oklab,var(--foreground)_18%,transparent)]">
             <div className="animate-[caughtBounce_1.4s_ease-in-out_infinite] text-[clamp(72px,18vw,140px)] drop-shadow-lg">
               <CharacterArt art={formArt} size={120} />
             </div>
-            <div className="text-center text-[clamp(20px,4.5vw,34px)] font-extrabold text-heading [text-shadow:0_1px_0_#fff]">
+            <div className="text-center text-[clamp(20px,4.5vw,34px)] font-extrabold text-foreground [text-shadow:0_1px_0_var(--card)]">
               ה{character.he} שיחק והתחזק!
             </div>
           </div>

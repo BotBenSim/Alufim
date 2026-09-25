@@ -48,11 +48,11 @@ export function MinigameShell({
       )}
     >
       {/* Fixed-height score row — flash is overlaid so it never changes size */}
-      <div className="relative flex h-9 w-full shrink-0 items-center justify-between px-1 text-[clamp(18px,4vw,26px)] font-extrabold leading-none text-heading [text-shadow:0_1px_0_#fff]">
+      <div className="relative flex h-9 w-full shrink-0 items-center justify-between px-1 text-[clamp(18px,4vw,26px)] font-extrabold leading-none text-foreground [text-shadow:0_1px_0_var(--card)]">
         <span className="relative inline-block min-w-[5.5em]">
           <span
             className={cn(
-              "text-[#2F9E44]",
+              "text-success",
               flash === "good" ? "visible" : "invisible"
             )}
             aria-hidden={flash !== "good"}
@@ -61,7 +61,7 @@ export function MinigameShell({
           </span>
           <span
             className={cn(
-              "absolute inset-0 text-[#E67700]",
+              "absolute inset-0 text-[color-mix(in_oklab,var(--warning)_75%,black)]",
               flash === "miss" ? "visible" : "invisible"
             )}
             aria-hidden={flash !== "miss"}
@@ -79,7 +79,7 @@ export function MinigameShell({
       <div
         className={cn(
           // Same footprint as #questionCard
-          "relative h-[min(42vh,360px)] w-full shrink-0 overflow-hidden rounded-[26px] bg-white/90 shadow-[0_8px_22px_rgba(29,78,122,.18)]",
+          "relative h-[min(42vh,360px)] w-full shrink-0 overflow-hidden rounded-[26px] bg-card/90 shadow-[0_8px_22px_color-mix(in_oklab,var(--foreground)_18%,transparent)]",
           stageClassName,
           stageExtra
         )}

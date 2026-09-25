@@ -1,31 +1,145 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-sky: #6fc3f7;
+  --color-sky-mid: #a8dcfb;
+  --color-sky-light: #d9f1ff;
+
+  --radius-card: 28px;
+  --radius-panel: 30px;
+
+  --shadow-panel: 0 18px 50px rgba(0, 0, 0, 0.3);
+
+  --animate-skyDrift: skyDrift 46s linear infinite;
+  --animate-sunPulse: sunPulse 5s ease-in-out infinite;
+  --animate-evoPop: evoPop 0.85s cubic-bezier(0.34, 1.45, 0.64, 1);
+  --animate-xpFloatUp: xpFloatUp 1.4s ease-out forwards;
+  --animate-confettiFall: confettiFall 2.8s linear forwards;
+  --animate-jumpCuePulse: jumpCuePulse 0.55s ease-in-out infinite;
+
+  @keyframes skyDrift {
+    from {
+      transform: translateX(-34vw);
+    }
+    to {
+      transform: translateX(120vw);
+    }
+  }
+  @keyframes sunPulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.06);
+    }
+  }
+  @keyframes evoPop {
+    0% {
+      transform: scale(0.42);
+      opacity: 0;
+    }
+    55% {
+      transform: scale(1.14);
+      opacity: 1;
+    }
+    78% {
+      transform: scale(0.96);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes xpFloatUp {
+    0% {
+      transform: translateY(0) scale(0.85);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-72px) scale(1.08);
+      opacity: 0;
+    }
+  }
+  @keyframes confettiFall {
+    0% {
+      transform: translateY(-10vh) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+  @keyframes jumpCuePulse {
+    0%,
+    100% {
+      transform: translate(-50%, 0) scale(1);
+      opacity: 0.55;
+    }
+    50% {
+      transform: translate(-50%, -10px) scale(1.18);
+      opacity: 1;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility glass {
+  /* Frosted surface used by chips, headers and group panels. */
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+@utility shadow-soft {
+  box-shadow:
+    0 2px 0 rgba(35, 53, 84, 0.06),
+    0 14px 28px -12px rgba(35, 53, 84, 0.3);
+}
+
+@utility text-brand-gradient {
+  background: linear-gradient(180deg, #ffb238 10%, #ff6a3d 60%, #f0357f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 3px 0 #fff)
+    drop-shadow(0 8px 14px rgba(240, 53, 127, 0.28));
+}
+
+@utility text-shadow-brand {
+  text-shadow:
+    -2px -2px 0 #fff,
+    2px -2px 0 #fff,
+    -2px 2px 0 #fff,
+    2px 2px 0 #fff,
+    0 3px 0 #e69a00,
+    0 6px 9px rgba(0, 0, 0, 0.28);
+}
 
 @layer base {
-  :root {
-    --background: 210 40% 98%;
-    --foreground: 205 60% 20%;
-    --card: 0 0% 100%;
-    --card-foreground: 205 60% 20%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 205 60% 20%;
-    --primary: 205 70% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 30% 94%;
-    --secondary-foreground: 205 60% 20%;
-    --muted: 210 30% 94%;
-    --muted-foreground: 205 20% 45%;
-    --accent: 210 30% 94%;
-    --accent-foreground: 205 60% 20%;
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 210 30% 85%;
-    --input: 210 30% 85%;
-    --ring: 205 70% 45%;
-    --radius: 0.75rem;
-  }
-
   * {
     @apply border-border;
     margin: 0;
@@ -49,45 +163,13 @@
 
   body {
     @apply text-foreground;
-    background: linear-gradient(180deg, #8ED3FF 0%, #BFE6FF 45%, #EAF6FF 100%);
-    font-family: var(--font-fredoka), -apple-system, "Arial Hebrew", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(180deg, #8ED3FF 0%, #BFE6FF 45%, var(--background) 100%);
     font-weight: 500;
     -webkit-font-smoothing: antialiased;
     display: flex;
     flex-direction: column;
     position: fixed;
     inset: 0;
-  }
-}
-
-@layer utilities {
-  /* Frosted surface used by chips, headers and group panels. */
-  .glass {
-    background: rgba(255, 255, 255, 0.72);
-    -webkit-backdrop-filter: blur(14px) saturate(1.4);
-    backdrop-filter: blur(14px) saturate(1.4);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-  }
-  .shadow-soft {
-    box-shadow:
-      0 2px 0 rgba(35, 53, 84, 0.06),
-      0 14px 28px -12px rgba(35, 53, 84, 0.3);
-  }
-  .text-brand-gradient {
-    background: linear-gradient(180deg, #ffb238 10%, #ff6a3d 60%, #f0357f 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    filter: drop-shadow(0 3px 0 #fff) drop-shadow(0 8px 14px rgba(240, 53, 127, 0.28));
-  }
-  .text-shadow-brand {
-    text-shadow:
-      -2px -2px 0 #fff,
-      2px -2px 0 #fff,
-      -2px 2px 0 #fff,
-      2px 2px 0 #fff,
-      0 3px 0 #e69a00,
-      0 6px 9px rgba(0, 0, 0, 0.28);
   }
 }
 
@@ -146,7 +228,6 @@
 .sc8::before { width: 30px; height: 30px; top: -14px; left: 10px; }
 .sc8::after { width: 22px; height: 22px; top: -10px; left: 34px; }
 
-
 .group span.x::after {
   content: "";
   position: absolute;
@@ -154,7 +235,7 @@
   top: 46%;
   width: 88%;
   height: 8%;
-  background: #e2574c;
+  background: var(--destructive);
   border-radius: 4px;
   transform: rotate(-18deg);
 }
@@ -184,7 +265,7 @@
 
 @keyframes xpBarPulse {
   0% { transform: scale(1); }
-  35% { transform: scale(1.06); box-shadow: 0 0 0 3px var(--xp-gain, #ffd43b), 0 0 20px var(--xp-gain, #58c26e); }
+  35% { transform: scale(1.06); box-shadow: 0 0 0 3px var(--xp-gain, var(--accent)), 0 0 20px var(--xp-gain, var(--success)); }
   100% { transform: scale(1); }
 }
 
@@ -196,7 +277,7 @@
 
 @keyframes xpTextPop {
   0% { transform: scale(1); }
-  40% { transform: scale(1.22); color: #2e9e5b; }
+  40% { transform: scale(1.22); color: var(--success); }
   100% { transform: scale(1); }
 }
 
@@ -316,18 +397,18 @@
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  background: rgba(255, 255, 255, 0.96);
+  background: color-mix(in oklab, var(--card) 96%, transparent);
   border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid color-mix(in oklab, var(--card) 90%, transparent);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.8) inset,
-    0 24px 48px -16px rgba(35, 53, 84, 0.28),
-    0 4px 12px rgba(35, 53, 84, 0.08);
+    0 1px 0 color-mix(in oklab, var(--card) 80%, transparent) inset,
+    0 24px 48px -16px color-mix(in oklab, var(--foreground) 28%, transparent),
+    0 4px 12px color-mix(in oklab, var(--foreground) 8%, transparent);
   direction: rtl;
 }
 .panel--surface {
   padding: 20px;
-  color: #1d3550;
+  color: var(--foreground);
   line-height: 1.55;
 }
 .panel--shell {
@@ -349,12 +430,12 @@
 
 /* ---------- profile editor / settings (layout inside Panel shell) ---------- */
 .settingsSidebar {
-  background: linear-gradient(180deg, #e8f6ff 0%, #d9f1ff 45%, #cfe9fb 100%);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--secondary) 6%, var(--card)) 0%, color-mix(in oklab, var(--secondary) 12%, var(--card)) 45%, color-mix(in oklab, var(--secondary) 18%, var(--card)) 100%);
   padding: 20px 14px 18px;
   display: flex;
   flex-direction: column;
   gap: 18px;
-  border-inline-start: 1px solid rgba(77, 163, 255, 0.22);
+  border-inline-start: 1px solid color-mix(in oklab, var(--ring) 22%, transparent);
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -377,21 +458,21 @@
   overflow: hidden;
   display: grid;
   place-items: center;
-  background: #fff;
-  border: 4px solid #ffd12e;
-  box-shadow: 0 8px 20px rgba(29, 78, 122, 0.16);
+  background: var(--card);
+  border: 4px solid var(--accent);
+  box-shadow: 0 8px 20px color-mix(in oklab, var(--foreground) 16%, transparent);
 }
 .settingsAvatarName {
   font-size: 20px;
   font-weight: 900;
-  color: #1d4e7a;
+  color: var(--foreground);
   text-align: center;
   line-height: 1.2;
 }
 .settingsAvatarHint {
   font-size: 13px;
   font-weight: 700;
-  color: #5a7a94;
+  color: var(--muted-foreground);
 }
 .settingsNav {
   display: flex;
@@ -406,19 +487,19 @@
   font: inherit;
   font-size: 16px;
   font-weight: 800;
-  color: #2f6b9e;
+  color: color-mix(in oklab, var(--secondary) 55%, var(--foreground));
   padding: 10px 12px;
   border-radius: 14px;
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 .settingsNavItem:hover {
-  background: rgba(255, 255, 255, 0.55);
+  background: color-mix(in oklab, var(--card) 55%, transparent);
 }
 .settingsNavItem.is-active {
-  background: #fff;
-  color: #1d4e7a;
-  box-shadow: inset 3px 0 0 #ffd12e, 0 4px 12px rgba(29, 78, 122, 0.1);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: inset 3px 0 0 var(--accent), 0 4px 12px color-mix(in oklab, var(--foreground) 10%, transparent);
 }
 .settingsMain {
   display: flex;
@@ -427,7 +508,7 @@
   min-height: 0;
   height: 100%;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.98);
+  background: color-mix(in oklab, var(--card) 98%, transparent);
 }
 .settingsPane {
   flex: 1 1 auto;
@@ -454,13 +535,13 @@
   margin: 0 0 4px;
   font-size: clamp(22px, 3.5vw, 28px);
   font-weight: 900;
-  color: #1d4e7a;
+  color: var(--foreground);
 }
 .settingsPaneBlurb {
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 700;
-  color: #5a7a94;
+  color: var(--muted-foreground);
   line-height: 1.35;
 }
 .profileNameLabel {
@@ -478,16 +559,16 @@
   margin-top: 4px;
 }
 .gameSettingsCard {
-  border: 2px solid #d7e7f5;
+  border: 2px solid var(--border);
   border-radius: 18px;
-  background: #f8fcff;
+  background: color-mix(in oklab, var(--background) 50%, var(--card));
   overflow: hidden;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 .gameSettingsCard.is-open {
-  border-color: #4da3ff;
-  box-shadow: 0 6px 18px rgba(47, 123, 208, 0.12);
-  background: #fff;
+  border-color: var(--ring);
+  box-shadow: 0 6px 18px color-mix(in oklab, var(--secondary) 12%, transparent);
+  background: var(--card);
 }
 .gameSettingsCard.is-off {
   opacity: 0.72;
@@ -510,13 +591,13 @@
 .gameSettingsTitle {
   font-size: 17px;
   font-weight: 900;
-  color: #1d4e7a;
+  color: var(--foreground);
   line-height: 1.2;
 }
 .gameSettingsDesc {
   font-size: 12px;
   font-weight: 700;
-  color: #5a7a94;
+  color: var(--muted-foreground);
   line-height: 1.3;
 }
 /* Shared compact controls in settings rows (games + minigames) */
@@ -586,7 +667,7 @@
   align-items: stretch;
   padding: 3px;
   border-radius: 999px;
-  background: #e8f1f8;
+  background: var(--muted);
   gap: 2px;
 }
 .pillControl.is-disabled {
@@ -602,7 +683,7 @@
   appearance: none;
   border: none;
   background: transparent;
-  color: #3d6f96;
+  color: color-mix(in oklab, var(--secondary) 45%, var(--foreground));
   font: inherit;
   font-size: 13px;
   font-weight: 800;
@@ -613,9 +694,9 @@
   transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 .pillControlSeg.is-selected {
-  background: #fff;
-  color: #1d4e7a;
-  box-shadow: 0 1px 4px rgba(29, 78, 122, 0.14);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 1px 4px color-mix(in oklab, var(--foreground) 14%, transparent);
 }
 .pillControl--md .pillControlSeg {
   font-size: 15px;
@@ -628,7 +709,7 @@
   flex: 0 0 auto;
   font-size: 13px;
   font-weight: 800;
-  color: #2f6b9e;
+  color: color-mix(in oklab, var(--secondary) 55%, var(--foreground));
 }
 .settingsNumField--inline {
   flex-direction: row;
@@ -648,31 +729,31 @@
   font: inherit;
   font-size: 16px;
   font-weight: 800;
-  color: #1d4e7a;
+  color: var(--foreground);
   padding: 8px 10px;
-  border: 2px solid #c5d8ec;
+  border: 2px solid var(--border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--card);
   outline: none;
 }
 .settingsNumInput:focus {
-  border-color: #4da3ff;
-  box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.18);
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 18%, transparent);
 }
 .gameCustomizeBtn {
   appearance: none;
-  border: 1.5px solid #c5d8ec;
-  background: #fff;
-  color: #2f6b9e;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: color-mix(in oklab, var(--secondary) 55%, var(--foreground));
   font: inherit;
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 .gameCustomizeBtn:hover:not(:disabled) {
-  border-color: #4da3ff;
-  color: #1d4e7a;
-  background: #f3f9ff;
+  border-color: var(--ring);
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--background) 70%, var(--card));
 }
 .gameCustomizeBtn:disabled {
   opacity: 0.4;
@@ -680,8 +761,8 @@
 }
 .gameCurriculumPanel {
   padding: 8px 14px 16px;
-  border-top: 1px solid #e2ecf5;
-  background: linear-gradient(180deg, #f3f9ff 0%, #fff 28%);
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--background) 70%, var(--card)) 0%, var(--card) 28%);
   animation: settingsPaneIn 0.24s ease-out;
 }
 /* Equal-width action rows (settings footer, band actions, …) */
@@ -700,8 +781,8 @@
   justify-content: flex-end; /* physical left in RTL */
   flex-wrap: wrap;
   padding: 12px 16px 14px;
-  border-top: 1px solid #e2ecf5;
-  background: #f7fbff;
+  border-top: 1px solid var(--border);
+  background: color-mix(in oklab, var(--background) 50%, var(--card));
 }
 .settingsFooter .settingsBtn {
   flex: 0 0 auto;
@@ -739,33 +820,33 @@
   flex: 0 0 auto;
 }
 .settingsBtnPrimary {
-  background: #2f7bd0;
-  color: #fff;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
 }
 .settingsBtnPrimary:hover {
-  background: #2568b3;
+  background: color-mix(in oklab, var(--secondary) 85%, black);
 }
 .settingsBtnGhost {
-  background: #fff;
-  color: #2f6b9e;
-  border-color: #d0e0ef;
+  background: var(--card);
+  color: color-mix(in oklab, var(--secondary) 55%, var(--foreground));
+  border-color: var(--border);
 }
 .settingsBtnGhost:hover {
-  border-color: #4da3ff;
-  background: #f3f9ff;
+  border-color: var(--ring);
+  background: color-mix(in oklab, var(--background) 70%, var(--card));
 }
 .settingsBtnDanger {
-  background: #fff;
-  color: #b03a31;
-  border-color: #f0c8c4;
+  background: var(--card);
+  color: color-mix(in oklab, var(--destructive) 80%, black);
+  border-color: color-mix(in oklab, var(--destructive) 30%, var(--card));
 }
 .settingsBtnDanger:hover {
-  background: #fff5f4;
-  border-color: #e2574c;
+  background: color-mix(in oklab, var(--destructive) 6%, var(--card));
+  border-color: var(--destructive);
 }
 .curriculumIntro {
   margin: 4px 0 12px;
-  color: #3d6f96;
+  color: color-mix(in oklab, var(--secondary) 45%, var(--foreground));
   font-size: 14px;
   font-weight: 700;
   line-height: 1.45;
@@ -780,10 +861,10 @@
   margin-top: 6px;
 }
 .bandCard {
-  border: 2px solid #d7e7f5;
+  border: 2px solid var(--border);
   border-radius: 16px;
   padding: 12px;
-  background: #f8fcff;
+  background: color-mix(in oklab, var(--background) 50%, var(--card));
 }
 .bandCardHead {
   display: flex;
@@ -792,14 +873,14 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 800;
-  color: #2f6b9e;
+  color: color-mix(in oklab, var(--secondary) 55%, var(--foreground));
   margin-bottom: 8px;
 }
 .bandRemove {
   appearance: none;
   border: none;
   background: transparent;
-  color: #c0392b;
+  color: var(--destructive);
   font: inherit;
   font-size: 13px;
   font-weight: 800;
@@ -814,13 +895,13 @@
   margin: 14px 0 4px;
   padding: 12px;
   border-radius: 14px;
-  background: #f3f9ff;
-  border: 1.5px solid #d7e7f5;
+  background: color-mix(in oklab, var(--background) 70%, var(--card));
+  border: 1.5px solid var(--border);
 }
 .visualLegendTitle {
   font-size: 14px;
   font-weight: 900;
-  color: #1d4e7a;
+  color: var(--foreground);
   margin-bottom: 8px;
 }
 .visualLegendRows {
@@ -837,11 +918,11 @@
   font-weight: 800;
 }
 .visualLegendName {
-  color: #2f6b9e;
+  color: color-mix(in oklab, var(--secondary) 55%, var(--foreground));
   min-width: 3.5rem;
 }
 .visualLegendEx {
-  color: #1d4e7a;
+  color: var(--foreground);
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -874,7 +955,7 @@
   }
   .settingsSidebar {
     border-inline-start: none;
-    border-bottom: 1px solid rgba(77, 163, 255, 0.22);
+    border-bottom: 1px solid color-mix(in oklab, var(--ring) 22%, transparent);
     padding-bottom: 12px;
     overflow: visible;
   }
@@ -889,7 +970,7 @@
     padding: 8px 10px;
   }
   .settingsNavItem.is-active {
-    box-shadow: inset 0 -3px 0 #ffd12e, 0 4px 12px rgba(29, 78, 122, 0.1);
+    box-shadow: inset 0 -3px 0 var(--accent), 0 4px 12px color-mix(in oklab, var(--foreground) 10%, transparent);
   }
   .settingsAvatar {
     width: 72px;
@@ -897,34 +978,34 @@
   }
 }
 .formCard {
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in oklab, var(--card) 95%, transparent);
   border-radius: 24px;
   padding: 18px 18px 22px;
   width: min(94vw, 520px);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 10px 26px rgba(29, 78, 122, 0.16);
+  box-shadow: 0 10px 26px color-mix(in oklab, var(--foreground) 16%, transparent);
   direction: rtl;
 }
 .flabel {
   font-size: clamp(15px, 3vw, 18px);
   font-weight: 800;
-  color: #2f6b9e;
+  color: color-mix(in oklab, var(--secondary) 55%, var(--foreground));
   margin-top: 8px;
 }
 .finput {
   font-family: inherit;
   font-size: 20px;
   padding: 10px 14px;
-  border: 2px solid #c5d8ec;
+  border: 2px solid var(--border);
   border-radius: 14px;
-  color: #1d3550;
-  background: #fff;
+  color: var(--foreground);
+  background: var(--card);
 }
 .finput:focus {
   outline: none;
-  border-color: #4da3ff;
+  border-color: var(--ring);
 }
 .avatarGrid {
   display: flex;
@@ -937,12 +1018,12 @@
   gap: 8px;
   flex-wrap: wrap;
   padding: 8px 0;
-  border-top: 1px solid #e2ecf5;
+  border-top: 1px solid var(--border);
 }
 .gameRow .gName {
   font-size: 16px;
   font-weight: 800;
-  color: #1d4e7a;
+  color: var(--foreground);
   flex: 1;
 }
 .minigameSettingsList {
@@ -956,7 +1037,7 @@
   align-items: center;
   gap: 10px 14px;
   padding: 12px 0;
-  border-top: 1px solid #e2ecf5;
+  border-top: 1px solid var(--border);
 }
 .minigameSettingsHit {
   display: flex;
@@ -970,13 +1051,13 @@
 .minigameSettingsTitle {
   font-size: 16px;
   font-weight: 900;
-  color: #1d4e7a;
+  color: var(--foreground);
   line-height: 1.2;
 }
 .minigameSettingsDesc {
   font-size: 13px;
   font-weight: 700;
-  color: #5a7a94;
+  color: var(--muted-foreground);
   line-height: 1.3;
 }
 .advCharList {
@@ -990,7 +1071,7 @@
   align-items: center;
   gap: 10px 14px;
   padding: 12px 0;
-  border-top: 1px solid #e2ecf5;
+  border-top: 1px solid var(--border);
 }
 .advCharHit {
   display: flex;
@@ -1018,12 +1099,95 @@
 .advCharName {
   font-size: 16px;
   font-weight: 900;
-  color: #1d4e7a;
+  color: var(--foreground);
   line-height: 1.2;
 }
 .advCharMeta {
   font-size: 13px;
   font-weight: 700;
-  color: #5a7a94;
+  color: var(--muted-foreground);
   line-height: 1.3;
+}
+/*
+  ---break---
+*/
+@theme inline {
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --font-sans: var(--font-fredoka, system-ui), -apple-system, 'Segoe UI', 'Arial Hebrew', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, 'Arial Hebrew', monospace;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+/*
+  ---break---
+*/
+:root {
+  --radius: 1.75rem;
+  --background: #eaf6ff;
+  --foreground: #233554;
+  --card: #ffffff;
+  --card-foreground: #233554;
+  --popover: #ffffff;
+  --popover-foreground: #233554;
+  --primary: #f2582a;
+  --primary-foreground: #ffffff;
+  --secondary: #3a86f0;
+  --secondary-foreground: #ffffff;
+  --muted: #e2ecf5;
+  --muted-foreground: #5b6b82;
+  --accent: #ffd12e;
+  --accent-foreground: #233554;
+  --destructive: #e2574c;
+  --border: #d0e2f2;
+  --input: #d0e2f2;
+  --ring: #3a86f0;
+  --success: #2e9e5b;
+  --success-foreground: #ffffff;
+  --warning: #ffb238;
+  --warning-foreground: #233554;
+  --info: #3a86f0;
+  --info-foreground: #ffffff;
+}
+
+/*
+  Alufim-only tokens, outside the shared token contract. The boy/girl accent
+  colours answer and hear-again buttons (see player-gender-accent). Tints and
+  edges are derived with color-mix in the components.
+*/
+:root {
+  --boy: #3a86f0;
+  --girl: #e8457f;
+}
+
+@theme inline {
+  --color-boy: var(--boy);
+  --color-girl: var(--girl);
 }

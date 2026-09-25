@@ -16,7 +16,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-[rgba(20,40,70,.45)] backdrop-blur-[3px]",
+      "fixed inset-0 z-50 bg-foreground/45 backdrop-blur-[3px]",
       className
     )}
     {...props}
@@ -37,7 +37,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 w-[86%] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-panel bg-white p-7 shadow-panel animate-[pop_0.35s]",
+        "fixed left-1/2 top-1/2 z-50 w-[86%] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-panel bg-card p-7 shadow-panel animate-[pop_0.35s]",
         className
       )}
       {...props}
@@ -63,7 +63,7 @@ function DialogTitle({
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn("text-[clamp(24px,5vw,38px)] font-bold text-heading", className)}
+      className={cn("text-[clamp(24px,5vw,38px)] font-bold text-foreground", className)}
       {...props}
     />
   );
@@ -75,7 +75,7 @@ function DialogDescription({
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
-      className={cn("text-[19px] text-[#456]", className)}
+      className={cn("text-[19px] text-muted-foreground", className)}
       {...props}
     />
   );

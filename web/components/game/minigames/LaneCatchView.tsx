@@ -269,7 +269,7 @@ export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) 
 
       {telegraphing && (
         <div
-          className="pointer-events-none absolute top-[6%] z-[2] animate-jumpCuePulse text-[clamp(26px,7vw,40px)] leading-none"
+          className="pointer-events-none absolute top-[6%] z-2 animate-jumpCuePulse text-[clamp(26px,7vw,40px)] leading-none"
           style={{ left: `${laneCenter(telegraphing.lane, lanes) * 100}%` }}
           aria-hidden
         >
@@ -279,7 +279,7 @@ export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) 
 
       {falling && (
         <div
-          className="pointer-events-none absolute z-[3] text-[clamp(38px,10vw,64px)] leading-none drop-shadow-md"
+          className="pointer-events-none absolute z-3 text-[clamp(38px,10vw,64px)] leading-none drop-shadow-md"
           style={{
             left: `${laneCenter(falling.lane, lanes) * 100}%`,
             top: `${falling.y * 100}%`,
@@ -292,7 +292,7 @@ export function LaneCatchView({ session, formArt, onInput }: MinigameViewProps) 
       )}
 
       <div
-        className={`pointer-events-none absolute z-[4] ${
+        className={`pointer-events-none absolute z-4 ${
           wobble ? "animate-[laneCatchYuck_0.48s_ease-out]" : ""
         }`}
         style={{

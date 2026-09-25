@@ -64,6 +64,23 @@ New educational features flow through a git-based loop: **propose -> curate -> i
   from `playbooks/` by `make agents` and are gitignored. Edit the playbook, never the
   generated file. Run `make agents` (optionally `VENDORS=cursor`) to (re)build them.
 
+## Shared design system
+
+The UI's theme and base primitives come from the workspace's shared design system: the `@kids`
+shadcn registry in `Development/design-system` (decision:
+[Shared design system](/knowledge/decisions/shared-design-system.md)). Details:
+[`knowledge/technical/design-system.md`](knowledge/technical/design-system.md).
+
+- `web/components.json` pins a registry release tag. Upgrade by moving the tag and re-adding
+  the items with `--overwrite`, in one PR.
+- **A new UI piece that another game could use** goes into the registry first, then gets
+  installed here. Alufim-only game pieces live in `web/design-system/` and are built on
+  registry items and theme tokens.
+- **No raw colours in components.** Use theme tokens (`bg-primary`, `text-muted-foreground`,
+  `bg-success`…) or `color-mix()` of one. Raw colours live only in the theme blocks of
+  `web/app/globals.css`, and in illustration (scene, minigame art).
+- Fix a registry item in the registry, not only in the copy under `web/components/ui/`.
+
 ## Working in the app
 
 - App code and commands live in `web/` (`npm run dev`, `npm run build`, `npm test`).
