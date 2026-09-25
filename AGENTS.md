@@ -67,6 +67,10 @@ Until then:
 - **A new UI piece that another game could use** (a button style, a control, a game piece) goes
   into the registry first, then gets installed here. Don't add it only to
   `web/design-system/`.
+- **When moving:** pin the design-system release that includes `theme-alufim` (games install
+  from a release tag, never the dev server). Fix contrast first: in the draft theme, primary,
+  secondary, success and info fail WCAG against their foreground text (about 2.6–2.8:1; the
+  registry's `/tokens` docs page shows it).
 - **Raw colours** belong only in the theme (`tokens.ts` today, `theme-alufim` after the move),
   not in components.
 - Commit subjects and PR titles follow

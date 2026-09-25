@@ -61,7 +61,7 @@ The workspace now has one shared shadcn design system for every game: the `@kids
 `Development/design-system`, with a neutral base and a theme per game. Its segmented control
 was ported from this repo, and a draft `theme-alufim` is in the registry. Pitputim runs fully
 on it. Alufim follows after a Tailwind 4 upgrade, replacing these primitives with registry
-items plus `theme-alufim`. Until then this file stands, and new reusable pieces go into the
+items plus `theme-alufim`. Pin the release that includes `theme-alufim`, and fix the draft theme's contrast first: primary, secondary, success and info fail WCAG against their foreground text (about 2.6–2.8:1). Until then this file stands, and new reusable pieces go into the
 registry first. Decision:
 [Shared design system](/knowledge/decisions/shared-design-system.md).
 
